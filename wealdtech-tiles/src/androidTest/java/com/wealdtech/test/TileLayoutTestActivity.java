@@ -21,12 +21,12 @@ public class TileLayoutTestActivity extends Activity
 //
 //    final TextView textView2 = new TextView(this);
 //    textView2.setText("Text view 2");
-//    final TileView tileView2 = new TileView(textView1, 0, 2, 2, 2);
+//    final TileView tileView2 = new TileView(textView2, 0, 2, 2, 2);
 //    layout.addTile(tileView2);
 //
 //    final TextView textView3 = new TextView(this);
 //    textView3.setText("Text view 3");
-//    final TileView tileView3 = new TileView(textView1, 2, 2, 2, 2);
+//    final TileView tileView3 = new TileView(textView3, 2, 2, 2, 2);
 //    layout.addTile(tileView3);
   }
 }

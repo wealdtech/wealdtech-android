@@ -11,7 +11,6 @@ import android.view.WindowManager;
 public class TileLayout extends GridLayout
 {
   private transient int screenWidth;
-  private transient int screenHeight;
 
   public TileLayout(final Context context)
   {
@@ -40,13 +39,12 @@ public class TileLayout extends GridLayout
     wm.getDefaultDisplay().getSize(size);
 
     screenWidth = size.x;
-    screenHeight = size.y;
   }
 
   public void addTile(final TileView tileView)
   {
-    final Spec rowSpec = GridLayout.spec(tileView.x, tileView.width - tileView.x);
-    final Spec colSpec = GridLayout.spec(tileView.y, tileView.height - tileView.y);
+    final Spec colSpec = GridLayout.spec(tileView.x, tileView.width);
+    final Spec rowSpec = GridLayout.spec(tileView.y, tileView.height);
     GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, colSpec);
     params.width = screenWidth * tileView.width / 4;
     params.height = screenWidth * tileView.height / 4;
