@@ -1,4 +1,4 @@
-package com.wealdtech.android.widget;
+package com.wealdtech.android.widget.tiles;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -11,6 +11,9 @@ import android.view.WindowManager;
 public class TileLayout extends GridLayout
 {
   private transient int screenWidth;
+
+  private int curWidth = 1;
+  private int curHeight = 1;
 
   public TileLayout(final Context context)
   {
@@ -41,13 +44,13 @@ public class TileLayout extends GridLayout
     screenWidth = size.x;
   }
 
-  public void addTile(final TileView tileView)
+  public void addTile(final TileView tile)
   {
-    final Spec colSpec = GridLayout.spec(tileView.x, tileView.width);
-    final Spec rowSpec = GridLayout.spec(tileView.y, tileView.height);
+    final Spec colSpec = GridLayout.spec(curWidth++, tile.width);
+    final Spec rowSpec = GridLayout.spec(curHeight++, tile.height);
     GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, colSpec);
-    params.width = screenWidth * tileView.width / 4;
-    params.height = screenWidth * tileView.height / 4;
-    addView(tileView.view, params);
+    params.width = screenWidth * 1 / 4;
+    params.height = screenWidth * 1 / 4;
+    addView(tile.view, params);
   }
 }

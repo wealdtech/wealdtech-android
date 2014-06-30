@@ -8,9 +8,10 @@
         android:icon="@drawable/ic_launcher">
     </application>
 
-    <activity android:name="com.wealdtech.android.widget.JgmTestActivity">
+    <activity android:name="">
         <intent-filter>
             <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
         </intent-filter>
     </activity>
 </manifest>
