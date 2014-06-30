@@ -22,11 +22,14 @@ android {
       exclude 'META-INF/jersey-module-version'
     }
 
-    testPackageName "com.wealdtech.test"
-    testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
+//    testPackageName "com.wealdtech.test"
+//    testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
   }
 
   buildTypes {
+    debug {
+      runProguard false
+    }
     release {
       runProguard false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -40,6 +43,7 @@ dependencies {
   compile 'com.android.support:appcompat-v7:19.1.+'
 
   // Logging
+  compile 'org.slf4j:slf4j-api:1.7.6'
   compile 'com.github.tony19:logback-android-classic:1.1.1-2'
 
   // Testing

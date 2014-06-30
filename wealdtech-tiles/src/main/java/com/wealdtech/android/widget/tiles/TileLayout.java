@@ -5,11 +5,15 @@ import android.graphics.Point;
 import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
 import android.view.WindowManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class TileLayout extends GridLayout
 {
+  private static final Logger LOG = LoggerFactory.getLogger(TileLayout.class);
+
   private transient int screenWidth;
 
   private int curWidth = 1;
@@ -33,6 +37,7 @@ public class TileLayout extends GridLayout
 
   private void initLayout(final Context context)
   {
+    LOG.info("initLayout()");
 
     setColumnCount(4);
     setRowCount(4);
@@ -46,11 +51,13 @@ public class TileLayout extends GridLayout
 
   public void addTile(final TileView tile)
   {
+    LOG.info("addTile()");
+
+    final Spec rowSpec = GridLayout.spec(curHeight, tile.height);
     final Spec colSpec = GridLayout.spec(curWidth++, tile.width);
-    final Spec rowSpec = GridLayout.spec(curHeight++, tile.height);
     GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, colSpec);
-    params.width = screenWidth * 1 / 4;
-    params.height = screenWidth * 1 / 4;
+    params.width = screenWidth * tile.width / 4;
+    params.height = screenWidth * tile.height / 4;
     addView(tile.view, params);
   }
 }
