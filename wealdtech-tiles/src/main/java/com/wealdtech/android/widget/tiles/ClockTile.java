@@ -2,9 +2,9 @@ package com.wealdtech.android.widget.tiles;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.LinearLayout;
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,15 +13,9 @@ import java.util.Date;
 /**
  * A tile which shows a clock
  */
-public class ClockTile extends TileView<Date> implements DataChangedListener
+public class ClockTile extends Tile<Date> implements DataChangedListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(ClockTile.class);
-
-  @Override
-  public void onDataChanged()
-  {
-    refreshDisplay();
-  }
 
   private static class ViewHolder
   {
@@ -42,20 +36,30 @@ public class ClockTile extends TileView<Date> implements DataChangedListener
   public ClockTile(final Context context, final AttributeSet attrs, final int defStyle)
   {
     super(context, attrs, defStyle);
-    this.width = 1;
-    this.height = 1;
 
-    this.view = new LinearLayout(context);
+    LOG.error("Instantiating clock tile");
+    setTileRatio(1, 1);
 
-    this.holder.display = new Button(context);
+    view = new LinearLayout(context);
+    view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                              ViewGroup.LayoutParams.MATCH_PARENT));
 
-    this.view.addView(this.holder.display);
+    holder.display = new Button(context);
+    holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.MATCH_PARENT));
+
+    view.addView(holder.display);
+  }
+
+  @Override
+  public void onDataChanged()
+  {
+    refreshDisplay();
   }
 
   @Override
   public void refreshDisplay()
   {
-    LOG.info("refreshDisplay()");
-    this.holder.display.setText(provider.getData().toString());
+    holder.display.setText(provider.getData().toString());
   }
 }

@@ -10,35 +10,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  */
-public class ClockTileProvider implements TileProvider<Date>
+public class ClockTileProvider extends AbstractTileProvider<Date>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ClockTileProvider.class);
-
-  private final List<DataChangedListener> listeners = new ArrayList<>();
-
-  private Date data;
-
-  public Date getData()
-  {
-    return data;
-  }
-
-  @Override
-  public void addDataChangedListener(final DataChangedListener listener)
-  {
-    LOG.info("Adding data changed listener");
-    listeners.add(listener);
-  }
-
-  private void notifyListeners()
-  {
-    for (final DataChangedListener listener : listeners)
-    {
-      LOG.info("Notifying listener");
-      listener.onDataChanged();
-    }
-  }
-
   public ClockTileProvider()
   {
     new AsyncTask<Void, Date, String>()
@@ -48,9 +21,8 @@ public class ClockTileProvider implements TileProvider<Date>
       {
         while (true)
         {
-          LOG.info("tick");
-          data = new Date();
-          publishProgress(data);
+          setData(new Date());
+          publishProgress(getData());
           try
           {
             Thread.sleep(1000L);
