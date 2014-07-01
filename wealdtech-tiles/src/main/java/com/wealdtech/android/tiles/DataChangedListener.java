@@ -1,4 +1,4 @@
-package com.wealdtech.android.widget.tiles;
+package com.wealdtech.android.tiles;
 
 /**
  */

@@ -1,21 +1,18 @@
-package com.wealdtech.android.widget.tiles;
+package com.wealdtech.android.tiles;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-
 /**
- * A tile which shows a clock
+ * A tile which shows text
  */
-public class ClockTile extends Tile<Date> implements DataChangedListener
+public class TextTile extends Tile<String> implements DataChangedListener
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ClockTile.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TextTile.class);
 
   private static class ViewHolder
   {
@@ -23,32 +20,29 @@ public class ClockTile extends Tile<Date> implements DataChangedListener
   }
   private final ViewHolder holder = new ViewHolder();
 
-  public ClockTile(final Context context)
+  public TextTile(final Context context)
   {
     this(context, null, 0);
   }
 
-  public ClockTile(final Context context, final AttributeSet attrs)
+  public TextTile(final Context context, final AttributeSet attrs)
   {
     this(context, attrs, 0);
   }
 
-  public ClockTile(final Context context, final AttributeSet attrs, final int defStyle)
+  public TextTile(final Context context, final AttributeSet attrs, final int defStyle)
   {
     super(context, attrs, defStyle);
 
-    LOG.error("Instantiating clock tile");
-    setTileRatio(1, 1);
+    setTileRatio(2, 1);
 
-    view = new LinearLayout(context);
-    view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                              ViewGroup.LayoutParams.MATCH_PARENT));
+    setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
     holder.display = new Button(context);
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                         ViewGroup.LayoutParams.MATCH_PARENT));
 
-    view.addView(holder.display);
+    addView(holder.display);
   }
 
   @Override

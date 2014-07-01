@@ -1,15 +1,15 @@
-package com.wealdtech.android.widget.tiles;
+package com.wealdtech.android.tiles;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import com.wealdtech.android.R;
+import com.wealdtech.android.providers.Provider;
 
 /**
  */
-public abstract class Tile<T> extends View
+public abstract class Tile<T> extends LinearLayout
 {
   /** The width, in tilespaces */
   private int width = 1;
@@ -18,11 +18,8 @@ public abstract class Tile<T> extends View
   /** The scale */
   private int scale = 1;
 
-  /** The view containing the data */
-  protected ViewGroup view;
-
   /** The provider for the data */
-  protected TileProvider<T> provider;
+  protected Provider<T> provider;
 
   public Tile(final Context context)
   {
@@ -69,12 +66,7 @@ public abstract class Tile<T> extends View
     return height * scale;
   }
 
-  public ViewGroup getViewGroup()
-  {
-    return this.view;
-  }
-
-  public void setProvider(final TileProvider<T> provider)
+  public void setProvider(final Provider<T> provider)
   {
     this.provider = provider;
   }

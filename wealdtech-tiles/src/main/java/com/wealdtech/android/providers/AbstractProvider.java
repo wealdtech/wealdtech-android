@@ -1,23 +1,26 @@
-package com.wealdtech.android.widget.tiles;
+package com.wealdtech.android.providers;
 
-import android.os.AsyncTask;
+import com.wealdtech.android.tiles.DataChangedListener;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * A provider provides data.  The data provided can be accessed in one of two ways:
+ * <ul>
+ *   <li>Directly, by calling {@code getData()}</li>
+ *   <li>When the data changes, by adding a {@code DataChangedListener} through {@code addDataChangedListener()}</li>
+ * </ul>
  */
-public abstract class AbstractTileProvider<T> implements TileProvider<T>
+public abstract class AbstractProvider<T> implements Provider<T>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractTileProvider.class);
-
   private final List<DataChangedListener> listeners = new ArrayList<>();
 
   private T data;
 
+  /**
+   * Obtain the current data
+   */
   public T getData()
   {
     return data;

@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.wealdtech.android.widget.tiles.TileLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.wealdtech.android.tiles.TileLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                xmlns:wealdtech="http://schemas.android.com/apk/res-auto"
                                                android:layout_width="match_parent"
                                                android:layout_height="match_parent"
                                                android:id="@+id/test_layout">
 
-    <com.wealdtech.android.widget.tiles.ClockTile android:id="@+id/test_layout_clock_tile_1"
+    <com.wealdtech.android.tiles.TextTile android:id="@+id/test_layout_text_tile_1"
+                                           android:layout_width="match_parent"
+                                           android:layout_height="match_parent"/>
+    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_1"
                                                   android:layout_width="match_parent"
                                                   android:layout_height="match_parent"/>
-    <com.wealdtech.android.widget.tiles.ClockTile android:id="@+id/test_layout_clock_tile_2"
+    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_2"
                                                   android:layout_width="match_parent"
                                                   android:layout_height="match_parent"
                                                   wealdtech:scale="2"/>
-</com.wealdtech.android.widget.tiles.TileLayout>
+    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_3"
+                                                  android:layout_width="match_parent"
+                                                  android:layout_height="match_parent"
+                                                  wealdtech:scale="2"/>
+    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_4"
+                                                  android:layout_width="match_parent"
+                                                  android:layout_height="match_parent"
+                                                  wealdtech:scale="1"/>
+</com.wealdtech.android.tiles.TileLayout>

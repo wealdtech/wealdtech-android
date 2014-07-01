@@ -1,9 +1,11 @@
-package com.wealdtech.android.widget.tiles;
+package com.wealdtech.android.providers;
+
+import com.wealdtech.android.tiles.DataChangedListener;
 
 /**
  * A tile provider provides data to a tile
  */
-public interface TileProvider<T>
+public interface Provider<T>
 {
   T getData();
 

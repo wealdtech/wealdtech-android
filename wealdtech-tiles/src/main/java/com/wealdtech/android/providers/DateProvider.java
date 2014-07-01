@@ -1,18 +1,15 @@
-package com.wealdtech.android.widget.tiles;
+package com.wealdtech.android.providers;
 
 import android.os.AsyncTask;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
+ * Provide the date, updating every second
  */
-public class ClockTileProvider extends AbstractTileProvider<Date>
+public class DateProvider extends AbstractProvider<Date>
 {
-  public ClockTileProvider()
+  public DateProvider()
   {
     new AsyncTask<Void, Date, String>()
     {
