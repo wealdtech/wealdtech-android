@@ -5,8 +5,16 @@ package com.wealdtech.android.providers;
  */
 public class PresetTextProvider extends AbstractProvider<String>
 {
+  private final String text;
+
   public PresetTextProvider(final String text)
   {
-    setData(text);
+    super(0);
+    this.text = text;
+  }
+
+  public String obtainData()
+  {
+    return text;
   }
 }

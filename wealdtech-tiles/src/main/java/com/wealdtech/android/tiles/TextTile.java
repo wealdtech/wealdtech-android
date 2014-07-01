@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A tile which shows text
  */
-public class TextTile extends Tile<String> implements DataChangedListener
+public class TextTile extends Tile<String> implements DataChangedListener<String>
 {
   private static final Logger LOG = LoggerFactory.getLogger(TextTile.class);
 
@@ -46,7 +46,7 @@ public class TextTile extends Tile<String> implements DataChangedListener
   }
 
   @Override
-  public void onDataChanged()
+  public void onDataChanged(final String data)
   {
     refreshDisplay();
   }
@@ -54,6 +54,17 @@ public class TextTile extends Tile<String> implements DataChangedListener
   @Override
   public void refreshDisplay()
   {
-    holder.display.setText(provider.getData().toString());
+    LOG.error("refreshDisplay()");
+    if (provider != null &&
+        provider.getData() != null)
+    {
+      LOG.error("Setting text to " + provider.getData());
+      holder.display.setText(provider.getData());
+    }
+    else
+    {
+      LOG.error("No data to display");
+      holder.display.setText(null);
+    }
   }
 }

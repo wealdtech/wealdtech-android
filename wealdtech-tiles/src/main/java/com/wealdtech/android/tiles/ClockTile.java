@@ -4,22 +4,19 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.Button;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
 /**
  * A tile which shows a clock
  */
-public class ClockTile extends Tile<Date> implements DataChangedListener
+public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(ClockTile.class);
-
   private static class ViewHolder
   {
     public Button display;
   }
+
   private final ViewHolder holder = new ViewHolder();
 
   public ClockTile(final Context context)
@@ -36,20 +33,19 @@ public class ClockTile extends Tile<Date> implements DataChangedListener
   {
     super(context, attrs, defStyle);
 
-    LOG.error("Instantiating clock tile");
     setTileRatio(1, 1);
 
     setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
     holder.display = new Button(context);
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                        ViewGroup.LayoutParams.MATCH_PARENT));
+                                                              ViewGroup.LayoutParams.MATCH_PARENT));
 
     addView(holder.display);
   }
 
   @Override
-  public void onDataChanged()
+  public void onDataChanged(final Date data)
   {
     refreshDisplay();
   }
@@ -57,6 +53,14 @@ public class ClockTile extends Tile<Date> implements DataChangedListener
   @Override
   public void refreshDisplay()
   {
-    holder.display.setText(provider.getData().toString());
+    if (provider != null &&
+        provider.getData() != null)
+    {
+      holder.display.setText(provider.getData().toString());
+    }
+      else
+    {
+      holder.display.setText(null);
+    }
   }
 }

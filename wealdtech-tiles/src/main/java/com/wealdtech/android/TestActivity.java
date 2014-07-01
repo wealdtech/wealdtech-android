@@ -37,7 +37,7 @@ public class TestActivity extends Activity
 
     final TextTile textTile1 = (TextTile)findViewById(R.id.test_layout_text_tile_1);
     textTile1.setProvider(textProvider);
-    clockProvider.addDataChangedListener(textTile1);
+    textProvider.addDataChangedListener(textTile1);
 
     final ClockTile clockTile1 = (ClockTile)findViewById(R.id.test_layout_clock_tile_1);
     clockTile1.setProvider(clockProvider);
@@ -54,5 +54,8 @@ public class TestActivity extends Activity
     final ClockTile clockTile4 = (ClockTile)findViewById(R.id.test_layout_clock_tile_4);
     clockTile4.setProvider(clockProvider);
     clockProvider.addDataChangedListener(clockTile4);
+
+    clockProvider.startProviding();
+    textProvider.startProviding();
   }
 }

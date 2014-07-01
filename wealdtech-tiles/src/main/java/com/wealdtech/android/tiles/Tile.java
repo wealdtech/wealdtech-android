@@ -69,6 +69,7 @@ public abstract class Tile<T> extends LinearLayout
   public void setProvider(final Provider<T> provider)
   {
     this.provider = provider;
+    refreshDisplay();
   }
 
   public void setScale(final int scale)

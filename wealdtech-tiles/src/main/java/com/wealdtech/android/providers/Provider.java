@@ -7,7 +7,20 @@ import com.wealdtech.android.tiles.DataChangedListener;
  */
 public interface Provider<T>
 {
+  /**
+   * Obtain the current data
+   */
   T getData();
 
-  void addDataChangedListener(DataChangedListener listener);
+  /**
+   * Add a listener
+   * @param listener
+   */
+  void addDataChangedListener(DataChangedListener<T> listener);
+
+  void startProviding();
+
+  void stopProviding();
+
+  boolean isProviding();
 }

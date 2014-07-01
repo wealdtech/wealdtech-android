@@ -2,7 +2,7 @@ package com.wealdtech.android.tiles;
 
 /**
  */
-public interface DataChangedListener
+public interface DataChangedListener<T>
 {
-  void onDataChanged();
+  void onDataChanged(T data);
 }
