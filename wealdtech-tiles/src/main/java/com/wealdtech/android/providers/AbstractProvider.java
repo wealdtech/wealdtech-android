@@ -103,7 +103,8 @@ public abstract class AbstractProvider<T> implements Provider<T>
     }
 
     listeners.add(listener);
-    notifyListeners();
+    // Give the listener a back reference to us.  This also triggers a refresh of the listener
+    listener.setProvider(this);
   }
 
   protected void notifyListeners()

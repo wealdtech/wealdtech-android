@@ -3,6 +3,7 @@ package com.wealdtech.android.tiles;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import com.wealdtech.android.R;
 import com.wealdtech.android.providers.Provider;
@@ -34,6 +35,9 @@ public abstract class Tile<T> extends LinearLayout
   public Tile(final Context context, final AttributeSet attrs, final int defStyle)
   {
     super(context, attrs, defStyle);
+
+    setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
     final TypedArray a = context.obtainStyledAttributes(attrs,
                                                   R.styleable.Tile);
 

@@ -36,23 +36,18 @@ public class TestActivity extends Activity
     final Provider<String> textProvider = new PresetTextProvider("Hello, world");
 
     final TextTile textTile1 = (TextTile)findViewById(R.id.test_layout_text_tile_1);
-    textTile1.setProvider(textProvider);
     textProvider.addDataChangedListener(textTile1);
 
     final ClockTile clockTile1 = (ClockTile)findViewById(R.id.test_layout_clock_tile_1);
-    clockTile1.setProvider(clockProvider);
     clockProvider.addDataChangedListener(clockTile1);
 
     final ClockTile clockTile2 = (ClockTile)findViewById(R.id.test_layout_clock_tile_2);
-    clockTile2.setProvider(clockProvider);
     clockProvider.addDataChangedListener(clockTile2);
 
     final ClockTile clockTile3 = (ClockTile)findViewById(R.id.test_layout_clock_tile_3);
-    clockTile3.setProvider(clockProvider);
     clockProvider.addDataChangedListener(clockTile3);
 
     final ClockTile clockTile4 = (ClockTile)findViewById(R.id.test_layout_clock_tile_4);
-    clockTile4.setProvider(clockProvider);
     clockProvider.addDataChangedListener(clockTile4);
 
     clockProvider.startProviding();
