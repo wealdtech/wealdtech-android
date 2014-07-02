@@ -64,10 +64,6 @@ public abstract class AbstractProvider<T> implements Provider<T>
         }
       }.execute(null, null, null);
     }
-    else
-    {
-      LOG.warn("Request to start periodic provision with illegal update interval");
-    }
   }
 
   public void stopProviding()
