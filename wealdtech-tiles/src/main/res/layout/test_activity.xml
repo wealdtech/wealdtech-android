@@ -24,11 +24,11 @@
     <com.wealdtech.android.tiles.MultiTextTile android:id="@+id/test_layout_multi_text_tile_1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        wealdtech:scale="2"/>
+        wealdtech:tile_scale="2"/>
     <com.wealdtech.android.tiles.MultiTextTile android:id="@+id/test_layout_multi_text_tile_2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        wealdtech:scale="1"/>
+        wealdtech:tile_scale="1"/>
     <com.wealdtech.android.tiles.TextTile android:id="@+id/test_layout_text_tile_2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

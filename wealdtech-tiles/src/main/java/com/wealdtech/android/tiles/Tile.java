@@ -39,16 +39,23 @@ public abstract class Tile<T> extends FrameLayout
     setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     setBackgroundResource(R.drawable.tile_border);
 
-    final TypedArray a = context.obtainStyledAttributes(attrs,
-                                                  R.styleable.Tile);
+    final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Tile);
 
     final int N = a.getIndexCount();
     for (int i = 0; i < N; ++i)
     {
       int attr = a.getIndex(i);
-      if (attr == R.styleable.Tile_scale)
+      if (attr == R.styleable.Tile_tile_scale)
       {
         setScale(a.getInteger(attr, 1));
+      }
+      else if (attr == R.styleable.Tile_tile_width)
+      {
+        width = a.getInteger(attr, width);
+      }
+      else if (attr == R.styleable.Tile_tile_height)
+      {
+        height = a.getInteger(attr, height);
       }
     }
     a.recycle();

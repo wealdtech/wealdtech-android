@@ -80,6 +80,10 @@ public abstract class AbstractProvider<T> implements Provider<T>
 
   public T getData()
   {
+    if (data == null)
+    {
+      data = obtainData();
+    }
     return data;
   }
 
@@ -92,12 +96,6 @@ public abstract class AbstractProvider<T> implements Provider<T>
   @Override
   public void addDataChangedListener(final DataChangedListener<T> listener)
   {
-    if (data == null)
-    {
-      // Hard-code a fetch if we don't have anything yet
-      data = obtainData();
-    }
-
     listeners.add(listener);
     // Give the listener a back reference to us.  This also triggers a refresh of the listener
     listener.setProvider(this);

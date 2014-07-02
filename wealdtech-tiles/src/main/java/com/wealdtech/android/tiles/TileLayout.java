@@ -21,7 +21,7 @@ public class TileLayout extends GridLayout
   private transient int screenWidth;
   private boolean[][] available;
 
-  private int rows = 5;
+  private int rows = 4;
   private int cols = 4;
   private int margins = 3;
 
@@ -155,5 +155,62 @@ public class TileLayout extends GridLayout
     final Tile tile = (Tile)child;
     final GridLayout.LayoutParams spec = getSpec(tile, params);
     super.addView(tile, index, spec);
+
+    child.setClickable(true);
+    child.setOnClickListener(new ExpandClickListener());
+  }
+
+  public class ExpandClickListener implements OnClickListener
+  {
+    @Override
+    public void onClick(final View v)
+    {
+      final GridLayout.LayoutParams spec = new GridLayout.LayoutParams(v.getLayoutParams());
+
+      final OnClickListener contractClickListener = new ContractClickListener(spec.columnSpec, spec.rowSpec, spec.width, spec.height);
+      LOG.error("ExpandClickListener: Old spec is {}/{}/{}/{}", spec.columnSpec, spec.rowSpec, spec.width, spec.height);
+      spec.columnSpec = GridLayout.spec(0, cols);
+      spec.rowSpec = GridLayout.spec(0, rows);
+      spec.width = screenWidth;
+      spec.height = screenWidth;
+      removeView(v);
+      v.setLayoutParams(spec);
+      addView(v);
+      LOG.error("ExpandClickListener: New spec is {}/{}/{}/{}", spec.columnSpec, spec.rowSpec, spec.width, spec.height);
+      v.setOnClickListener(contractClickListener);
+      v.bringToFront();
+    }
+  }
+
+  public class ContractClickListener implements OnClickListener
+  {
+    Spec columnSpec;
+    Spec rowSpec;
+    int width;
+    int height;
+
+    public ContractClickListener(final Spec columnSpec, final Spec rowSpec, final int width, final int height)
+    {
+      this.columnSpec = columnSpec;
+      this.rowSpec = rowSpec;
+      this.width = width;
+      this.height = height;
+      LOG.error("ContractClickListener: Retained spec is {}/{}/{}/{}", columnSpec, rowSpec, width, height);
+    }
+
+    public void onClick(final View v)
+    {
+      final GridLayout.LayoutParams spec = new GridLayout.LayoutParams(v.getLayoutParams());
+      LOG.error("ContractClickListener: Old spec was {}/{}/{}/{}", spec.columnSpec, spec.rowSpec, spec.width, spec.height);
+      spec.columnSpec = columnSpec;
+      spec.rowSpec = rowSpec;
+      spec.width = width;
+      spec.height = height;
+      removeView(v);
+      v.setLayoutParams(spec);
+      addView(v);
+      LOG.error("ContractClickListener: New spec is {}/{}/{}/{}", spec.columnSpec, spec.rowSpec, spec.width, spec.height);
+      v.setOnClickListener(new ExpandClickListener());
+    }
   }
 }
