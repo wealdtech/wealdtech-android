@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.Button;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -12,6 +14,8 @@ import java.util.Date;
  */
 public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
 {
+  private static final Logger LOG = LoggerFactory.getLogger(ClockTile.class);
+
   private static class ViewHolder
   {
     public Button display;
@@ -32,8 +36,6 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
   public ClockTile(final Context context, final AttributeSet attrs, final int defStyle)
   {
     super(context, attrs, defStyle);
-
-    setTileRatio(1, 1);
 
     holder.display = new Button(context);
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,

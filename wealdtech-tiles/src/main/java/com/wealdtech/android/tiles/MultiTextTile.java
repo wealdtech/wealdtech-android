@@ -36,8 +36,6 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
   {
     super(context, attrs, defStyle);
 
-    setTileRatio(1, 1);
-
     final LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     inflater.inflate(R.layout.test_multi_text, this, true);
     holder.text1 = (TextView)findViewById(R.id.test_multi_text_1);

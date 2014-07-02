@@ -18,6 +18,7 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   {
     public Button display;
   }
+
   private final ViewHolder holder = new ViewHolder();
 
   public TextTile(final Context context)
@@ -34,11 +35,9 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   {
     super(context, attrs, defStyle);
 
-    setTileRatio(2, 1);
-
     holder.display = new Button(context);
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                        ViewGroup.LayoutParams.MATCH_PARENT));
+                                                              ViewGroup.LayoutParams.MATCH_PARENT));
 
     addView(holder.display);
   }
@@ -53,8 +52,7 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   public void refreshDisplay()
   {
     LOG.error("refreshDisplay()");
-    if (provider != null &&
-        provider.getData() != null)
+    if (provider != null && provider.getData() != null)
     {
       LOG.error("Setting text to " + provider.getData());
       holder.display.setText(provider.getData());
