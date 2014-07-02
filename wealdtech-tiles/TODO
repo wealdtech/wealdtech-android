@@ -1,0 +1,12 @@
+Configure tile expansion
+  - allow/disallow
+  - notifications back to tile
+
+Animate tile expansion/contraction
+
+Add controls
+  - layer on top?
+  - additional controls when tile is expanded?
+
+Tile width should be smaller of width or height
+  - 
