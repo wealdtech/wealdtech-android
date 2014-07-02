@@ -84,10 +84,10 @@ public abstract class Tile<T> extends FrameLayout
 
   public static class LayoutParams extends ViewGroup.LayoutParams
   {
-    int top = 0;
-    int left = 0;
-    int colSpan = 1;
-    int rowSpan = 1;
+    public int top = -1;
+    public int left = -1;
+    public int colSpan = 1;
+    public int rowSpan = 1;
 
     public LayoutParams()
     {
@@ -103,8 +103,8 @@ public abstract class Tile<T> extends FrameLayout
     {
       super(context, attrs);
       final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Tile);
-      top = a.getInt(R.styleable.Tile_tile_top, 0);
-      left = a.getInt(R.styleable.Tile_tile_left, 0);
+      top = a.getInt(R.styleable.Tile_tile_top, top);
+      left = a.getInt(R.styleable.Tile_tile_left, left);
       colSpan = a.getInt(R.styleable.Tile_tile_colspan, 1);
       rowSpan = a.getInt(R.styleable.Tile_tile_rowspan, 1);
       a.recycle();
