@@ -10,6 +10,8 @@ import android.view.WindowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+
 /**
  */
 public class TileLayout extends GridLayout
@@ -17,10 +19,11 @@ public class TileLayout extends GridLayout
   private static final Logger LOG = LoggerFactory.getLogger(TileLayout.class);
 
   private transient int screenWidth;
-
   private boolean[][] available;
-  private int rows = 4;
+
+  private int rows = 5;
   private int cols = 4;
+  private int margins = 3;
 
   public TileLayout(final Context context)
   {
@@ -57,11 +60,6 @@ public class TileLayout extends GridLayout
     wm.getDefaultDisplay().getSize(size);
 
     screenWidth = size.x < size.y - 120 ? size.x : size.y - 120;
-  }
-
-  private GridLayout.LayoutParams getSpec(final Tile tile)
-  {
-    return getSpec(tile, null);
   }
 
   private GridLayout.LayoutParams getSpec(final Tile tile, ViewGroup.LayoutParams specIn)
@@ -113,8 +111,11 @@ public class TileLayout extends GridLayout
                 spec.rowSpec = rowSpec;
                 spec.columnSpec = colSpec;
               }
-              spec.width = screenWidth * tile.getTileWidth() / cols;
-              spec.height = screenWidth * tile.getTileHeight() / rows;
+              int tileSize = (screenWidth / cols) - (2 * margins);
+              spec.width = tileSize * tile.getTileWidth() + ((tile.getTileWidth() - 1) * 2 * margins);
+              spec.height = tileSize * tile.getTileHeight() + ((tile.getTileHeight() - 1) * 2 * margins);
+
+              spec.setMargins(margins, margins, margins, margins);
               return spec;
             }
           }
@@ -127,25 +128,25 @@ public class TileLayout extends GridLayout
   }
 
   @Override
-  public void addView(final View child)
+  public void addView(@Nonnull final View child)
   {
     addView(child, -1, null);
   }
 
   @Override
-  public void addView(final View child, final int index)
+  public void addView(@Nonnull final View child, final int index)
   {
     addView(child, index, null);
   }
 
   @Override
-  public void addView(final View child, final ViewGroup.LayoutParams params)
+  public void addView(@Nonnull final View child, final ViewGroup.LayoutParams params)
   {
     addView(child, -1, params);
   }
 
   @Override
-  public void addView(final View child, final int index, final ViewGroup.LayoutParams params)
+  public void addView(@Nonnull final View child, final int index, final ViewGroup.LayoutParams params)
   {
     if (!(child instanceof Tile))
     {

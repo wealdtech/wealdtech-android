@@ -37,18 +37,24 @@ public class TestActivity extends Activity
 
     final TextTile textTile1 = (TextTile)findViewById(R.id.test_layout_text_tile_1);
     textProvider.addDataChangedListener(textTile1);
+    final TextTile textTile2 = (TextTile)findViewById(R.id.test_layout_text_tile_2);
+    textProvider.addDataChangedListener(textTile2);
+    final TextTile textTile3 = (TextTile)findViewById(R.id.test_layout_text_tile_3);
+    textProvider.addDataChangedListener(textTile3);
 
     final ClockTile clockTile1 = (ClockTile)findViewById(R.id.test_layout_clock_tile_1);
     clockProvider.addDataChangedListener(clockTile1);
-
     final ClockTile clockTile2 = (ClockTile)findViewById(R.id.test_layout_clock_tile_2);
     clockProvider.addDataChangedListener(clockTile2);
-
     final ClockTile clockTile3 = (ClockTile)findViewById(R.id.test_layout_clock_tile_3);
     clockProvider.addDataChangedListener(clockTile3);
-
     final ClockTile clockTile4 = (ClockTile)findViewById(R.id.test_layout_clock_tile_4);
     clockProvider.addDataChangedListener(clockTile4);
+
+    final MultiTextTile multiTextTile1 = (MultiTextTile)findViewById(R.id.test_layout_multi_text_tile_1);
+    textProvider.addDataChangedListener(multiTextTile1);
+    final MultiTextTile multiTextTile2 = (MultiTextTile)findViewById(R.id.test_layout_multi_text_tile_2);
+    textProvider.addDataChangedListener(multiTextTile2);
 
     clockProvider.startProviding();
     textProvider.startProviding();
