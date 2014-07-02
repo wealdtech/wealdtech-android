@@ -84,18 +84,18 @@ public class TileLayout extends ViewGroup
     if (changed || childAltered)
     {
       childAltered = false;
-      int width = (int)(r - l);
+      int width = (int) (r - l);
       int side = width / columns;
       int children = getChildCount();
       View child = null;
       for (int i = 0; i < children; i++)
       {
         child = getChildAt(i);
-        final Tile.LayoutParams lp = (Tile.LayoutParams)child.getLayoutParams();
-        int left = (int)(lp.left * side + spacing / 2);
-        int right = (int)((lp.left + lp.colSpan) * side - spacing / 2);
-        int top = (int)(lp.top * side + spacing / 2);
-        int bottom = (int)((lp.top + lp.rowSpan) * side - spacing / 2);
+        final Tile.LayoutParams lp = (Tile.LayoutParams) child.getLayoutParams();
+        int left = (int) (lp.left * side + spacing / 2);
+        int right = (int) ((lp.left + lp.colSpan) * side - spacing / 2);
+        int top = (int) (lp.top * side + spacing / 2);
+        int bottom = (int) ((lp.top + lp.rowSpan) * side - spacing / 2);
         child.layout(left, top, right, bottom);
       }
     }
@@ -132,16 +132,17 @@ public class TileLayout extends ViewGroup
     {
       child = getChildAt(i);
 
-      Tile.LayoutParams lp = (Tile.LayoutParams)child.getLayoutParams();
+      Tile.LayoutParams lp = (Tile.LayoutParams) child.getLayoutParams();
 
-      if (lp.top + lp.rowSpan > row) {
+      if (lp.top + lp.rowSpan > row)
+      {
         row = lp.top + lp.rowSpan;
       }
 
       int childHeight = lp.rowSpan * side;
       int childWidth = lp.colSpan * side;
-      int heightSpec = MeasureSpec.makeMeasureSpec(childHeight, LayoutParams.MATCH_PARENT);
-      int widthSpec = MeasureSpec.makeMeasureSpec(childWidth, LayoutParams.MATCH_PARENT);
+      int heightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
+      int widthSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
 
       child.measure(widthSpec, heightSpec);
     }
@@ -158,7 +159,7 @@ public class TileLayout extends ViewGroup
     {
       throw new RuntimeException("Must add tiles to tile layout");
     }
-    final Tile tile = (Tile)child;
+    final Tile tile = (Tile) child;
     final Tile.LayoutParams spec = getChildSpec(tile, params);
     super.addView(tile, index, spec);
     child.setClickable(true);
@@ -167,13 +168,14 @@ public class TileLayout extends ViewGroup
 
   /**
    * Get the specification for a child tile
+   *
    * @param tile
    * @param spec
    * @return
    */
   private Tile.LayoutParams getChildSpec(final Tile tile, ViewGroup.LayoutParams spec)
   {
-    final Tile.LayoutParams params = (Tile.LayoutParams)tile.getLayoutParams();
+    final Tile.LayoutParams params = (Tile.LayoutParams) tile.getLayoutParams();
     // TODO set top/left if they are not present
     return params;
   }
@@ -280,7 +282,7 @@ public class TileLayout extends ViewGroup
     @Override
     public void onClick(final View v)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams)v.getLayoutParams();
+      final Tile.LayoutParams spec = (Tile.LayoutParams) v.getLayoutParams();
 
       final OnClickListener contractClickListener = new ContractClickListener(spec.left, spec.top, spec.colSpan, spec.rowSpan);
       spec.top = 0;
@@ -311,7 +313,7 @@ public class TileLayout extends ViewGroup
 
     public void onClick(final View v)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams)v.getLayoutParams();
+      final Tile.LayoutParams spec = (Tile.LayoutParams) v.getLayoutParams();
       spec.left = left;
       spec.top = top;
       spec.colSpan = colSpan;

@@ -19,6 +19,8 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
   {
     public TextView text1;
     public TextView text2;
+    public TextView text3;
+    public TextView text4;
   }
   private final ViewHolder holder = new ViewHolder();
 
@@ -40,6 +42,8 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
     inflater.inflate(R.layout.test_multi_text, this, true);
     holder.text1 = (TextView)findViewById(R.id.test_multi_text_1);
     holder.text2 = (TextView)findViewById(R.id.test_multi_text_2);
+    holder.text3 = (TextView)findViewById(R.id.test_multi_text_3);
+    holder.text4 = (TextView)findViewById(R.id.test_multi_text_4);
   }
 
   @Override
@@ -56,11 +60,15 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
     {
       holder.text1.setText(provider.getData());
       holder.text2.setText(provider.getData());
+      holder.text3.setText(provider.getData());
+      holder.text4.setText(provider.getData());
     }
     else
     {
       holder.text1.setText(null);
       holder.text2.setText(null);
+      holder.text3.setText(null);
+      holder.text4.setText(null);
     }
   }
 }
