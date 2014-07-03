@@ -1,78 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <com.wealdtech.android.tiles.TileLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                        xmlns:wealdtech="http://schemas.android.com/apk/res-auto"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:id="@+id/test_layout"
-                                        wealdtech:columns="4"
-                                        wealdtech:rows="4"
-                                        wealdtech:spacing="3dp">
+    xmlns:wealdtech="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/test_layout"
+    wealdtech:columns="4"
+    wealdtech:rows="4"
+    wealdtech:spacing="5dp">
 
-    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_1"
-                                           android:layout_width="match_parent"
-                                           android:layout_height="match_parent"
-                                           wealdtech:tile_top="0"
-                                           wealdtech:tile_left="0"
-                                           wealdtech:tile_colspan="1"
-                                           wealdtech:tile_rowspan="1"/>
-    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_2"
-                                           android:layout_width="match_parent"
-                                           android:layout_height="match_parent"
-                                           wealdtech:tile_top="0"
-                                           wealdtech:tile_left="1"
-                                           wealdtech:tile_rowspan="1"
-                                           wealdtech:tile_colspan="1"/>
-    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_3"
-                                           android:layout_width="match_parent"
-                                           android:layout_height="match_parent"
-                                           wealdtech:tile_top="0"
-                                           wealdtech:tile_left="2"
-                                           wealdtech:tile_rowspan="1"
-                                           wealdtech:tile_colspan="1"/>
-    <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_4"
-                                           android:layout_width="match_parent"
-                                           android:layout_height="match_parent"
-                                           wealdtech:tile_top="3"
-                                           wealdtech:tile_left="1"
-                                           wealdtech:tile_rowspan="1"
-                                           wealdtech:tile_colspan="2"/>
-    <com.wealdtech.android.tiles.TextTile android:id="@+id/test_layout_text_tile_1"
-                                          android:layout_width="match_parent"
-                                          android:layout_height="match_parent"
-                                          wealdtech:tile_top="1"
-                                          wealdtech:tile_left="0"
-                                          wealdtech:tile_rowspan="1"
-                                          wealdtech:tile_colspan="1"/>
+    <com.wealdtech.android.tiles.ClockTile
+        android:id="@+id/test_layout_clock_tile_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="0"
+        wealdtech:tile_left="0"
+        wealdtech:tile_colspan="1"
+        wealdtech:tile_rowspan="1" />
 
-    <com.wealdtech.android.tiles.MultiTextTile android:id="@+id/test_layout_multi_text_tile_1"
-                                               android:layout_width="match_parent"
-                                               android:layout_height="match_parent"
-                                               wealdtech:tile_top="1"
-                                               wealdtech:tile_left="1"
-                                               wealdtech:tile_rowspan="2"
-                                               wealdtech:tile_colspan="2"/>
-    <com.wealdtech.android.tiles.MultiTextTile android:id="@+id/test_layout_multi_text_tile_2"
-                                               android:layout_width="match_parent"
-                                               android:layout_height="match_parent"
-                                               wealdtech:tile_top="1"
-                                               wealdtech:tile_left="3"
-                                               wealdtech:tile_rowspan="1"
-                                               wealdtech:tile_colspan="1"/>
-    <com.wealdtech.android.tiles.TextTile android:id="@+id/test_layout_text_tile_2"
-                                          android:layout_width="match_parent"
-                                          android:layout_height="match_parent"
-                                          wealdtech:tile_top="2"
-                                          wealdtech:tile_left="0"
-                                          wealdtech:tile_rowspan="2"
-                                          wealdtech:tile_colspan="1"/>
-    <com.wealdtech.android.tiles.TextTile android:id="@+id/test_layout_text_tile_3"
-                                          android:layout_width="match_parent"
-                                          android:layout_height="match_parent"
-                                          wealdtech:tile_top="3"
-                                          wealdtech:tile_left="3"
-                                          wealdtech:tile_rowspan="1"
-                                          wealdtech:tile_colspan="1"/>
+    <com.wealdtech.android.tiles.ClockTile
+        android:id="@+id/test_layout_clock_tile_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="0"
+        wealdtech:tile_left="1"
+        wealdtech:tile_rowspan="1"
+        wealdtech:tile_colspan="1"
+        wealdtech:tile_expandable="false" />
+
+    <com.wealdtech.android.tiles.ClockTile
+        android:id="@+id/test_layout_clock_tile_3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="0"
+        wealdtech:tile_left="2"
+        wealdtech:tile_rowspan="1"
+        wealdtech:tile_colspan="1"
+        wealdtech:tile_expandable="false" />
+
+    <com.wealdtech.android.tiles.ClockTile
+        android:id="@+id/test_layout_clock_tile_4"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="3"
+        wealdtech:tile_left="1"
+        wealdtech:tile_rowspan="1"
+        wealdtech:tile_colspan="2" />
+
+    <com.wealdtech.android.tiles.TextTile
+        android:id="@+id/test_layout_text_tile_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="1"
+        wealdtech:tile_left="0"
+        wealdtech:tile_rowspan="1"
+        wealdtech:tile_colspan="1" />
+
+    <com.wealdtech.android.tiles.MultiTextTile
+        android:id="@+id/test_layout_multi_text_tile_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="1"
+        wealdtech:tile_left="1"
+        wealdtech:tile_rowspan="2"
+        wealdtech:tile_colspan="2" />
+
+    <com.wealdtech.android.tiles.MultiTextTile
+        android:id="@+id/test_layout_multi_text_tile_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="1"
+        wealdtech:tile_left="3"
+        wealdtech:tile_rowspan="1"
+        wealdtech:tile_colspan="1" />
+
+    <com.wealdtech.android.tiles.TextTile
+        android:id="@+id/test_layout_text_tile_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="2"
+        wealdtech:tile_left="0"
+        wealdtech:tile_rowspan="2"
+        wealdtech:tile_colspan="1" />
+
+    <com.wealdtech.android.tiles.TextTile
+        android:id="@+id/test_layout_text_tile_3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        wealdtech:tile_top="3"
+        wealdtech:tile_left="3"
+        wealdtech:tile_rowspan="1"
+        wealdtech:tile_colspan="1" />
 
     <!--
         <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_1"

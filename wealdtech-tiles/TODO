@@ -1,5 +1,4 @@
 Configure tile expansion
-  - allow/disallow
   - notifications back to tile
 
 Animate tile expansion/contraction
@@ -9,4 +8,6 @@ Add controls
   - additional controls when tile is expanded?
 
 Tile width should be smaller of width or height
-  - 
+
+Tile calculations incorrect
+  - need to work out location and size including spacing

@@ -1,6 +1,7 @@
 package com.wealdtech.android.tiles;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A tile which shows text
  */
-public class TextTile extends Tile<String> implements DataChangedListener<String>
+public class TextTile extends Tile<String> implements DataChangedListener<String>, TileExpandedListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(TextTile.class);
 
@@ -63,4 +64,17 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
       holder.display.setText(null);
     }
   }
+
+  @Override
+  public void onTileExpanded()
+  {
+    holder.display.setTextColor(Color.BLUE);
+  }
+
+  @Override
+  public void onTileContracted()
+  {
+    holder.display.setTextColor(Color.WHITE);
+  }
+
 }

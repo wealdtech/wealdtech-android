@@ -20,6 +20,8 @@ public abstract class Tile<T> extends FrameLayout
   private int colSpan = 1;
   /** The height, in tilespaces */
   private int rowSpan = 1;
+  /** If this tile can be expanded */
+  private boolean expandable = true;
 
   /** The provider for the data */
   protected Provider<T> provider;
@@ -67,6 +69,11 @@ public abstract class Tile<T> extends FrameLayout
         rowSpan = a.getInteger(attr, rowSpan);
         params.rowSpan = rowSpan;
       }
+      else if (attr == R.styleable.Tile_tile_expandable)
+      {
+        expandable = a.getBoolean(attr, expandable);
+        params.expandable = expandable;
+      }
     }
     a.recycle();
 
@@ -88,6 +95,7 @@ public abstract class Tile<T> extends FrameLayout
     public int left = -1;
     public int colSpan = 1;
     public int rowSpan = 1;
+    public boolean expandable = true;
 
     public LayoutParams()
     {
@@ -105,8 +113,9 @@ public abstract class Tile<T> extends FrameLayout
       final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Tile);
       top = a.getInt(R.styleable.Tile_tile_top, top);
       left = a.getInt(R.styleable.Tile_tile_left, left);
-      colSpan = a.getInt(R.styleable.Tile_tile_colspan, 1);
-      rowSpan = a.getInt(R.styleable.Tile_tile_rowspan, 1);
+      colSpan = a.getInt(R.styleable.Tile_tile_colspan, colSpan);
+      rowSpan = a.getInt(R.styleable.Tile_tile_rowspan, rowSpan);
+      expandable = a.getBoolean(R.styleable.Tile_tile_expandable, expandable);
       a.recycle();
     }
 

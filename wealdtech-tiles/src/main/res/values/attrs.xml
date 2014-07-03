@@ -10,5 +10,6 @@
         <attr name="tile_left" format="integer"/>
         <attr name="tile_colspan" format="integer"/>
         <attr name="tile_rowspan" format="integer"/>
+        <attr name="tile_expandable" format="boolean"/>
     </declare-styleable>
 </resources>

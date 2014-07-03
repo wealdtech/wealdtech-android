@@ -84,13 +84,12 @@ public class TileLayout extends ViewGroup
     if (changed || childAltered)
     {
       childAltered = false;
-      int width = (int) (r - l);
-      int side = width / columns;
+      final int width = r - l;
+      final int side = width / columns;
       int children = getChildCount();
-      View child = null;
       for (int i = 0; i < children; i++)
       {
-        child = getChildAt(i);
+        final View child = getChildAt(i);
         final Tile.LayoutParams lp = (Tile.LayoutParams) child.getLayoutParams();
         int left = (int) (lp.left * side + spacing / 2);
         int right = (int) ((lp.left + lp.colSpan) * side - spacing / 2);
@@ -163,7 +162,10 @@ public class TileLayout extends ViewGroup
     final Tile.LayoutParams spec = getChildSpec(tile, params);
     super.addView(tile, index, spec);
     child.setClickable(true);
-    child.setOnClickListener(new ExpandClickListener());
+    if (spec.expandable)
+    {
+      child.setOnClickListener(new ExpandClickListener());
+    }
   }
 
   /**
