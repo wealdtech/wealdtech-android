@@ -1,9 +1,10 @@
+Document!
+
+Set control position using layout paramters
+
 Animate tile expansion/contraction
 
-Add controls
-  - expand
-  - edit?
-  - remove?
-  - general configurable?
-  - layer on top?
-  - additional controls when tile is expanded?
+Additional controls
+  - edit
+  - others?
+  - some controls only visible when tile is expanded (optional)
