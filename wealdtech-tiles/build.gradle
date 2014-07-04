@@ -29,10 +29,17 @@ android {
   buildTypes {
     debug {
       runProguard false
+      signingConfig signingConfigs.debug
     }
     release {
       runProguard false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    }
+  }
+
+  signingConfigs {
+    debug {
+      storeFile file("../security/debug.keystore")
     }
   }
 }
