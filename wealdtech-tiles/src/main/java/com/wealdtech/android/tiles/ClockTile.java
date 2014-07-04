@@ -1,6 +1,7 @@
 package com.wealdtech.android.tiles;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -40,7 +41,7 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
     holder.display = new Button(context);
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                               ViewGroup.LayoutParams.MATCH_PARENT));
-
+    holder.display.setBackgroundColor(Color.RED);
     addView(holder.display);
   }
 

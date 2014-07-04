@@ -18,6 +18,8 @@ public interface Provider<T>
    */
   void addDataChangedListener(DataChangedListener<T> listener);
 
+  void removeDataChangedListener(DataChangedListener<T> listener);
+
   void startProviding();
 
   void stopProviding();

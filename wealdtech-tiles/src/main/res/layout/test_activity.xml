@@ -7,7 +7,9 @@
     android:id="@+id/test_layout"
     wealdtech:columns="4"
     wealdtech:rows="4"
-    wealdtech:spacing="5dp">
+    wealdtech:spacing="5dp"
+    android:padding="0dp"
+    android:layout_margin="0dp">
 
     <com.wealdtech.android.tiles.ClockTile
         android:id="@+id/test_layout_clock_tile_1"
@@ -16,7 +18,9 @@
         wealdtech:tile_top="0"
         wealdtech:tile_left="0"
         wealdtech:tile_colspan="1"
-        wealdtech:tile_rowspan="1" />
+        wealdtech:tile_rowspan="1"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.ClockTile
         android:id="@+id/test_layout_clock_tile_2"
@@ -26,7 +30,9 @@
         wealdtech:tile_left="1"
         wealdtech:tile_rowspan="1"
         wealdtech:tile_colspan="1"
-        wealdtech:tile_expandable="false" />
+        wealdtech:tile_expandable="false"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.ClockTile
         android:id="@+id/test_layout_clock_tile_3"
@@ -36,7 +42,9 @@
         wealdtech:tile_left="2"
         wealdtech:tile_rowspan="1"
         wealdtech:tile_colspan="1"
-        wealdtech:tile_expandable="false" />
+        wealdtech:tile_expandable="false"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.ClockTile
         android:id="@+id/test_layout_clock_tile_4"
@@ -45,7 +53,9 @@
         wealdtech:tile_top="3"
         wealdtech:tile_left="1"
         wealdtech:tile_rowspan="1"
-        wealdtech:tile_colspan="2" />
+        wealdtech:tile_colspan="2"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.TextTile
         android:id="@+id/test_layout_text_tile_1"
@@ -54,7 +64,9 @@
         wealdtech:tile_top="1"
         wealdtech:tile_left="0"
         wealdtech:tile_rowspan="1"
-        wealdtech:tile_colspan="1" />
+        wealdtech:tile_colspan="1"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.MultiTextTile
         android:id="@+id/test_layout_multi_text_tile_1"
@@ -63,7 +75,9 @@
         wealdtech:tile_top="1"
         wealdtech:tile_left="1"
         wealdtech:tile_rowspan="2"
-        wealdtech:tile_colspan="2" />
+        wealdtech:tile_colspan="2"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.MultiTextTile
         android:id="@+id/test_layout_multi_text_tile_2"
@@ -72,7 +86,9 @@
         wealdtech:tile_top="1"
         wealdtech:tile_left="3"
         wealdtech:tile_rowspan="1"
-        wealdtech:tile_colspan="1" />
+        wealdtech:tile_colspan="1"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.TextTile
         android:id="@+id/test_layout_text_tile_2"
@@ -81,7 +97,9 @@
         wealdtech:tile_top="2"
         wealdtech:tile_left="0"
         wealdtech:tile_rowspan="2"
-        wealdtech:tile_colspan="1" />
+        wealdtech:tile_colspan="1"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <com.wealdtech.android.tiles.TextTile
         android:id="@+id/test_layout_text_tile_3"
@@ -90,7 +108,9 @@
         wealdtech:tile_top="3"
         wealdtech:tile_left="3"
         wealdtech:tile_rowspan="1"
-        wealdtech:tile_colspan="1" />
+        wealdtech:tile_colspan="1"
+        android:padding="0dp"
+        android:layout_margin="0dp"/>
 
     <!--
         <com.wealdtech.android.tiles.ClockTile android:id="@+id/test_layout_clock_tile_1"

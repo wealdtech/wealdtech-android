@@ -23,6 +23,7 @@ public class TileLayout extends ViewGroup
   private int rows = 4;
   private int columns = 4;
   private float spacing = 3;
+  private float tileUnit = -1;
 
   private boolean childAltered = false;
 
@@ -60,7 +61,7 @@ public class TileLayout extends ViewGroup
       }
       else if (attr == R.styleable.TileLayout_spacing)
       {
-        spacing = a.getDimension(attr, spacing);
+        spacing = (int)a.getDimension(attr, spacing);
       }
     }
     a.recycle();
@@ -85,33 +86,35 @@ public class TileLayout extends ViewGroup
     {
       childAltered = false;
       final int width = r - l;
-      final int side = width / columns;
-      int children = getChildCount();
-      for (int i = 0; i < children; i++)
+      final int height = b - t;
+      final float tileUnit = (int)((width < height ? width - spacing : height - spacing)  / columns - spacing);
+      for (int i = 0; i < getChildCount(); i++)
       {
-        final View child = getChildAt(i);
-        final Tile.LayoutParams lp = (Tile.LayoutParams) child.getLayoutParams();
-        int left = (int) (lp.left * side + spacing / 2);
-        int right = (int) ((lp.left + lp.colSpan) * side - spacing / 2);
-        int top = (int) (lp.top * side + spacing / 2);
-        int bottom = (int) ((lp.top + lp.rowSpan) * side - spacing / 2);
-        child.layout(left, top, right, bottom);
+        final Tile tile = (Tile)getChildAt(i);
+        final Tile.LayoutParams lp = (Tile.LayoutParams) tile.getLayoutParams();
+        final int left = (int)(lp.left * tileUnit + ((lp.left + 1) * spacing));
+        final int right = (int)(left + (lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
+        final int top = (int)(lp.top * tileUnit + ((lp.top + 1) * spacing));
+        final int bottom = top + (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
+        tile.layout(left, top, right, bottom);
       }
     }
   }
 
+//  @Override
+//  public void onConfigurationChanged(final Configuration newConfig)
+//  {
+//    super.onConfigurationChanged(newConfig);
+//    // Recalculate width and height as they may have changed
+//  }
+
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
   {
-    measureVertical(widthMeasureSpec, heightMeasureSpec);
-  }
-
-  private void measureVertical(int widthMeasureSpec, int heightMeasureSpec)
-  {
-    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-    int width = 0;
-    int height = 0;
+    final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+    final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+    int width;
+    int height;
 
     if (widthMode == MeasureSpec.AT_MOST || widthMode == MeasureSpec.EXACTLY)
     {
@@ -119,35 +122,36 @@ public class TileLayout extends ViewGroup
     }
     else
     {
-      throw new RuntimeException("widthMeasureSpec must be AT_MOST or " + "EXACTLY not UNSPECIFIED when orientation == VERTICAL");
+      throw new RuntimeException("widthMeasureSpec must be AT_MOST or EXACTLY not UNSPECIFIED when orientation == VERTICAL");
+    }
+    if (heightMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.EXACTLY)
+    {
+      height = MeasureSpec.getSize(heightMeasureSpec);
+    }
+    else
+    {
+      throw new RuntimeException("heightMeasureSpec must be AT_MOST or EXACTLY not UNSPECIFIED when orientation == VERTICAL");
     }
 
 
-    View child = null;
-    int row = 0;
-    int side = width / columns;
-    int childCount = getChildCount();
-    for (int i = 0; i < childCount; i++)
+    // Tile unit is the size of the side of a tile
+    final float tileUnit = (width < height ? width - spacing : height - spacing)  / columns - spacing;
+    for (int i = 0; i < getChildCount(); i++)
     {
-      child = getChildAt(i);
+      final Tile child = (Tile)getChildAt(i);
 
       Tile.LayoutParams lp = (Tile.LayoutParams) child.getLayoutParams();
 
-      if (lp.top + lp.rowSpan > row)
-      {
-        row = lp.top + lp.rowSpan;
-      }
-
-      int childHeight = lp.rowSpan * side;
-      int childWidth = lp.colSpan * side;
+      final int childWidth = (int)((lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
+      final int childHeight = (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
       int heightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
       int widthSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
 
       child.measure(widthSpec, heightSpec);
     }
-    height = row * side;
-    // TODO: Figure out a good way to use the heightMeasureSpec...
 
+    width = (int)(((tileUnit + spacing) * columns) + spacing);
+    height = (int)(((tileUnit + spacing) * rows) + spacing);
     setMeasuredDimension(width, height);
   }
 
@@ -282,17 +286,19 @@ public class TileLayout extends ViewGroup
   public class ExpandClickListener implements OnClickListener
   {
     @Override
-    public void onClick(final View v)
+    public void onClick(final View view)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams) v.getLayoutParams();
+      final Tile.LayoutParams spec = (Tile.LayoutParams) view.getLayoutParams();
+      final Tile tile = (Tile)view;
 
       final OnClickListener contractClickListener = new ContractClickListener(spec.left, spec.top, spec.colSpan, spec.rowSpan);
       spec.top = 0;
       spec.left = 0;
       spec.colSpan = columns;
       spec.rowSpan = rows;
-      v.setOnClickListener(contractClickListener);
-      v.bringToFront();
+      tile.setOnClickListener(contractClickListener);
+      tile.onTileExpanded();
+      tile.bringToFront();
       childAltered = true;
       invalidate();
     }
@@ -313,15 +319,17 @@ public class TileLayout extends ViewGroup
       this.rowSpan = rowSpan;
     }
 
-    public void onClick(final View v)
+    public void onClick(final View view)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams) v.getLayoutParams();
+      final Tile.LayoutParams spec = (Tile.LayoutParams) view.getLayoutParams();
+      final Tile tile = (Tile)view;
       spec.left = left;
       spec.top = top;
       spec.colSpan = colSpan;
       spec.rowSpan = rowSpan;
-      v.setOnClickListener(new ExpandClickListener());
-      v.bringToFront();
+      tile.setOnClickListener(new ExpandClickListener());
+      tile.onTileContracted();
+      tile.bringToFront();
       childAltered = true;
       invalidate();
     }

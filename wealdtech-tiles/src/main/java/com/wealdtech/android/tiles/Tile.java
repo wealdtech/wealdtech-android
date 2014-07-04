@@ -124,4 +124,14 @@ public abstract class Tile<T> extends FrameLayout
       super(params);
     }
   }
+
+  public void onTileExpanded()
+  {
+  }
+
+  public void onTileContracted()
+  {
+  }
+
+
 }

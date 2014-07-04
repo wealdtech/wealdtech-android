@@ -101,6 +101,12 @@ public abstract class AbstractProvider<T> implements Provider<T>
     listener.setProvider(this);
   }
 
+  @Override
+  public void removeDataChangedListener(final DataChangedListener<T> listener)
+  {
+    listeners.remove(listener);
+  }
+
   protected void notifyListeners()
   {
     for (final DataChangedListener<T> listener : listeners)

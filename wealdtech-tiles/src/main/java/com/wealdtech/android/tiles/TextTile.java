@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A tile which shows text
  */
-public class TextTile extends Tile<String> implements DataChangedListener<String>, TileExpandedListener
+public class TextTile extends Tile<String> implements DataChangedListener<String>
 {
   private static final Logger LOG = LoggerFactory.getLogger(TextTile.class);
 
