@@ -122,6 +122,14 @@ public abstract class Tile<T> extends FrameLayout
     public LayoutParams(ViewGroup.LayoutParams params)
     {
       super(params);
+      if (params instanceof LayoutParams)
+      {
+        top = ((LayoutParams)params).top;
+        left = ((LayoutParams)params).left;
+        colSpan = ((LayoutParams)params).colSpan;
+        rowSpan = ((LayoutParams)params).rowSpan;
+        expandable = ((LayoutParams)params).expandable;
+      }
     }
   }
 
@@ -132,6 +140,4 @@ public abstract class Tile<T> extends FrameLayout
   public void onTileContracted()
   {
   }
-
-
 }

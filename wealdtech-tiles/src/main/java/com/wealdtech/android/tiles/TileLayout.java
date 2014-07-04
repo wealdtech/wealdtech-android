@@ -2,14 +2,19 @@ package com.wealdtech.android.tiles;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import com.wealdtech.android.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tile layout
@@ -23,9 +28,11 @@ public class TileLayout extends ViewGroup
   private int rows = 4;
   private int columns = 4;
   private float spacing = 3;
-  private float tileUnit = -1;
 
+  /** Set to true whenever one of our children has been altered directly by the layout */
   private boolean childAltered = false;
+
+  private Map<Tile, View> overlays;
 
   public TileLayout(final Context context)
   {
@@ -42,6 +49,7 @@ public class TileLayout extends ViewGroup
     super(context, attrs, defStyle);
     setAttrs(attrs, defStyle);
     initLayout();
+    overlays = new HashMap<>();
   }
 
   private void setAttrs(final AttributeSet attrs, final int defStyle)
@@ -90,13 +98,21 @@ public class TileLayout extends ViewGroup
       final float tileUnit = (int)((width < height ? width - spacing : height - spacing)  / columns - spacing);
       for (int i = 0; i < getChildCount(); i++)
       {
-        final Tile tile = (Tile)getChildAt(i);
-        final Tile.LayoutParams lp = (Tile.LayoutParams) tile.getLayoutParams();
-        final int left = (int)(lp.left * tileUnit + ((lp.left + 1) * spacing));
-        final int right = (int)(left + (lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
-        final int top = (int)(lp.top * tileUnit + ((lp.top + 1) * spacing));
-        final int bottom = top + (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
-        tile.layout(left, top, right, bottom);
+        if (getChildAt(i) instanceof Tile)
+        {
+          final Tile tile = (Tile)getChildAt(i);
+          final Tile.LayoutParams lp = (Tile.LayoutParams)tile.getLayoutParams();
+          final int left = (int)(lp.left * tileUnit + ((lp.left + 1) * spacing));
+          final int right = (int)(left + (lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
+          final int top = (int)(lp.top * tileUnit + ((lp.top + 1) * spacing));
+          final int bottom = top + (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
+          tile.layout(left, top, right, bottom);
+          if (lp.expandable)
+          {
+            final View overlay = overlays.get(tile);
+            overlay.layout(left, top, right, bottom);
+          }
+        }
       }
     }
   }
@@ -138,16 +154,24 @@ public class TileLayout extends ViewGroup
     final float tileUnit = (width < height ? width - spacing : height - spacing)  / columns - spacing;
     for (int i = 0; i < getChildCount(); i++)
     {
-      final Tile child = (Tile)getChildAt(i);
+      // We only lay out tiles here.  Other items are part of the overlay and calculated in-loop
+      if (getChildAt(i) instanceof Tile)
+      {
+        final Tile tile = (Tile)getChildAt(i);
 
-      Tile.LayoutParams lp = (Tile.LayoutParams) child.getLayoutParams();
+        Tile.LayoutParams lp = (Tile.LayoutParams)tile.getLayoutParams();
 
-      final int childWidth = (int)((lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
-      final int childHeight = (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
-      int heightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
-      int widthSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
+        final int childWidth = (int)((lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
+        final int childHeight = (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
+        int heightSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
+        int widthSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
 
-      child.measure(widthSpec, heightSpec);
+        tile.measure(widthSpec, heightSpec);
+        if (lp.expandable)
+        {
+          overlays.get(tile).measure(widthSpec, heightSpec);
+        }
+      }
     }
 
     width = (int)(((tileUnit + spacing) * columns) + spacing);
@@ -165,10 +189,21 @@ public class TileLayout extends ViewGroup
     final Tile tile = (Tile) child;
     final Tile.LayoutParams spec = getChildSpec(tile, params);
     super.addView(tile, index, spec);
-    child.setClickable(true);
     if (spec.expandable)
     {
-      child.setOnClickListener(new ExpandClickListener());
+      final TextView overlay = new TextView(getContext());
+      final TileLayout.LayoutParams overlayParams = new TileLayout.LayoutParams(params);
+      overlayParams.width = LayoutParams.WRAP_CONTENT;
+      overlayParams.height = LayoutParams.WRAP_CONTENT;
+      overlay.setBackgroundColor(Color.TRANSPARENT);
+      overlay.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
+      overlay.setText("+");
+      overlay.setTextColor(Color.GREEN);
+      overlay.setTextSize(24);
+      overlay.setClickable(true);
+      overlay.setOnClickListener(new ExpandClickListener(tile));
+      overlays.put(tile, overlay);
+      super.addView(overlay, index, overlayParams);
     }
   }
 
@@ -285,20 +320,27 @@ public class TileLayout extends ViewGroup
   //  }
   public class ExpandClickListener implements OnClickListener
   {
+    private final Tile tile;
+
+    public ExpandClickListener(final Tile tile)
+    {
+      this.tile = tile;
+    }
+
     @Override
     public void onClick(final View view)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams) view.getLayoutParams();
-      final Tile tile = (Tile)view;
+      final Tile.LayoutParams spec = (Tile.LayoutParams) tile.getLayoutParams();
 
-      final OnClickListener contractClickListener = new ContractClickListener(spec.left, spec.top, spec.colSpan, spec.rowSpan);
+      final OnClickListener contractClickListener = new ContractClickListener(tile, spec.left, spec.top, spec.colSpan, spec.rowSpan);
       spec.top = 0;
       spec.left = 0;
       spec.colSpan = columns;
       spec.rowSpan = rows;
-      tile.setOnClickListener(contractClickListener);
+      view.setOnClickListener(contractClickListener);
       tile.onTileExpanded();
       tile.bringToFront();
+      overlays.get(tile).bringToFront();
       childAltered = true;
       invalidate();
     }
@@ -306,13 +348,15 @@ public class TileLayout extends ViewGroup
 
   public class ContractClickListener implements OnClickListener
   {
+    private final Tile tile;
     int left;
     int top;
     int colSpan;
     int rowSpan;
 
-    public ContractClickListener(final int left, final int top, final int colSpan, final int rowSpan)
+    public ContractClickListener(final Tile tile, final int left, final int top, final int colSpan, final int rowSpan)
     {
+      this.tile = tile;
       this.left = left;
       this.top = top;
       this.colSpan = colSpan;
@@ -321,15 +365,17 @@ public class TileLayout extends ViewGroup
 
     public void onClick(final View view)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams) view.getLayoutParams();
-      final Tile tile = (Tile)view;
+      final Tile.LayoutParams spec = (Tile.LayoutParams) tile.getLayoutParams();
+//      final Tile.LayoutParams spec = (Tile.LayoutParams) view.getLayoutParams();
+//      final Tile tile = (Tile)view;
       spec.left = left;
       spec.top = top;
       spec.colSpan = colSpan;
       spec.rowSpan = rowSpan;
-      tile.setOnClickListener(new ExpandClickListener());
+      view.setOnClickListener(new ExpandClickListener(this.tile));
       tile.onTileContracted();
       tile.bringToFront();
+      overlays.get(tile).bringToFront();
       childAltered = true;
       invalidate();
     }
