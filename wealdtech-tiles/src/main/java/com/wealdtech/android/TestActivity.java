@@ -3,6 +3,7 @@ package com.wealdtech.android;
 import android.app.Activity;
 import android.os.Bundle;
 import ch.qos.logback.classic.android.BasicLogcatConfigurator;
+import com.android.debug.hv.ViewServer;
 import com.wealdtech.android.providers.DateProvider;
 import com.wealdtech.android.providers.PresetTextProvider;
 import com.wealdtech.android.providers.Provider;
@@ -49,7 +50,7 @@ public class TestActivity extends Activity
   public void onCreate(final Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-
+    ViewServer.get(this).addWindow(this);
     setContentView(R.layout.test_activity);
 
 //    final TileLayout layout = (TileLayout)findViewById(R.id.test_layout);
@@ -80,6 +81,13 @@ public class TestActivity extends Activity
   }
 
   @Override
+  public void onResume()
+  {
+    super.onResume();
+    ViewServer.get(this).setFocusedWindow(this);
+  }
+
+  @Override
   public void onDestroy()
   {
     clockProvider.stopProviding();
@@ -93,6 +101,7 @@ public class TestActivity extends Activity
     clockProvider.removeDataChangedListener(holder.clockTile4);
     textProvider.removeDataChangedListener(holder.multiTextTile1);
     textProvider.removeDataChangedListener(holder.multiTextTile2);
+    ViewServer.get(this).removeWindow(this);
     super.onDestroy();
   }
 }

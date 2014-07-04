@@ -2,9 +2,13 @@ package com.wealdtech.android.tiles;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import com.wealdtech.android.R;
 import com.wealdtech.android.providers.Provider;
 import org.slf4j.Logger;
@@ -16,15 +20,11 @@ public abstract class Tile<T> extends FrameLayout
 {
   private static final Logger LOG = LoggerFactory.getLogger(Tile.class);
 
-  /** The width, in tilespaces */
-  private int colSpan = 1;
-  /** The height, in tilespaces */
-  private int rowSpan = 1;
-  /** If this tile can be expanded */
-  private boolean expandable = true;
-
   /** The provider for the data */
   protected Provider<T> provider;
+
+  /** The controls for the tile */
+  protected final View controlLayout;
 
   public Tile(final Context context)
   {
@@ -40,6 +40,31 @@ public abstract class Tile<T> extends FrameLayout
   {
     super(context, attrs, defStyle);
     setAttrs(context, attrs, defStyle);
+    controlLayout = initControlView(context);
+  }
+
+  private View initControlView(final Context context)
+  {
+    final TextView controlView;
+    if (hasControls())
+    {
+      controlView = new TextView(context);
+      controlView.setText("+");
+      controlView.setBackgroundColor(Color.TRANSPARENT);
+      controlView.setTextColor(Color.GREEN);
+      controlView.setTextSize(24);
+
+      controlView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                                                               ViewGroup.LayoutParams.WRAP_CONTENT,
+                                                               Gravity.BOTTOM | Gravity.RIGHT));
+      addView(controlView);
+    }
+    else
+    {
+      // No controls
+      controlView = null;
+    }
+    return controlView;
   }
 
   private void setAttrs(final Context context, final AttributeSet attrs, final int defStyle)
@@ -61,18 +86,19 @@ public abstract class Tile<T> extends FrameLayout
       }
       else if (attr == R.styleable.Tile_tile_colspan)
       {
-        colSpan = a.getInteger(attr, colSpan);
-        params.colSpan = colSpan;
+        params.colSpan = a.getInteger(attr, params.colSpan);
       }
       else if (attr == R.styleable.Tile_tile_rowspan)
       {
-        rowSpan = a.getInteger(attr, rowSpan);
-        params.rowSpan = rowSpan;
+        params.rowSpan = a.getInteger(attr, params.rowSpan);
       }
       else if (attr == R.styleable.Tile_tile_expandable)
       {
-        expandable = a.getBoolean(attr, expandable);
-        params.expandable = expandable;
+        params.expandable = a.getBoolean(attr, params.expandable);
+      }
+      else if (attr == R.styleable.Tile_tile_editable)
+      {
+        params.editable = a.getBoolean(attr, params.editable);
       }
     }
     a.recycle();
@@ -89,6 +115,20 @@ public abstract class Tile<T> extends FrameLayout
 
   public abstract void refreshDisplay();
 
+  public void onTileExpanded()
+  {
+  }
+
+  public void onTileContracted()
+  {
+  }
+
+  public boolean hasControls()
+  {
+    final LayoutParams params = (Tile.LayoutParams)getLayoutParams();
+    return params.expandable || params.editable;
+  }
+
   public static class LayoutParams extends ViewGroup.LayoutParams
   {
     public int top = -1;
@@ -96,6 +136,7 @@ public abstract class Tile<T> extends FrameLayout
     public int colSpan = 1;
     public int rowSpan = 1;
     public boolean expandable = true;
+    public boolean editable = false;
 
     public LayoutParams()
     {
@@ -116,6 +157,7 @@ public abstract class Tile<T> extends FrameLayout
       colSpan = a.getInt(R.styleable.Tile_tile_colspan, colSpan);
       rowSpan = a.getInt(R.styleable.Tile_tile_rowspan, rowSpan);
       expandable = a.getBoolean(R.styleable.Tile_tile_expandable, expandable);
+      editable = a.getBoolean(R.styleable.Tile_tile_editable, editable);
       a.recycle();
     }
 
@@ -129,15 +171,18 @@ public abstract class Tile<T> extends FrameLayout
         colSpan = ((LayoutParams)params).colSpan;
         rowSpan = ((LayoutParams)params).rowSpan;
         expandable = ((LayoutParams)params).expandable;
+        editable = ((LayoutParams)params).editable;
       }
     }
   }
 
-  public void onTileExpanded()
+  @Override
+  public void addView(final View view)
   {
-  }
-
-  public void onTileContracted()
-  {
+    super.addView(view);
+    if (controlLayout != null && controlLayout != view)
+    {
+      controlLayout.bringToFront();
+    }
   }
 }

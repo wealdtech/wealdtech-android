@@ -2,19 +2,14 @@ package com.wealdtech.android.tiles;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import com.wealdtech.android.R;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Tile layout
@@ -32,8 +27,6 @@ public class TileLayout extends ViewGroup
   /** Set to true whenever one of our children has been altered directly by the layout */
   private boolean childAltered = false;
 
-  private Map<Tile, View> overlays;
-
   public TileLayout(final Context context)
   {
     this(context, null);
@@ -49,7 +42,6 @@ public class TileLayout extends ViewGroup
     super(context, attrs, defStyle);
     setAttrs(attrs, defStyle);
     initLayout();
-    overlays = new HashMap<>();
   }
 
   private void setAttrs(final AttributeSet attrs, final int defStyle)
@@ -107,11 +99,6 @@ public class TileLayout extends ViewGroup
           final int top = (int)(lp.top * tileUnit + ((lp.top + 1) * spacing));
           final int bottom = top + (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
           tile.layout(left, top, right, bottom);
-          if (lp.expandable)
-          {
-            final View overlay = overlays.get(tile);
-            overlay.layout(left, top, right, bottom);
-          }
         }
       }
     }
@@ -167,10 +154,6 @@ public class TileLayout extends ViewGroup
         int widthSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
 
         tile.measure(widthSpec, heightSpec);
-        if (lp.expandable)
-        {
-          overlays.get(tile).measure(widthSpec, heightSpec);
-        }
       }
     }
 
@@ -189,22 +172,28 @@ public class TileLayout extends ViewGroup
     final Tile tile = (Tile) child;
     final Tile.LayoutParams spec = getChildSpec(tile, params);
     super.addView(tile, index, spec);
-    if (spec.expandable)
+    if (tile.hasControls())
     {
-      final TextView overlay = new TextView(getContext());
-      final TileLayout.LayoutParams overlayParams = new TileLayout.LayoutParams(params);
-      overlayParams.width = LayoutParams.WRAP_CONTENT;
-      overlayParams.height = LayoutParams.WRAP_CONTENT;
-      overlay.setBackgroundColor(Color.TRANSPARENT);
-      overlay.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
-      overlay.setText("+");
-      overlay.setTextColor(Color.GREEN);
-      overlay.setTextSize(24);
-      overlay.setClickable(true);
-      overlay.setOnClickListener(new ExpandClickListener(tile));
-      overlays.put(tile, overlay);
-      super.addView(overlay, index, overlayParams);
+      final View controlLayout = tile.controlLayout;
+      controlLayout.setClickable(true);
+      controlLayout.setOnClickListener(new ExpandClickListener(tile));
     }
+//    if (spec.expandable)
+//    {
+//      final TextView overlay = new TextView(getContext());
+//      final TileLayout.LayoutParams overlayParams = new TileLayout.LayoutParams(params);
+//      overlayParams.width = LayoutParams.WRAP_CONTENT;
+//      overlayParams.height = LayoutParams.WRAP_CONTENT;
+//      overlay.setBackgroundColor(Color.TRANSPARENT);
+//      overlay.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
+//      overlay.setText("+");
+//      overlay.setTextColor(Color.GREEN);
+//      overlay.setTextSize(24);
+//      overlay.setClickable(true);
+//      overlay.setOnClickListener(new ExpandClickListener(tile));
+//      overlays.put(tile, overlay);
+//      super.addView(overlay, index, overlayParams);
+//    }
   }
 
   /**
@@ -340,7 +329,6 @@ public class TileLayout extends ViewGroup
       view.setOnClickListener(contractClickListener);
       tile.onTileExpanded();
       tile.bringToFront();
-      overlays.get(tile).bringToFront();
       childAltered = true;
       invalidate();
     }
@@ -375,7 +363,6 @@ public class TileLayout extends ViewGroup
       view.setOnClickListener(new ExpandClickListener(this.tile));
       tile.onTileContracted();
       tile.bringToFront();
-      overlays.get(tile).bringToFront();
       childAltered = true;
       invalidate();
     }
