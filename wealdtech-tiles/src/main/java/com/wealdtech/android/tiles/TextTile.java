@@ -15,11 +15,13 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
 {
   private static final Logger LOG = LoggerFactory.getLogger(TextTile.class);
 
+  private static final Editable EDITABLE = Editable.NEVER;
+  private static final boolean EXPANDABLE = true;
+
   private static class ViewHolder
   {
     public Button display;
   }
-
   private final ViewHolder holder = new ViewHolder();
 
   public TextTile(final Context context)
@@ -34,7 +36,7 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
 
   public TextTile(final Context context, final AttributeSet attrs, final int defStyle)
   {
-    super(context, attrs, defStyle);
+    super(context, attrs, defStyle, EDITABLE, EXPANDABLE);
 
     holder.display = new Button(context);
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -76,5 +78,4 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   {
     holder.display.setTextColor(Color.WHITE);
   }
-
 }

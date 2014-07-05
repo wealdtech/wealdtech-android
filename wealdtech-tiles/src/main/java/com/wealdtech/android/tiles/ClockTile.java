@@ -17,6 +17,9 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
 {
   private static final Logger LOG = LoggerFactory.getLogger(ClockTile.class);
 
+  private static final Editable EDITABLE = Editable.NEVER;
+  private static final boolean EXPANDABLE = true;
+
   private static class ViewHolder
   {
     public Button display;
@@ -36,7 +39,7 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
 
   public ClockTile(final Context context, final AttributeSet attrs, final int defStyle)
   {
-    super(context, attrs, defStyle);
+    super(context, attrs, defStyle, EDITABLE, EXPANDABLE);
 
     holder.display = new Button(context);
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,

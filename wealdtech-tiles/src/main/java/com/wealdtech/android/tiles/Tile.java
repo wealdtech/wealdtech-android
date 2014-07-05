@@ -14,6 +14,8 @@ import com.wealdtech.android.providers.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+
 /**
  */
 public abstract class Tile<T> extends FrameLayout
@@ -25,6 +27,9 @@ public abstract class Tile<T> extends FrameLayout
 
   /** The controls for the tile */
   protected final View controlLayout;
+
+  /** If the tile is currently expanded */
+  private boolean expanded = false;
 
   public Tile(final Context context)
   {
@@ -38,9 +43,19 @@ public abstract class Tile<T> extends FrameLayout
 
   public Tile(final Context context, final AttributeSet attrs, final int defStyle)
   {
+    this(context, attrs, defStyle, Editable.NEVER, false);
+  }
+
+  public Tile(final Context context,
+              final AttributeSet attrs,
+              final int defStyle,
+              final Editable editable,
+              final boolean expandable)
+  {
     super(context, attrs, defStyle);
-    setAttrs(context, attrs, defStyle);
+    setAttrs(context, attrs, defStyle, editable, expandable);
     controlLayout = initControlView(context);
+    final LayoutParams params = getLayoutParams();
   }
 
   private View initControlView(final Context context)
@@ -67,9 +82,15 @@ public abstract class Tile<T> extends FrameLayout
     return controlView;
   }
 
-  private void setAttrs(final Context context, final AttributeSet attrs, final int defStyle)
+  private void setAttrs(final Context context,
+                        final AttributeSet attrs,
+                        final int defStyle,
+                        final Editable editable,
+                        final boolean expandable)
   {
     final LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    params.editable = editable;
+    params.expandable = expandable;
     final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Tile);
     final int N = a.getIndexCount();
     for (int i = 0; i < N; ++i)
@@ -82,7 +103,7 @@ public abstract class Tile<T> extends FrameLayout
       }
       else if (attr == R.styleable.Tile_tile_left)
       {
-        params.left= a.getInteger(attr, -1);
+        params.left = a.getInteger(attr, -1);
       }
       else if (attr == R.styleable.Tile_tile_colspan)
       {
@@ -94,17 +115,68 @@ public abstract class Tile<T> extends FrameLayout
       }
       else if (attr == R.styleable.Tile_tile_expandable)
       {
-        params.expandable = a.getBoolean(attr, params.expandable);
+        params.expandable = calcExpandable(expandable, a.getBoolean(attr, params.expandable));
       }
       else if (attr == R.styleable.Tile_tile_editable)
       {
-        params.editable = a.getBoolean(attr, params.editable);
+        final String editableStr = a.getString(attr);
+        if (editableStr != null)
+        {
+          params.editable = calcEditable(editable, Editable.valueOf(editableStr));
+        }
       }
     }
     a.recycle();
 
     setLayoutParams(params);
     setBackgroundResource(R.drawable.tile_border);
+  }
+
+  /**
+   * Work out the expandable state of this tile.  The state is the lesser of able, which is the tile's inherent ability, and
+   * requested, which is the requested ability
+   *
+   * @param able the tile's inherent ability
+   * @param requested the implementer's requested ability
+   * @return the lesser of the inherent and requested abilities
+   */
+  private boolean calcExpandable(final boolean able, final boolean requested)
+  {
+    return able && requested;
+  }
+
+  /**
+   * Work out the editable state of this tile.  The state is the lesser of able, which is the tile's inherent ability, and
+   * requested, which is the requested ability
+   *
+   * @param able the tile's inherent ability
+   * @param requested the implementer's requested ability
+   * @return the lesser of the inherent and requested abilities
+   */
+  private Editable calcEditable(final Editable able, final Editable requested)
+  {
+    final Editable result;
+    if (able == Editable.NEVER)
+    {
+      result = Editable.NEVER;
+    }
+    else if (able == Editable.ALWAYS)
+    {
+      result = requested;
+    }
+    else if (able == Editable.WHEN_CONTRACTED && (requested == Editable.WHEN_CONTRACTED || requested == Editable.NEVER))
+    {
+      result = requested;
+    }
+    else if (able == Editable.WHEN_EXPANDED && (requested == Editable.WHEN_EXPANDED || requested == Editable.NEVER))
+    {
+      result = requested;
+    }
+    else
+    {
+      result = Editable.NEVER;
+    }
+    return result;
   }
 
   public void setProvider(final Provider<T> provider)
@@ -117,16 +189,23 @@ public abstract class Tile<T> extends FrameLayout
 
   public void onTileExpanded()
   {
+    this.expanded = true;
   }
 
   public void onTileContracted()
   {
+    this.expanded = false;
   }
 
   public boolean hasControls()
   {
-    final LayoutParams params = (Tile.LayoutParams)getLayoutParams();
-    return params.expandable || params.editable;
+    return isExpandable() || isEditable();
+  }
+
+  @Override
+  public LayoutParams getLayoutParams()
+  {
+    return (LayoutParams) super.getLayoutParams();
   }
 
   public static class LayoutParams extends ViewGroup.LayoutParams
@@ -135,8 +214,8 @@ public abstract class Tile<T> extends FrameLayout
     public int left = -1;
     public int colSpan = 1;
     public int rowSpan = 1;
-    public boolean expandable = true;
-    public boolean editable = false;
+    public boolean expandable = false;
+    public Editable editable = Editable.NEVER;
 
     public LayoutParams()
     {
@@ -156,8 +235,15 @@ public abstract class Tile<T> extends FrameLayout
       left = a.getInt(R.styleable.Tile_tile_left, left);
       colSpan = a.getInt(R.styleable.Tile_tile_colspan, colSpan);
       rowSpan = a.getInt(R.styleable.Tile_tile_rowspan, rowSpan);
-      expandable = a.getBoolean(R.styleable.Tile_tile_expandable, expandable);
-      editable = a.getBoolean(R.styleable.Tile_tile_editable, editable);
+      if (a.hasValue(R.styleable.Tile_tile_expandable))
+      {
+        expandable = a.getBoolean(R.styleable.Tile_tile_expandable, expandable);
+      }
+      final String editableStr = a.getString(R.styleable.Tile_tile_editable);
+      if (editableStr != null)
+      {
+        editable = Editable.valueOf(editableStr);
+      }
       a.recycle();
     }
 
@@ -166,23 +252,68 @@ public abstract class Tile<T> extends FrameLayout
       super(params);
       if (params instanceof LayoutParams)
       {
-        top = ((LayoutParams)params).top;
-        left = ((LayoutParams)params).left;
-        colSpan = ((LayoutParams)params).colSpan;
-        rowSpan = ((LayoutParams)params).rowSpan;
-        expandable = ((LayoutParams)params).expandable;
-        editable = ((LayoutParams)params).editable;
+        top = ((LayoutParams) params).top;
+        left = ((LayoutParams) params).left;
+        colSpan = ((LayoutParams) params).colSpan;
+        rowSpan = ((LayoutParams) params).rowSpan;
+        expandable = ((LayoutParams) params).expandable;
+        editable = ((LayoutParams) params).editable;
       }
     }
   }
 
   @Override
-  public void addView(final View view)
+  public void addView(@Nonnull final View view)
   {
     super.addView(view);
     if (controlLayout != null && controlLayout != view)
     {
       controlLayout.bringToFront();
     }
+  }
+
+  // Control methods
+
+  /**
+   * @return {@code true} if the tile is currently expanded; otherwise {@code false}
+   */
+  public boolean isExpanded()
+  {
+    return expanded;
+  }
+
+  /**
+   * @return {@code true} if the tile can be expanded and contracted; otherwise {@code false}
+   */
+  public boolean isExpandable()
+  {
+    return getLayoutParams().expandable;
+  }
+
+  /**
+   * @return {@code true} if the tile can be edited in its current expansion state; otherwise {@code false}
+   */
+  public boolean isEditable()
+  {
+    final LayoutParams params = getLayoutParams();
+    return (params.editable == Editable.ALWAYS ||
+            (params.editable == Editable.WHEN_CONTRACTED && !expanded) ||
+            (params.editable == Editable.WHEN_EXPANDED && expanded));
+  }
+
+  /**
+   * @return {@code true} if the tile can be edited in any expansion state; otherwise {@code false}
+   */
+  public boolean isEverEditable()
+  {
+    return getLayoutParams().editable != Editable.NEVER;
+  }
+
+  public enum Editable
+  {
+    NEVER,
+    ALWAYS,
+    WHEN_CONTRACTED,
+    WHEN_EXPANDED
   }
 }

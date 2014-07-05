@@ -93,7 +93,7 @@ public class TileLayout extends ViewGroup
         if (getChildAt(i) instanceof Tile)
         {
           final Tile tile = (Tile)getChildAt(i);
-          final Tile.LayoutParams lp = (Tile.LayoutParams)tile.getLayoutParams();
+          final Tile.LayoutParams lp = tile.getLayoutParams();
           final int left = (int)(lp.left * tileUnit + ((lp.left + 1) * spacing));
           final int right = (int)(left + (lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
           final int top = (int)(lp.top * tileUnit + ((lp.top + 1) * spacing));
@@ -103,13 +103,6 @@ public class TileLayout extends ViewGroup
       }
     }
   }
-
-//  @Override
-//  public void onConfigurationChanged(final Configuration newConfig)
-//  {
-//    super.onConfigurationChanged(newConfig);
-//    // Recalculate width and height as they may have changed
-//  }
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
@@ -146,7 +139,7 @@ public class TileLayout extends ViewGroup
       {
         final Tile tile = (Tile)getChildAt(i);
 
-        Tile.LayoutParams lp = (Tile.LayoutParams)tile.getLayoutParams();
+        Tile.LayoutParams lp = tile.getLayoutParams();
 
         final int childWidth = (int)((lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
         final int childHeight = (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
@@ -198,14 +191,10 @@ public class TileLayout extends ViewGroup
 
   /**
    * Get the specification for a child tile
-   *
-   * @param tile
-   * @param spec
-   * @return
    */
   private Tile.LayoutParams getChildSpec(final Tile tile, ViewGroup.LayoutParams spec)
   {
-    final Tile.LayoutParams params = (Tile.LayoutParams) tile.getLayoutParams();
+    final Tile.LayoutParams params = tile.getLayoutParams();
     // TODO set top/left if they are not present
     return params;
   }
@@ -319,7 +308,7 @@ public class TileLayout extends ViewGroup
     @Override
     public void onClick(final View view)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams) tile.getLayoutParams();
+      final Tile.LayoutParams spec = tile.getLayoutParams();
 
       final OnClickListener contractClickListener = new ContractClickListener(tile, spec.left, spec.top, spec.colSpan, spec.rowSpan);
       spec.top = 0;
@@ -353,9 +342,7 @@ public class TileLayout extends ViewGroup
 
     public void onClick(final View view)
     {
-      final Tile.LayoutParams spec = (Tile.LayoutParams) tile.getLayoutParams();
-//      final Tile.LayoutParams spec = (Tile.LayoutParams) view.getLayoutParams();
-//      final Tile tile = (Tile)view;
+      final Tile.LayoutParams spec = tile.getLayoutParams();
       spec.left = left;
       spec.top = top;
       spec.colSpan = colSpan;

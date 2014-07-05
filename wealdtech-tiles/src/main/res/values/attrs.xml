@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="TileLayout">
-        <attr name="rows" format="integer"/>
-        <attr name="columns" format="integer"/>
-        <attr name="spacing" format="dimension"/>
+        <attr name="rows" format="integer" />
+        <attr name="columns" format="integer" />
+        <attr name="spacing" format="dimension" />
     </declare-styleable>
     <declare-styleable name="Tile">
-        <attr name="tile_top" format="integer"/>
-        <attr name="tile_left" format="integer"/>
-        <attr name="tile_colspan" format="integer"/>
-        <attr name="tile_rowspan" format="integer"/>
-        <attr name="tile_expandable" format="boolean"/>
-        <attr name="tile_editable" format="boolean"/>
+        <attr name="tile_top" format="integer" />
+        <attr name="tile_left" format="integer" />
+        <attr name="tile_colspan" format="integer" />
+        <attr name="tile_rowspan" format="integer" />
+        <attr name="tile_expandable" format="string" />
+        <attr name="tile_editable" format="boolean" />
     </declare-styleable>
 </resources>

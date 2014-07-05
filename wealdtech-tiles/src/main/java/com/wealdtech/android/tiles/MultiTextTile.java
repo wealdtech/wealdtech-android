@@ -15,6 +15,9 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
 {
   private static final Logger LOG = LoggerFactory.getLogger(MultiTextTile.class);
 
+  private static final Editable EDITABLE = Editable.NEVER;
+  private static final boolean EXPANDABLE = true;
+
   private static class ViewHolder
   {
     public TextView text1;
@@ -36,7 +39,7 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
 
   public MultiTextTile(final Context context, final AttributeSet attrs, final int defStyle)
   {
-    super(context, attrs, defStyle);
+    super(context, attrs, defStyle, EDITABLE, EXPANDABLE);
 
     final LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     inflater.inflate(R.layout.test_multi_text, this, true);
