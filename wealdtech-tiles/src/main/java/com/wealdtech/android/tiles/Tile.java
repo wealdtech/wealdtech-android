@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 
 /**
+ * A Tile is a UI element which is of a fixed ratio of width to height and designed to work within a TileLayout.
  */
 public abstract class Tile<T> extends FrameLayout
 {
@@ -316,4 +317,12 @@ public abstract class Tile<T> extends FrameLayout
     WHEN_CONTRACTED,
     WHEN_EXPANDED
   }
+
+  /**
+   * Work out if this tile will show information.  Useful to run when deciding whether to add a tile to a view or not.
+   * Note that this uses the informaiton currently supplied by the provider; if there is no provider then this will return
+   * {@code false}.
+   * @return {@code true} if the tile will show information; otherwise {@code false}
+   */
+  public abstract boolean willShowInformation();
 }

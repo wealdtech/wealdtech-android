@@ -78,4 +78,10 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   {
     holder.display.setTextColor(Color.WHITE);
   }
+
+  @Override
+  public boolean willShowInformation()
+  {
+    return provider.getData() != null;
+  }
 }
