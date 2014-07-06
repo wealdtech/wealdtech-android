@@ -54,15 +54,12 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   @Override
   public void refreshDisplay()
   {
-    LOG.error("refreshDisplay()");
     if (provider != null && provider.getData() != null)
     {
-      LOG.error("Setting text to " + provider.getData());
       holder.display.setText(provider.getData());
     }
     else
     {
-      LOG.error("No data to display");
       holder.display.setText(null);
     }
   }

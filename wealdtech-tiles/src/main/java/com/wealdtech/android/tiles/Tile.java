@@ -261,6 +261,11 @@ public abstract class Tile<T> extends FrameLayout
         editable = ((LayoutParams) params).editable;
       }
     }
+
+    public void incorporateSpec(final ViewGroup.LayoutParams spec)
+    {
+      LOG.error("FIXME: incorporate spec {}", spec.toString());
+    }
   }
 
   @Override

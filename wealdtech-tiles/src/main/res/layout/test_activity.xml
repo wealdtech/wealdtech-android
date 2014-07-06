@@ -71,8 +71,6 @@
         android:id="@+id/test_layout_multi_text_tile_2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        wealdtech:tile_top="1"
-        wealdtech:tile_left="3"
         wealdtech:tile_rowspan="1"
         wealdtech:tile_colspan="1"/>
 

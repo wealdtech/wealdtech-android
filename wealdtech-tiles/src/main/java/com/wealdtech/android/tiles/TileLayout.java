@@ -21,7 +21,7 @@ public class TileLayout extends ViewGroup
   private boolean[][] available;
 
   private int rows = 4;
-  private int columns = 4;
+  private int cols = 4;
   private float spacing = 3;
 
   /** Set to true whenever one of our children has been altered directly by the layout */
@@ -57,7 +57,7 @@ public class TileLayout extends ViewGroup
       }
       else if (attr == R.styleable.TileLayout_columns)
       {
-        columns = a.getInteger(attr, columns);
+        cols = a.getInteger(attr, cols);
       }
       else if (attr == R.styleable.TileLayout_spacing)
       {
@@ -69,8 +69,8 @@ public class TileLayout extends ViewGroup
 
   private void initLayout()
   {
-    available = new boolean[columns][rows];
-    for (int col = 0; col < columns; col++)
+    available = new boolean[cols][rows];
+    for (int col = 0; col < cols; col++)
     {
       for (int row = 0; row < rows; row++)
       {
@@ -87,7 +87,7 @@ public class TileLayout extends ViewGroup
       childAltered = false;
       final int width = r - l;
       final int height = b - t;
-      final float tileUnit = (int)((width < height ? width - spacing : height - spacing)  / columns - spacing);
+      final float tileUnit = (int)((width < height ? width - spacing : height - spacing) / cols - spacing);
       for (int i = 0; i < getChildCount(); i++)
       {
         if (getChildAt(i) instanceof Tile)
@@ -131,7 +131,7 @@ public class TileLayout extends ViewGroup
 
 
     // Tile unit is the size of the side of a tile
-    final float tileUnit = (width < height ? width - spacing : height - spacing)  / columns - spacing;
+    final float tileUnit = (width < height ? width - spacing : height - spacing) / cols - spacing;
     for (int i = 0; i < getChildCount(); i++)
     {
       // We only lay out tiles here.  Other items are part of the overlay and calculated in-loop
@@ -150,7 +150,7 @@ public class TileLayout extends ViewGroup
       }
     }
 
-    width = (int)(((tileUnit + spacing) * columns) + spacing);
+    width = (int)(((tileUnit + spacing) * cols) + spacing);
     height = (int)(((tileUnit + spacing) * rows) + spacing);
     setMeasuredDimension(width, height);
   }
@@ -162,7 +162,7 @@ public class TileLayout extends ViewGroup
     {
       throw new RuntimeException("Must add tiles to tile layout");
     }
-    final Tile tile = (Tile) child;
+    final Tile tile = (Tile)child;
     final Tile.LayoutParams spec = getChildSpec(tile, params);
     super.addView(tile, index, spec);
     if (tile.hasControls())
@@ -171,32 +171,69 @@ public class TileLayout extends ViewGroup
       controlLayout.setClickable(true);
       controlLayout.setOnClickListener(new ExpandClickListener(tile));
     }
-//    if (spec.expandable)
-//    {
-//      final TextView overlay = new TextView(getContext());
-//      final TileLayout.LayoutParams overlayParams = new TileLayout.LayoutParams(params);
-//      overlayParams.width = LayoutParams.WRAP_CONTENT;
-//      overlayParams.height = LayoutParams.WRAP_CONTENT;
-//      overlay.setBackgroundColor(Color.TRANSPARENT);
-//      overlay.setGravity(Gravity.BOTTOM | Gravity.RIGHT);
-//      overlay.setText("+");
-//      overlay.setTextColor(Color.GREEN);
-//      overlay.setTextSize(24);
-//      overlay.setClickable(true);
-//      overlay.setOnClickListener(new ExpandClickListener(tile));
-//      overlays.put(tile, overlay);
-//      super.addView(overlay, index, overlayParams);
-//    }
   }
 
   /**
-   * Get the specification for a child tile
+   * Get the specification for a child tile, calculating items such as position if not already specified
    */
   private Tile.LayoutParams getChildSpec(final Tile tile, ViewGroup.LayoutParams spec)
   {
     final Tile.LayoutParams params = tile.getLayoutParams();
-    // TODO set top/left if they are not present
+    params.incorporateSpec(spec);
+    if (params.top == -1 || params.left == -1)
+    {
+      synchronized (available)
+      {
+        boolean foundSpace = false;
+        for (int row = 0; row < rows && !foundSpace; row++)
+        {
+          for (int col = 0; col < cols && !foundSpace; col++)
+          {
+            LOG.debug("Checking location ({},{})", col, row);
+            if (available[col][row])
+            {
+              boolean spaceBigEnough = col + params.colSpan <= cols && row + params.rowSpan <= rows;
+              for (int emptyRow = row; (emptyRow < row + params.rowSpan) && (emptyRow < rows) && spaceBigEnough; emptyRow++)
+              {
+                for (int emptyCol = col; (emptyCol < col + params.colSpan) && (emptyCol < cols) && spaceBigEnough; emptyCol++)
+                {
+                  if (!available[emptyCol][emptyRow])
+                  {
+                    spaceBigEnough = false;
+                  }
+                }
+              }
+              if (spaceBigEnough)
+              {
+                LOG.debug("Found space large enough at ({},{})", col, row);
+                params.top = row;
+                params.left = col;
+                foundSpace = true;
+              }
+            }
+          }
+        }
+      }
+    }
+    if (params.top == -1 || params.left == -1)
+    {
+      // Still unset - couldn't find anywhere to put it!
+      throw new RuntimeException("Nowhere found to place tile of size (" + params.colSpan + "," + params.rowSpan + ")");
+    }
+
+    updateLayoutOccupancy(params);
     return params;
+  }
+
+  private void updateLayoutOccupancy(final Tile.LayoutParams params)
+  {
+    for (int emptyRow = params.top; emptyRow < params.top + params.rowSpan; emptyRow++)
+    {
+      for (int emptyCol = params.left; emptyCol < params.left + params.colSpan; emptyCol++)
+      {
+        available[emptyCol][emptyRow] = false;
+      }
+    }
   }
 
   //  private GridLayout.LayoutParams getSpec(final Tile tile, ViewGroup.LayoutParams specIn)
@@ -310,10 +347,11 @@ public class TileLayout extends ViewGroup
     {
       final Tile.LayoutParams spec = tile.getLayoutParams();
 
-      final OnClickListener contractClickListener = new ContractClickListener(tile, spec.left, spec.top, spec.colSpan, spec.rowSpan);
+      final OnClickListener contractClickListener = new ContractClickListener(tile, spec.left, spec.top, spec.colSpan,
+                                                                              spec.rowSpan);
       spec.top = 0;
       spec.left = 0;
-      spec.colSpan = columns;
+      spec.colSpan = cols;
       spec.rowSpan = rows;
       view.setOnClickListener(contractClickListener);
       tile.onTileExpanded();
