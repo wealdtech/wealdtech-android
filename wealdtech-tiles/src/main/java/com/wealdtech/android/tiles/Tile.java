@@ -212,8 +212,6 @@ public abstract class Tile<T> extends FrameLayout
   @Override
   public void setLayoutParams(final ViewGroup.LayoutParams params)
   {
-    LOG.error("**********************************************************************{}**********************************************************************", params.getClass().getCanonicalName());
-    LOG.error("Provided with invalid layout params: {}", new Throwable());
     if (!(params instanceof Tile.LayoutParams))
     {
     }
