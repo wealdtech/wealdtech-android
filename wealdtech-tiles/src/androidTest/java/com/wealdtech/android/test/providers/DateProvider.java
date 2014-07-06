@@ -1,4 +1,4 @@
-package com.wealdtech.test.providers;
+package com.wealdtech.android.test.providers;
 
 import com.wealdtech.android.providers.AbstractProvider;
 

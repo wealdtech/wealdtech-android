@@ -1,13 +1,12 @@
-package com.wealdtech.test;
+package com.wealdtech.android.test;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import ch.qos.logback.classic.android.BasicLogcatConfigurator;
-import com.wealdtech.android.TestActivity;
-import com.wealdtech.test.providers.PresetTextProvider;
 import com.wealdtech.android.providers.Provider;
-import com.wealdtech.test.tiles.TextTile;
+import com.wealdtech.android.test.providers.PresetTextProvider;
+import com.wealdtech.android.test.tiles.TextTile;
 import com.wealdtech.android.tiles.TileLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DynamicLayoutTestActivity extends Activity
 {
-  private static final Logger LOG = LoggerFactory.getLogger(TestActivity.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DynamicLayoutTestActivity.class);
 
   Provider<String> textProvider1, textProvider2, textProvider3;
 

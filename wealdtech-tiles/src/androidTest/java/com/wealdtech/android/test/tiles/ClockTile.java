@@ -1,4 +1,4 @@
-package com.wealdtech.test.tiles;
+package com.wealdtech.android.test.tiles;
 
 import android.content.Context;
 import android.graphics.Color;

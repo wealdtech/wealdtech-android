@@ -10,14 +10,7 @@
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher">
 
-      <!--<activity android:name=".TestActivity">-->
-          <!--<intent-filter>-->
-              <!--<action android:name="android.intent.action.MAIN"/>-->
-              <!--<category android:name="android.intent.category.LAUNCHER"/>-->
-          <!--</intent-filter>-->
-      <!--</activity>-->
-
-      <activity android:name="com.wealdtech.test.DynamicLayoutTestActivity" />
-      <activity android:name="com.wealdtech.test.TileLayoutTestActivity" />
+      <activity android:name="com.wealdtech.android.test.DynamicLayoutTestActivity" />
+      <activity android:name="com.wealdtech.android.test.TileLayoutTestActivity" />
     </application>
 </manifest>

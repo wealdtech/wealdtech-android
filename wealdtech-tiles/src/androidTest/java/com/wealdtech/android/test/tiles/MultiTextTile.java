@@ -1,10 +1,11 @@
-package com.wealdtech.android.tiles;
+package com.wealdtech.android.test.tiles;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.TextView;
-import com.wealdtech.android.R;
+import com.wealdtech.android.tiles.DataChangedListener;
+import com.wealdtech.android.tiles.Tile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +42,17 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
   {
     super(context, attrs, defStyle, EDITABLE, EXPANDABLE);
 
+    // FIXME build system is not picking up the correct R; need to find out what is going on and fix it
     final LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    inflater.inflate(R.layout.test_multi_text, this, true);
-    holder.text1 = (TextView)findViewById(R.id.test_multi_text_1);
-    holder.text2 = (TextView)findViewById(R.id.test_multi_text_2);
-    holder.text3 = (TextView)findViewById(R.id.test_multi_text_3);
-    holder.text4 = (TextView)findViewById(R.id.test_multi_text_4);
+//    inflater.inflate(R.layout.test_multi_text, this, true);
+//    holder.text1 = (TextView)findViewById(R.id.test_multi_text_1);
+//    holder.text2 = (TextView)findViewById(R.id.test_multi_text_2);
+//    holder.text3 = (TextView)findViewById(R.id.test_multi_text_3);
+//    holder.text4 = (TextView)findViewById(R.id.test_multi_text_4);
+    holder.text1 = new TextView(getContext());
+    holder.text2 = new TextView(getContext());
+    holder.text3 = new TextView(getContext());
+    holder.text4 = new TextView(getContext());
   }
 
   @Override

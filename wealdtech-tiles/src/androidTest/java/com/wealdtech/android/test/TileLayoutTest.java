@@ -1,4 +1,4 @@
-package com.wealdtech.test;
+package com.wealdtech.android.test;
 
 import android.test.ActivityInstrumentationTestCase2;
 

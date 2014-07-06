@@ -1,17 +1,15 @@
-package com.wealdtech.test;
+package com.wealdtech.android.test;
 
 import android.app.Activity;
 import android.os.Bundle;
 import ch.qos.logback.classic.android.BasicLogcatConfigurator;
 import com.android.debug.hv.ViewServer;
-import com.wealdtech.android.R;
-import com.wealdtech.android.TestActivity;
-import com.wealdtech.test.providers.DateProvider;
-import com.wealdtech.test.providers.PresetTextProvider;
 import com.wealdtech.android.providers.Provider;
-import com.wealdtech.test.tiles.ClockTile;
-import com.wealdtech.android.tiles.MultiTextTile;
-import com.wealdtech.test.tiles.TextTile;
+import com.wealdtech.android.test.providers.DateProvider;
+import com.wealdtech.android.test.providers.PresetTextProvider;
+import com.wealdtech.android.test.tiles.ClockTile;
+import com.wealdtech.android.test.tiles.MultiTextTile;
+import com.wealdtech.android.test.tiles.TextTile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +19,7 @@ import java.util.Date;
  */
 public class TileLayoutTestActivity extends Activity
 {
-  private static final Logger LOG = LoggerFactory.getLogger(TestActivity.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TileLayoutTestActivity.class);
 
   Provider<Date> clockProvider;
   Provider<String> textProvider;

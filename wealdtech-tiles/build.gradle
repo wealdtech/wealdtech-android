@@ -22,7 +22,6 @@ android {
       exclude 'META-INF/jersey-module-version'
     }
 
-//    testPackageName "com.wealdtech.test"
     testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
   }
 
