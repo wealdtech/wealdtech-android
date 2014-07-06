@@ -22,10 +22,10 @@ public class TileLayoutTest extends ActivityInstrumentationTestCase2<TileLayoutT
     activity.finish();
   }
 
-//  public void testEspresso()
-//  {
-//    final TileLayoutTestActivity activity = getActivity();
-//    onView(withText("Text view 1")).perform(click()).check(matches(withText("Text view 1")));
-//    activity.finish();
-//  }
+  public void testEspresso()
+  {
+    final TileLayoutTestActivity activity = getActivity();
+//    onView(withId(R.id.test_layout_text_tile_1)).check(matches(withText("Text view 1")));
+    activity.finish();
+  }
 }

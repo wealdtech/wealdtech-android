@@ -2,31 +2,108 @@ package com.wealdtech.test;
 
 import android.app.Activity;
 import android.os.Bundle;
+import ch.qos.logback.classic.android.BasicLogcatConfigurator;
+import com.android.debug.hv.ViewServer;
+import com.wealdtech.android.R;
+import com.wealdtech.android.TestActivity;
+import com.wealdtech.test.providers.DateProvider;
+import com.wealdtech.test.providers.PresetTextProvider;
+import com.wealdtech.android.providers.Provider;
+import com.wealdtech.test.tiles.ClockTile;
+import com.wealdtech.android.tiles.MultiTextTile;
+import com.wealdtech.test.tiles.TextTile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  */
 public class TileLayoutTestActivity extends Activity
 {
+  private static final Logger LOG = LoggerFactory.getLogger(TestActivity.class);
+
+  Provider<Date> clockProvider;
+  Provider<String> textProvider;
+
+  public TileLayoutTestActivity()
+  {
+    clockProvider = new DateProvider();
+    textProvider = new PresetTextProvider("Hello, world");
+    holder = new ViewHolder();
+    BasicLogcatConfigurator.configureDefaultContext();
+  }
+
+  private class ViewHolder
+  {
+    public TextTile textTile1;
+    public TextTile textTile2;
+    public TextTile textTile3;
+    public ClockTile clockTile1;
+    public ClockTile clockTile2;
+    public ClockTile clockTile3;
+    public ClockTile clockTile4;
+    public MultiTextTile multiTextTile1;
+    public MultiTextTile multiTextTile2;
+  }
+  private ViewHolder holder;
+
   @Override
   public void onCreate(final Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-//
-//    final TileLayout layout = new TileLayout(getBaseContext());
-//
-//    final TextView textView1 = new TextView(this);
-//    textView1.setText("Text view 1");
-//    final TileView tileView1 = new TileView(textView1, 0, 0, 4, 2);
-//    layout.addTile(tileView1);
-//
-//    final TextView textView2 = new TextView(this);
-//    textView2.setText("Text view 2");
-//    final TileView tileView2 = new TileView(textView2, 0, 2, 2, 2);
-//    layout.addTile(tileView2);
-//
-//    final TextView textView3 = new TextView(this);
-//    textView3.setText("Text view 3");
-//    final TileView tileView3 = new TileView(textView3, 2, 2, 2, 2);
-//    layout.addTile(tileView3);
+    ViewServer.get(this).addWindow(this);
+    setContentView(R.layout.test_activity);
+
+    //    final TileLayout layout = (TileLayout)findViewById(R.id.test_layout);
+
+    holder.textTile1 = (TextTile)findViewById(R.id.test_layout_text_tile_1);
+    textProvider.addDataChangedListener(holder.textTile1);
+    holder.textTile2 = (TextTile)findViewById(R.id.test_layout_text_tile_2);
+    textProvider.addDataChangedListener(holder.textTile2);
+    holder.textTile3 = (TextTile)findViewById(R.id.test_layout_text_tile_3);
+    textProvider.addDataChangedListener(holder.textTile3);
+
+    holder.clockTile1 = (ClockTile)findViewById(R.id.test_layout_clock_tile_1);
+    clockProvider.addDataChangedListener(holder.clockTile1);
+    holder.clockTile2 = (ClockTile)findViewById(R.id.test_layout_clock_tile_2);
+    clockProvider.addDataChangedListener(holder.clockTile2);
+    holder.clockTile3 = (ClockTile)findViewById(R.id.test_layout_clock_tile_3);
+    clockProvider.addDataChangedListener(holder.clockTile3);
+    holder.clockTile4 = (ClockTile)findViewById(R.id.test_layout_clock_tile_4);
+    clockProvider.addDataChangedListener(holder.clockTile4);
+
+    holder.multiTextTile1 = (MultiTextTile)findViewById(R.id.test_layout_multi_text_tile_1);
+    textProvider.addDataChangedListener(holder.multiTextTile1);
+    holder.multiTextTile2 = (MultiTextTile)findViewById(R.id.test_layout_multi_text_tile_2);
+    textProvider.addDataChangedListener(holder.multiTextTile2);
+
+    clockProvider.startProviding();
+    textProvider.startProviding();
+  }
+
+  @Override
+  public void onResume()
+  {
+    super.onResume();
+    ViewServer.get(this).setFocusedWindow(this);
+  }
+
+  @Override
+  public void onDestroy()
+  {
+    clockProvider.stopProviding();
+    textProvider.stopProviding();
+    textProvider.removeDataChangedListener(holder.textTile1);
+    textProvider.removeDataChangedListener(holder.textTile2);
+    textProvider.removeDataChangedListener(holder.textTile3);
+    clockProvider.removeDataChangedListener(holder.clockTile1);
+    clockProvider.removeDataChangedListener(holder.clockTile2);
+    clockProvider.removeDataChangedListener(holder.clockTile3);
+    clockProvider.removeDataChangedListener(holder.clockTile4);
+    textProvider.removeDataChangedListener(holder.multiTextTile1);
+    textProvider.removeDataChangedListener(holder.multiTextTile2);
+    ViewServer.get(this).removeWindow(this);
+    super.onDestroy();
   }
 }

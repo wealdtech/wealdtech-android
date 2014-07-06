@@ -89,7 +89,7 @@ public abstract class Tile<T> extends FrameLayout
                         final Editable editable,
                         final boolean expandable)
   {
-    final LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    final LayoutParams params = new LayoutParams();
     params.editable = editable;
     params.expandable = expandable;
     final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Tile);
@@ -209,7 +209,19 @@ public abstract class Tile<T> extends FrameLayout
     return (LayoutParams) super.getLayoutParams();
   }
 
-  public static class LayoutParams extends ViewGroup.LayoutParams
+  @Override
+  public void setLayoutParams(final ViewGroup.LayoutParams params)
+  {
+    LOG.error("**********************************************************************{}**********************************************************************", params.getClass().getCanonicalName());
+    LOG.error("Provided with invalid layout params: {}", new Throwable());
+    if (!(params instanceof Tile.LayoutParams))
+    {
+    }
+    super.setLayoutParams(params);
+  }
+
+  public static class
+      LayoutParams extends ViewGroup.LayoutParams
   {
     public int top = -1;
     public int left = -1;
@@ -219,11 +231,6 @@ public abstract class Tile<T> extends FrameLayout
     public Editable editable = Editable.NEVER;
 
     public LayoutParams()
-    {
-      this(MATCH_PARENT, MATCH_PARENT);
-    }
-
-    public LayoutParams(int width, int height)
     {
       super(MATCH_PARENT, MATCH_PARENT);
     }
@@ -264,7 +271,8 @@ public abstract class Tile<T> extends FrameLayout
 
     public void incorporateSpec(final ViewGroup.LayoutParams spec)
     {
-      LOG.error("FIXME: incorporate spec {}", spec.toString());
+      // FIXME incorporate spec - how?
+//      LOG.error("FIXME: incorporate spec {}", spec.toString());
     }
   }
 

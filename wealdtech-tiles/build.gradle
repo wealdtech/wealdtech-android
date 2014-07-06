@@ -23,7 +23,7 @@ android {
     }
 
 //    testPackageName "com.wealdtech.test"
-//    testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
+    testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
   }
 
   buildTypes {

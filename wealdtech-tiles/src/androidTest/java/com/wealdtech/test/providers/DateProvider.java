@@ -1,4 +1,6 @@
-package com.wealdtech.android.providers;
+package com.wealdtech.test.providers;
+
+import com.wealdtech.android.providers.AbstractProvider;
 
 import java.util.Date;
 
