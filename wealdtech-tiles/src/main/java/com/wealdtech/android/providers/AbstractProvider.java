@@ -28,6 +28,8 @@ public abstract class AbstractProvider<T> implements Provider<T>
   private ProviderState providerState;
   private ConfigurationState configurationState;
 
+  private boolean obtainedData;
+
   private final String name;
 
   private final long updateInterval;
@@ -84,6 +86,9 @@ public abstract class AbstractProvider<T> implements Provider<T>
       pollingTask = null;
     }
 
+    // We have yet to obtain data since we started polling...
+    obtainedData = false;
+
     LOG.info("{}: setting up polling", name);
     pollingTask = new AsyncTask<Void, Void, Void>()
     {
@@ -96,6 +101,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
           final T newData = obtainData();
           final T oldData = data;
           data = newData;
+          obtainedData = true;
           if (dataDifferent(oldData, newData))
           {
             publishProgress();
@@ -133,6 +139,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
   private void fetchOnce()
   {
     LOG.info("{}: fetching once", name);
+    obtainedData = false;
     final AsyncTask<Void, Void, T> task = new AsyncTask<Void, Void, T>()
     {
       @Override
@@ -148,6 +155,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
         LOG.info("{}: obtained data", name);
         final T oldData = data;
         data = result;
+        obtainedData = true;
         if (dataDifferent(oldData, result))
         {
           LOG.info("{}: notifying listeners", name);
@@ -235,7 +243,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
   {
     LOG.info("{}: Adding listener {}", name, listener);
     listeners.add(listener);
-    if (providerState == ProviderState.PROVIDING)
+    if (providerState == ProviderState.PROVIDING && obtainedData)
     {
       notifyListener(listener);
     }
