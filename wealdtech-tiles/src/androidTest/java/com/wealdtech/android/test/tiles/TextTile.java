@@ -5,7 +5,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import com.wealdtech.android.tiles.DataChangedListener;
+import com.wealdtech.android.providers.DataChangedListener;
 import com.wealdtech.android.tiles.Tile;
 import com.wealdtech.android.utils.ViewUtils;
 import org.slf4j.Logger;

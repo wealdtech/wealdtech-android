@@ -3,7 +3,6 @@ package com.wealdtech.android.providers;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import com.wealdtech.android.tiles.DataChangedListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -202,9 +202,6 @@ public abstract class Tile<T> extends FrameLayout
   @Override
   public void setLayoutParams(final ViewGroup.LayoutParams params)
   {
-    if (!(params instanceof Tile.LayoutParams))
-    {
-    }
     super.setLayoutParams(params);
   }
 
@@ -320,10 +317,11 @@ public abstract class Tile<T> extends FrameLayout
   }
 
   /**
-   * Work out if this tile will show information.  Useful to run when deciding whether to add a tile to a view or not.
-   * Note that this uses the informaiton currently supplied by the provider; if there is no provider then this will return
-   * {@code false}.
+   * Work out if this tile will show information.  Useful to run prior to instantiating a tile to decide if it's worth it or not
    * @return {@code true} if the tile will show information; otherwise {@code false}
    */
-  public abstract boolean willShowInformation();
+  public static <T> boolean willShowInformation(final T data)
+  {
+    return data != null;
+  }
 }

@@ -1,7 +1,5 @@
 package com.wealdtech.android.providers;
 
-import com.wealdtech.android.tiles.DataChangedListener;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
