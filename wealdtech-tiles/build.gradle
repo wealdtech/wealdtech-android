@@ -56,7 +56,7 @@ dependencies {
   compile 'com.github.tony19:logback-android-classic:1.1.1-2'
 
   // Testing
-//  androidTestCompile 'com.squareup:fest-android:1.+'
+  androidTestCompile 'com.squareup:fest-android:1.+'
   androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
 //    exclude group: 'com.google.guava'
 //    exclude group: 'com.google.code.findbugs'

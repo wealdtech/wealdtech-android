@@ -15,6 +15,7 @@ public class PresetTextProvider extends AbstractProvider<String>
     this.text = text;
   }
 
+  @Override
   public String obtainData()
   {
     return text;

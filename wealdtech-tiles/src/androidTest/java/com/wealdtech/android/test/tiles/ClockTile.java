@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import com.wealdtech.android.tiles.DataChangedListener;
 import com.wealdtech.android.tiles.Tile;
+import com.wealdtech.android.utils.ViewUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +23,11 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
   private static final Editable EDITABLE = Editable.NEVER;
   private static final boolean EXPANDABLE = true;
 
-  private static class ViewHolder
+  public static class ViewHolder
   {
     public Button display;
   }
-
-  private final ViewHolder holder = new ViewHolder();
+  public final ViewHolder holder = new ViewHolder();
 
   public ClockTile(final Context context)
   {
@@ -44,6 +44,7 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
     super(context, attrs, defStyle, EDITABLE, EXPANDABLE);
 
     holder.display = new Button(context);
+    holder.display.setId(ViewUtils.generateViewId());
     holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                               ViewGroup.LayoutParams.MATCH_PARENT));
     holder.display.setBackgroundColor(Color.RED);
@@ -53,16 +54,15 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
   @Override
   public void onDataChanged(final Date data)
   {
-    refreshDisplay();
+    refreshDisplay(data);
   }
 
   @Override
-  public void refreshDisplay()
+  protected void refreshDisplay(final Date data)
   {
-    if (provider != null &&
-        provider.getData() != null)
+    if (data != null)
     {
-      holder.display.setText(provider.getData().toString());
+      holder.display.setText(data.toString());
     }
       else
     {
@@ -70,9 +70,11 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
     }
   }
 
+
   @Override
   public boolean willShowInformation()
   {
-    return provider.getData() != null;
+    return true;
+//    return provider.getData() != null;
   }
 }

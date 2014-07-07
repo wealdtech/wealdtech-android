@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.widget.TextView;
 import com.wealdtech.android.tiles.DataChangedListener;
 import com.wealdtech.android.tiles.Tile;
+import com.wealdtech.android.utils.ViewUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,40 +51,34 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
 //    holder.text3 = (TextView)findViewById(R.id.test_multi_text_3);
 //    holder.text4 = (TextView)findViewById(R.id.test_multi_text_4);
     holder.text1 = new TextView(getContext());
+    holder.text1.setId(ViewUtils.generateViewId());
     holder.text2 = new TextView(getContext());
+    holder.text2.setId(ViewUtils.generateViewId());
     holder.text3 = new TextView(getContext());
+    holder.text3.setId(ViewUtils.generateViewId());
     holder.text4 = new TextView(getContext());
+    holder.text4.setId(ViewUtils.generateViewId());
   }
 
   @Override
   public void onDataChanged(final String data)
   {
-    refreshDisplay();
+    refreshDisplay(data);
   }
 
   @Override
-  public void refreshDisplay()
+  protected void refreshDisplay(final String data)
   {
-    if (provider != null &&
-        provider.getData() != null)
-    {
-      holder.text1.setText(provider.getData());
-      holder.text2.setText(provider.getData());
-      holder.text3.setText(provider.getData());
-      holder.text4.setText(provider.getData());
-    }
-    else
-    {
-      holder.text1.setText(null);
-      holder.text2.setText(null);
-      holder.text3.setText(null);
-      holder.text4.setText(null);
-    }
+    holder.text1.setText(data);
+    holder.text2.setText(data);
+    holder.text3.setText(data);
+    holder.text4.setText(data);
   }
 
   @Override
   public boolean willShowInformation()
   {
-    return provider.getData() != null;
+    return true;
+//    return provider.getData() != null;
   }
 }

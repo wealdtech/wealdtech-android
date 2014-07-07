@@ -4,14 +4,15 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.TextView;
 import com.wealdtech.android.tiles.DataChangedListener;
 import com.wealdtech.android.tiles.Tile;
+import com.wealdtech.android.utils.ViewUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A tile which shows text
+ * A tile which shows simple text
  */
 public class TextTile extends Tile<String> implements DataChangedListener<String>
 {
@@ -20,11 +21,11 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   private static final Editable EDITABLE = Editable.NEVER;
   private static final boolean EXPANDABLE = true;
 
-  private static class ViewHolder
+  public static class ViewHolder
   {
-    public Button display;
+    public TextView text;
   }
-  private final ViewHolder holder = new ViewHolder();
+  public final ViewHolder holder = new ViewHolder();
 
   public TextTile(final Context context)
   {
@@ -40,47 +41,42 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   {
     super(context, attrs, defStyle, EDITABLE, EXPANDABLE);
 
-    holder.display = new Button(context);
-    holder.display.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+    holder.text = new TextView(context);
+    holder.text.setId(ViewUtils.generateViewId());
+    holder.text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                               ViewGroup.LayoutParams.MATCH_PARENT));
 
-    addView(holder.display);
+    addView(holder.text);
   }
 
   @Override
   public void onDataChanged(final String data)
   {
-    refreshDisplay();
+    refreshDisplay(data);
   }
 
   @Override
-  public void refreshDisplay()
+  protected void refreshDisplay(final String data)
   {
-    if (provider != null && provider.getData() != null)
-    {
-      holder.display.setText(provider.getData());
-    }
-    else
-    {
-      holder.display.setText(null);
-    }
+    holder.text.setText(data);
   }
 
   @Override
   public void onTileExpanded()
   {
-    holder.display.setTextColor(Color.BLUE);
+    holder.text.setTextColor(Color.BLUE);
   }
 
   @Override
   public void onTileContracted()
   {
-    holder.display.setTextColor(Color.WHITE);
+    holder.text.setTextColor(Color.WHITE);
   }
 
   @Override
   public boolean willShowInformation()
   {
-    return provider.getData() != null;
+    return true;
+//    return provider.getData() != null;
   }
 }

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.wealdtech.android.R;
-import com.wealdtech.android.providers.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +21,6 @@ import javax.annotation.Nonnull;
 public abstract class Tile<T> extends FrameLayout
 {
   private static final Logger LOG = LoggerFactory.getLogger(Tile.class);
-
-  /** The provider for the data */
-  protected Provider<T> provider;
 
   /** The controls for the tile */
   protected final View controlLayout;
@@ -180,13 +176,7 @@ public abstract class Tile<T> extends FrameLayout
     return result;
   }
 
-  public void setProvider(final Provider<T> provider)
-  {
-    this.provider = provider;
-    refreshDisplay();
-  }
-
-  public abstract void refreshDisplay();
+  protected abstract void refreshDisplay(final T data);
 
   public void onTileExpanded()
   {
