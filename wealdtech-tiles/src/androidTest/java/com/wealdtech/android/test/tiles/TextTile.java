@@ -25,6 +25,7 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   {
     public TextView text;
   }
+
   public final ViewHolder holder = new ViewHolder();
 
   public TextTile(final Context context)
@@ -44,7 +45,7 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
     holder.text = new TextView(context);
     holder.text.setId(ViewUtils.generateViewId());
     holder.text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                                              ViewGroup.LayoutParams.MATCH_PARENT));
+                                                           ViewGroup.LayoutParams.MATCH_PARENT));
 
     addView(holder.text);
   }
@@ -71,12 +72,5 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
   public void onTileContracted()
   {
     holder.text.setTextColor(Color.WHITE);
-  }
-
-  @Override
-  public boolean willShowInformation()
-  {
-    return true;
-//    return provider.getData() != null;
   }
 }

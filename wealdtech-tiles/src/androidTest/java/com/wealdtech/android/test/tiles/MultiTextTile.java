@@ -74,11 +74,4 @@ public class MultiTextTile extends Tile<String> implements DataChangedListener<S
     holder.text3.setText(data);
     holder.text4.setText(data);
   }
-
-  @Override
-  public boolean willShowInformation()
-  {
-    return true;
-//    return provider.getData() != null;
-  }
 }

@@ -1,12 +1,14 @@
 package com.wealdtech.android.providers;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
 
   private long updateInterval;
 
-  private AsyncTask<Void, T, Void> pollingTask;
+  private AsyncTask<Void, Void, Void> pollingTask;
 
   public AbstractProvider(final long updateInterval)
   {
@@ -35,7 +37,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
     providing = false;
   }
 
-  public void startProviding() throws IllegalStateException
+  public final void startProviding() throws IllegalStateException
   {
     if (updateInterval > 0)
     {
@@ -50,15 +52,26 @@ public abstract class AbstractProvider<T> implements Provider<T>
 
   private void startPolling()
   {
-    pollingTask = new AsyncTask<Void, T, Void>()
+    if (pollingTask != null)
+    {
+      pollingTask.cancel(true);
+      pollingTask = null;
+    }
+
+    pollingTask = new AsyncTask<Void, Void, Void>()
     {
       @Override
       protected Void doInBackground(final Void... params)
       {
-        while (providing)
+        while (!isCancelled())
         {
-          data = obtainData();
-          publishProgress(data);
+          final T newData = obtainData();
+          final T oldData = data;
+          data = newData;
+          if (dataDifferent(oldData, newData))
+          {
+            publishProgress();
+          }
           try
           {
             Thread.sleep(updateInterval);
@@ -70,73 +83,73 @@ public abstract class AbstractProvider<T> implements Provider<T>
         return null;
       }
 
-      @SuppressWarnings("unchecked")
       @Override
-      protected void onProgressUpdate(final T... item)
+      protected void onProgressUpdate(final Void... item)
       {
         notifyListeners();
       }
     };
-    pollingTask.execute(null, null, null);
+    // Run in thread pool for real multi-threading
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+    {
+      pollingTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null, null, null);
+    }
+    else
+    {
+      pollingTask.execute(null, null, null);
+    }
   }
 
-//  private void fetchOnce()
-//  {
-//    new AsyncTask<Void, T, Void>()
-//    {
-//      @Override
-//      protected Void doInBackground(final Void... params)
-//      {
-//        data = obtainData();
-//        publishProgress(data);
-//        return null;
-//      }
-//
-//      @SuppressWarnings("unchecked")
-//      @Override
-//      protected void onProgressUpdate(final T... item)
-//      {
-//        notifyListeners();
-//      }
-//    }.execute(null, null, null);
-//  }
-
-    private void fetchOnce()
+  private void fetchOnce()
+  {
+    final AsyncTask<Void, Void, T> task = new AsyncTask<Void, Void, T>()
     {
-      new AsyncTask<Void, Void, T>()
+      @Override
+      protected T doInBackground(final Void... params)
       {
-        @Override
-        protected T doInBackground(final Void... params)
+        return obtainData();
+      }
+
+      @Override
+      protected void onPostExecute(final T result)
+      {
+        final T oldData = data;
+        data = result;
+        if (dataDifferent(oldData, result))
         {
-          return obtainData();
-        }
-        @Override
-        protected void onPostExecute(final T result)
-        {
-          data = result;
           notifyListeners();
         }
-      }.execute(null, null, null);
+      }
+    };
+    // Run in thread pool for real multi-threading
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+    {
+      task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null, null, null);
     }
+    else
+    {
+      task.execute(null, null, null);
+    }
+  }
 
-  public void stopProviding()
+  public final void stopProviding()
   {
     providing = false;
     if (pollingTask != null)
     {
-      pollingTask.cancel(true);
+      final boolean result = pollingTask.cancel(true);
       pollingTask = null;
     }
   }
 
-  public boolean isProviding()
+  public final boolean isProviding()
   {
     return providing;
   }
 
   public abstract T obtainData();
 
-  public T getData() throws IllegalStateException
+  public final T getData() throws IllegalStateException
   {
     if (!providing)
     {
@@ -146,48 +159,75 @@ public abstract class AbstractProvider<T> implements Provider<T>
   }
 
   /**
-   * {@inheritDoc}
-   * If this provider is currently providing then it will update the passed-in listener on the UI thread
+   * {@inheritDoc} If this provider is currently providing then it will update the passed-in listener immediately
    */
   @Override
-  public void addDataChangedListener(@Nonnull final DataChangedListener<T> listener)
+  public final void addDataChangedListener(@Nonnull final DataChangedListener<T> listener)
   {
     listeners.add(listener);
     if (providing)
     {
-      new Handler(Looper.getMainLooper()).post(new Runnable()
-      {
-        @Override
-        public void run()
-        {
-          listener.onDataChanged(data);
-        }
-      });
+      notifyListener(listener);
     }
   }
 
   @Override
-  public void removeDataChangedListener(@Nonnull final DataChangedListener<T> listener)
+  public final void removeDataChangedListener(@Nonnull final DataChangedListener<T> listener)
   {
     listeners.remove(listener);
   }
 
+  @Override
+  public final void removeDataChangedListeners()
+  {
+    listeners.clear();
+  }
+
   /**
-   * Notify listeners that our data has changed.
-   * Note that this always runs on the UI thread as it can update views
+   * Notify listeners that our data has changed
    */
   private void notifyListeners()
+  {
+    // Always update
+    for (final DataChangedListener<T> listener : listeners)
+    {
+      notifyListener(listener);
+    }
+  }
+
+  /**
+   * Notify listeners that our data has changed. Note that this always runs on the UI thread as it can update views
+   */
+  private void notifyListener(final DataChangedListener<T> listener)
   {
     new Handler(Looper.getMainLooper()).post(new Runnable()
     {
       @Override
       public void run()
       {
-        for (final DataChangedListener<T> listener : listeners)
-        {
-          listener.onDataChanged(data);
-        }
+        listener.onDataChanged(data);
       }
     });
+  }
+
+  /**
+   * @return {@code true} if the two data items are different, otherwise {@code false}
+   */
+  protected static <T> boolean dataDifferent(@Nullable final T oldData, @Nullable final T newData)
+  {
+    final boolean result;
+    if (newData == null && oldData == null)
+    {
+      result = false;
+    }
+    else if (newData != null && oldData != null)
+    {
+      result = !oldData.equals(newData);
+    }
+    else
+    {
+      result = true;
+    }
+    return result;
   }
 }

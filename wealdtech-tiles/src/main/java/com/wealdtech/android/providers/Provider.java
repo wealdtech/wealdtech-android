@@ -33,6 +33,11 @@ public interface Provider<T>
   void removeDataChangedListener(@Nonnull DataChangedListener<T> listener);
 
   /**
+   * Remove all listeners for this provider.
+   */
+  void removeDataChangedListeners();
+
+  /**
    * Start providing data
    * @throws IllegalStateException if the provider is not configured to provide data
    */

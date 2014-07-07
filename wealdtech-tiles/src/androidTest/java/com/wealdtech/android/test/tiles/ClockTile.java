@@ -69,12 +69,4 @@ public class ClockTile extends Tile<Date> implements DataChangedListener<Date>
       holder.display.setText(null);
     }
   }
-
-
-  @Override
-  public boolean willShowInformation()
-  {
-    return true;
-//    return provider.getData() != null;
-  }
 }
