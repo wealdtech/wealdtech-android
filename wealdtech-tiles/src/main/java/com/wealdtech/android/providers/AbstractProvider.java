@@ -25,44 +25,72 @@ public abstract class AbstractProvider<T> implements Provider<T>
 
   private T data;
 
-  private boolean providing;
+  private ProviderState providerState;
+  private ConfigurationState configurationState;
 
-  private long updateInterval;
+  private final String name;
+
+  private final long updateInterval;
 
   private AsyncTask<Void, Void, Void> pollingTask;
 
   public AbstractProvider(final long updateInterval)
   {
+    this("Provider", updateInterval);
+  }
+
+  public AbstractProvider(final String name, final long updateInterval)
+  {
+    this.name = name;
     this.updateInterval = updateInterval;
-    providing = false;
+    this.providerState = ProviderState.NOT_PROVIDING;
+    this.configurationState = ConfigurationState.NOT_CONFIGURED;
   }
 
   public final void startProviding() throws IllegalStateException
   {
-    if (updateInterval > 0)
+    LOG.info("{}: starting providing", name);
+    if (providerState == ProviderState.PROVIDING)
     {
-      startPolling();
+      throw new IllegalStateException("Already providing data");
+    }
+    if (configurationState == ConfigurationState.NOT_CONFIGURED)
+    {
+      // We want to provide but aren't configured; note it but nothing else
+      providerState = ProviderState.AWAITING_CONFIGURATION;
     }
     else
     {
-      fetchOnce();
+      if (isPollingProvider())
+      {
+        LOG.info("{}: starting polling", name);
+        startPolling();
+      }
+      else
+      {
+        LOG.info("{}: fetching once", name);
+        fetchOnce();
+      }
+      providerState = ProviderState.PROVIDING;
     }
-    providing = true;
   }
 
   private void startPolling()
   {
     if (pollingTask != null)
     {
+      LOG.info("{}: cancelling previous polling task", name);
       pollingTask.cancel(true);
       pollingTask = null;
     }
 
+    LOG.info("{}: setting up polling", name);
     pollingTask = new AsyncTask<Void, Void, Void>()
     {
       @Override
       protected Void doInBackground(final Void... params)
       {
+        LOG.info("{}: starting polling", name);
         while (!isCancelled())
         {
           final T newData = obtainData();
@@ -80,19 +108,21 @@ public abstract class AbstractProvider<T> implements Provider<T>
           {
           }
         }
+        LOG.info("{}: finished polling", name);
         return null;
       }
 
       @Override
       protected void onProgressUpdate(final Void... item)
       {
+        LOG.info("{}: polling update", name);
         notifyListeners();
       }
     };
     // Run in thread pool for real multi-threading
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
     {
-      pollingTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null, null, null);
+      pollingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
     }
     else
     {
@@ -102,21 +132,25 @@ public abstract class AbstractProvider<T> implements Provider<T>
 
   private void fetchOnce()
   {
+    LOG.info("{}: fetching once", name);
     final AsyncTask<Void, Void, T> task = new AsyncTask<Void, Void, T>()
     {
       @Override
       protected T doInBackground(final Void... params)
       {
+        LOG.info("{}: obtaining data", name);
         return obtainData();
       }
 
       @Override
       protected void onPostExecute(final T result)
       {
+        LOG.info("{}: obtained data", name);
         final T oldData = data;
         data = result;
         if (dataDifferent(oldData, result))
         {
+          LOG.info("{}: notifying listeners", name);
           notifyListeners();
         }
       }
@@ -124,7 +158,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
     // Run in thread pool for real multi-threading
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
     {
-      task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, null, null, null);
+      task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
     }
     else
     {
@@ -134,28 +168,63 @@ public abstract class AbstractProvider<T> implements Provider<T>
 
   public final void stopProviding()
   {
-    providing = false;
+    providerState = ProviderState.NOT_PROVIDING;
     if (pollingTask != null)
     {
-      final boolean result = pollingTask.cancel(true);
+      LOG.info("{}: cancelling task", name);
+      pollingTask.cancel(true);
       pollingTask = null;
     }
-  }
-
-  public final boolean isProviding()
-  {
-    return providing;
   }
 
   public abstract T obtainData();
 
   public final T getData() throws IllegalStateException
   {
-    if (!providing)
+    if (configurationState != ConfigurationState.CONFIGURED)
+    {
+      throw new IllegalStateException("Attempt to obtain data from provider which is not configured");
+    }
+    if (providerState != ProviderState.PROVIDING)
     {
       throw new IllegalStateException("Attempt to obtain data from provider which is not providing");
     }
     return data;
+  }
+
+  public void setConfigurationState(final ConfigurationState configurationState) throws IllegalStateException
+  {
+    LOG.info("{}: Setting configuration state to {} (was {})", name, configurationState, this.configurationState);
+    if (configurationState == ConfigurationState.CONFIGURED && !canProvideData())
+    {
+      throw new IllegalStateException("Attempt to set configured when not able to provide data");
+    }
+    if (configurationState != this.configurationState)
+    {
+      this.configurationState = configurationState;
+      // If we go from configured to not configured we might need to stop polling
+      if (configurationState == ConfigurationState.NOT_CONFIGURED && this.providerState == ProviderState.PROVIDING)
+      {
+        LOG.info("{}: no longer configured; stopping providing", name);
+        stopProviding();
+      }
+      else if (configurationState == ConfigurationState.CONFIGURED)
+      {
+        if (this.providerState == ProviderState.PROVIDING)
+        {
+          LOG.info("{}: now configured; resetting providing", name);
+          // Currently providing so need to restart
+          stopProviding();
+          startProviding();
+        }
+        else if (this.providerState == ProviderState.AWAITING_CONFIGURATION)
+        {
+          LOG.info("{}: now configured; starting providing", name);
+          // We couldn't provide because we didn't have configuration but now we do.
+          startProviding();
+        }
+      }
+    }
   }
 
   /**
@@ -164,8 +233,9 @@ public abstract class AbstractProvider<T> implements Provider<T>
   @Override
   public final void addDataChangedListener(@Nonnull final DataChangedListener<T> listener)
   {
+    LOG.info("{}: Adding listener {}", name, listener);
     listeners.add(listener);
-    if (providing)
+    if (providerState == ProviderState.PROVIDING)
     {
       notifyListener(listener);
     }
@@ -174,12 +244,14 @@ public abstract class AbstractProvider<T> implements Provider<T>
   @Override
   public final void removeDataChangedListener(@Nonnull final DataChangedListener<T> listener)
   {
+    LOG.info("{}: Removing single listener {}", name, listener);
     listeners.remove(listener);
   }
 
   @Override
   public final void removeDataChangedListeners()
   {
+    LOG.info("{}: Removing all listeners", name);
     listeners.clear();
   }
 
@@ -188,6 +260,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
    */
   private void notifyListeners()
   {
+    LOG.info("{}: Notifying all listeners", name);
     // Always update
     for (final DataChangedListener<T> listener : listeners)
     {
@@ -200,6 +273,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
    */
   private void notifyListener(final DataChangedListener<T> listener)
   {
+    LOG.info("{}: Notifying single listener {}", name, listener);
     new Handler(Looper.getMainLooper()).post(new Runnable()
     {
       @Override
@@ -229,5 +303,20 @@ public abstract class AbstractProvider<T> implements Provider<T>
       result = true;
     }
     return result;
+  }
+
+  @Override
+  public boolean canProvideData()
+  {
+    return configurationState == ConfigurationState.CONFIGURED && providerState == ProviderState.PROVIDING;
+  }
+
+  /**
+   * Help to state if we are a polling provider.  Note that this gives no indication if the provider is currently polling.
+   * @return {@code true} if we are a polling provider; otherwise {@code false}
+   */
+  private boolean isPollingProvider()
+  {
+    return updateInterval > 0;
   }
 }

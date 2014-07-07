@@ -39,7 +39,8 @@ public interface Provider<T>
 
   /**
    * Start providing data
-   * @throws IllegalStateException if the provider is not configured to provide data
+   * @throws IllegalStateException if the provider is not configured to provide data.  Current state can be obtained using
+   * {@code getState()}
    */
   void startProviding() throws IllegalStateException;
 
@@ -49,7 +50,19 @@ public interface Provider<T>
   void stopProviding();
 
   /**
-   * @return {@code true} if the provider is providing data; otherwise {@code false}
+   * Set the configuration state of the provider.  If we are already providing then this will refetch data or restart polling to
+   * ensure that the data remains correct
+   *
+   * @param configurationState a valid configuration state.
+   *
+   * @throws java.lang.IllegalStateException if the provider sets {@code CONFIGURED} but cannot provide data
    */
-  boolean isProviding();
+  void setConfigurationState(ConfigurationState configurationState) throws IllegalStateException;
+
+  /**
+   * @return {@code true} if this provider is able to return data at current.  This is a check that any parameters or other
+   * prerequisites have been set to avoid running useless polling threads; it does not guarantee that any data returned from the
+   * provider will not be {@code null}
+   */
+  boolean canProvideData();
 }

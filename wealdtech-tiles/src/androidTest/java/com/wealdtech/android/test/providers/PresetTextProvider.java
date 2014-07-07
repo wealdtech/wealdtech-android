@@ -1,6 +1,7 @@
 package com.wealdtech.android.test.providers;
 
 import com.wealdtech.android.providers.AbstractProvider;
+import com.wealdtech.android.providers.ConfigurationState;
 
 /**
  * Provide preset text
@@ -11,13 +12,20 @@ public class PresetTextProvider extends AbstractProvider<String>
 
   public PresetTextProvider(final String text)
   {
-    super(0);
+    super("Preset text", 0);
     this.text = text;
+    setConfigurationState(ConfigurationState.CONFIGURED);
   }
 
   @Override
   public String obtainData()
   {
     return text;
+  }
+
+  @Override
+  public boolean canProvideData()
+  {
+    return true;
   }
 }
