@@ -40,6 +40,7 @@ public class TileLayout extends ViewGroup
   public TileLayout(final Context context, final AttributeSet attrs, final int defStyle)
   {
     super(context, attrs, defStyle);
+    setWillNotDraw(false);
     setAttrs(attrs, defStyle);
     initLayout();
   }
