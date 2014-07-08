@@ -50,6 +50,7 @@ public abstract class Tile<T> extends FrameLayout
               final boolean expandable)
   {
     super(context, attrs, defStyle);
+    setWillNotDraw(false);
     setAttrs(context, attrs, defStyle, editable, expandable);
     controlLayout = initControlView(context);
     final LayoutParams params = getLayoutParams();
