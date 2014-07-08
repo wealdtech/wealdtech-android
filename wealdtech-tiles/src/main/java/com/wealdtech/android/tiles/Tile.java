@@ -2,7 +2,6 @@ package com.wealdtech.android.tiles;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -262,24 +261,10 @@ public abstract class Tile<T> extends FrameLayout
   }
 
   @Override
-  public void onDraw(final Canvas canvas)
-  {
-    LOG.error("onDraw()");
-    super.onDraw(canvas);
-  }
-
-  @Override
-  public void onLayout(final boolean changed, final int l, final int t, final int r, final int b)
-  {
-    LOG.error("onLayout({}, {}, {}, {}, {})", changed, l, t, r, b);
-    super.onLayout(changed, l, t, r, b);
-  }
-
-  @Override
   public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec)
   {
-    LOG.error("onMeasure({}, {})", widthMeasureSpec, heightMeasureSpec);
-    // Tiles are always the full size of the available space (minus margins and padding); spec passed in should always be EXACTLY
+    // TODO Tiles are always the full size of the available space (minus margins and padding); spec passed in should always be EXACTLY, so we shouldn't pass this
+    // up to the parent to do the work as it over-calculates
     int widthMode = MeasureSpec.getMode(widthMeasureSpec);
     int width = MeasureSpec.getSize(widthMeasureSpec);
     int heightMode = MeasureSpec.getMode(heightMeasureSpec);
