@@ -1,8 +1,10 @@
 Document!
 
-Set control position using layout paramters
+Set control position using layout parameters
 
 Animate tile expansion/contraction
+
+Optimise drawing of layout when tile is expanded (i.e. don't draw other children)
 
 Additional controls
   - edit

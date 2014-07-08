@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 
 /**
- * Tile layout
+ * A layout based on the idea of individual tiles
  */
 public class TileLayout extends ViewGroup
 {
@@ -23,9 +23,6 @@ public class TileLayout extends ViewGroup
   private int rows = 4;
   private int cols = 4;
   private float spacing = 3;
-
-  /** Set to true whenever one of our children has been altered directly by the layout */
-  private boolean childAltered = false;
 
   public TileLayout(final Context context)
   {
@@ -83,9 +80,6 @@ public class TileLayout extends ViewGroup
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b)
   {
-    if (changed || childAltered)
-    {
-      childAltered = false;
       final int width = r - l;
       final int height = b - t;
       final float tileUnit = (int)((width < height ? width - spacing : height - spacing) / cols - spacing);
@@ -102,12 +96,12 @@ public class TileLayout extends ViewGroup
           tile.layout(left, top, right, bottom);
         }
       }
-    }
   }
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
   {
+    // FIXME sort out orientation for non-square layouts
     final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
     final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
     int width;
@@ -129,7 +123,6 @@ public class TileLayout extends ViewGroup
     {
       throw new RuntimeException("heightMeasureSpec must be AT_MOST or EXACTLY not UNSPECIFIED when orientation == VERTICAL");
     }
-
 
     // Tile unit is the size of the side of a tile
     final float tileUnit = (width < height ? width - spacing : height - spacing) / cols - spacing;
@@ -153,6 +146,7 @@ public class TileLayout extends ViewGroup
 
     width = (int)(((tileUnit + spacing) * cols) + spacing);
     height = (int)(((tileUnit + spacing) * rows) + spacing);
+    LOG.error("onMeasure(): setting measured dimensions to ({},{})", width, height);
     setMeasuredDimension(width, height);
   }
 
@@ -161,7 +155,7 @@ public class TileLayout extends ViewGroup
   {
     if (!(child instanceof Tile))
     {
-      throw new RuntimeException("Must add tiles to tile layout");
+      throw new RuntimeException("Can only add tiles to tile layout");
     }
     final Tile tile = (Tile)child;
     final Tile.LayoutParams spec = getChildSpec(tile, params);
@@ -190,7 +184,7 @@ public class TileLayout extends ViewGroup
         {
           for (int col = 0; col < cols && !foundSpace; col++)
           {
-            LOG.debug("Checking location ({},{})", col, row);
+//            LOG.debug("Checking location ({},{})", col, row);
             if (available[col][row])
             {
               boolean spaceBigEnough = col + params.colSpan <= cols && row + params.rowSpan <= rows;
@@ -206,7 +200,7 @@ public class TileLayout extends ViewGroup
               }
               if (spaceBigEnough)
               {
-                LOG.debug("Found space large enough at ({},{})", col, row);
+//                LOG.debug("Found space large enough at ({},{})", col, row);
                 params.top = row;
                 params.left = col;
                 foundSpace = true;
@@ -237,103 +231,6 @@ public class TileLayout extends ViewGroup
     }
   }
 
-  //  private GridLayout.LayoutParams getSpec(final Tile tile, ViewGroup.LayoutParams specIn)
-  //  {
-  //    final int width = tile.getTileWidth();
-  //    final int height = tile.getTileHeight();
-  //
-  //    LOG.debug("Attempting to find space for tile of size ({},{}) in layout of size ({},{})", width, height, cols, rows);
-  //    synchronized (available)
-  //    {
-  //      for (int row = 0; row < rows; row++)
-  //      {
-  //        for (int col = 0; col < cols; col++)
-  //        {
-  //          LOG.debug("Checking location ({},{})", col, row);
-  //          if (available[col][row])
-  //          {
-  //            boolean spaceBigEnough = col + width <= cols && row + height <= rows;
-  //            for (int emptyRow = row; (emptyRow < row + height) && (emptyRow < rows) && spaceBigEnough; emptyRow++)
-  //            {
-  //              for (int emptyCol = col; (emptyCol < col + width) && (emptyCol < cols) && spaceBigEnough; emptyCol++)
-  //              {
-  //                if (!available[emptyCol][emptyRow])
-  //                {
-  //                  spaceBigEnough = false;
-  //                }
-  //              }
-  //            }
-  //            if (spaceBigEnough)
-  //            {
-  //              LOG.debug("Found space large enough at ({},{})", col, row);
-  //              for (int emptyRow = row; emptyRow < row + height; emptyRow++)
-  //              {
-  //                for (int emptyCol = col; emptyCol < col + width; emptyCol++)
-  //                {
-  //                  available[emptyCol][emptyRow] = false;
-  //                }
-  //              }
-  //              Spec rowSpec = GridLayout.spec(row, tile.getTileHeight());
-  //              Spec colSpec = GridLayout.spec(col, tile.getTileWidth());
-  //              final GridLayout.LayoutParams spec;
-  //              if (specIn == null)
-  //              {
-  //                spec = new GridLayout.LayoutParams(rowSpec, colSpec);
-  //              }
-  //              else
-  //              {
-  //                spec = new GridLayout.LayoutParams(specIn);
-  //                spec.rowSpec = rowSpec;
-  //                spec.columnSpec = colSpec;
-  //              }
-  //              int tileSize = (screenWidth / cols) - (2 * spacing);
-  //              spec.width = tileSize * tile.getTileWidth() + ((tile.getTileWidth() - 1) * 2 * spacing);
-  //              spec.height = tileSize * tile.getTileHeight() + ((tile.getTileHeight() - 1) * 2 * spacing);
-  //
-  //              spec.setMargins(spacing, spacing, spacing, spacing);
-  //              return spec;
-  //            }
-  //          }
-  //        }
-  //      }
-  //    }
-  //
-  //    // If we get this far we haven't found anywhere to put it
-  //    throw new RuntimeException("Nowhere found to place tile of size (" + width + "," + height + ")");
-  //  }
-  //
-  //  @Override
-  //  public void addView(@Nonnull final View child)
-  //  {
-  //    addView(child, -1, null);
-  //  }
-  //
-  //  @Override
-  //  public void addView(@Nonnull final View child, final int index)
-  //  {
-  //    addView(child, index, null);
-  //  }
-  //
-  //  @Override
-  //  public void addView(@Nonnull final View child, final ViewGroup.LayoutParams params)
-  //  {
-  //    addView(child, -1, params);
-  //  }
-  //
-  //  @Override
-  //  public void addView(@Nonnull final View child, final int index, final ViewGroup.LayoutParams params)
-  //  {
-  //    if (!(child instanceof Tile))
-  //    {
-  //      throw new RuntimeException("Must add tiles to tile layout");
-  //    }
-  //    final Tile tile = (Tile)child;
-  //    final GridLayout.LayoutParams spec = getSpec(tile, params);
-  //    super.addView(tile, index, spec);
-  //
-  //    child.setClickable(true);
-  //    child.setOnClickListener(new ExpandClickListener());
-  //  }
   public class ExpandClickListener implements OnClickListener
   {
     private final Tile tile;
@@ -357,7 +254,7 @@ public class TileLayout extends ViewGroup
       view.setOnClickListener(contractClickListener);
       tile.onTileExpanded();
       tile.bringToFront();
-      childAltered = true;
+      requestLayout();
       invalidate();
     }
   }
@@ -389,7 +286,7 @@ public class TileLayout extends ViewGroup
       view.setOnClickListener(new ExpandClickListener(this.tile));
       tile.onTileContracted();
       tile.bringToFront();
-      childAltered = true;
+      requestLayout();
       invalidate();
     }
   }

@@ -2,6 +2,7 @@ package com.wealdtech.android.tiles;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.wealdtech.android.R;
+import com.wealdtech.android.utils.ViewUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +138,7 @@ public abstract class Tile<T> extends FrameLayout
    *
    * @param able the tile's inherent ability
    * @param requested the implementer's requested ability
+   *
    * @return the lesser of the inherent and requested abilities
    */
   private boolean calcExpandable(final boolean able, final boolean requested)
@@ -149,6 +152,7 @@ public abstract class Tile<T> extends FrameLayout
    *
    * @param able the tile's inherent ability
    * @param requested the implementer's requested ability
+   *
    * @return the lesser of the inherent and requested abilities
    */
   private Editable calcEditable(final Editable able, final Editable requested)
@@ -197,17 +201,10 @@ public abstract class Tile<T> extends FrameLayout
   @Override
   public LayoutParams getLayoutParams()
   {
-    return (LayoutParams) super.getLayoutParams();
+    return (LayoutParams)super.getLayoutParams();
   }
 
-  @Override
-  public void setLayoutParams(final ViewGroup.LayoutParams params)
-  {
-    super.setLayoutParams(params);
-  }
-
-  public static class
-      LayoutParams extends ViewGroup.LayoutParams
+  public static class LayoutParams extends ViewGroup.LayoutParams
   {
     public int top = -1;
     public int left = -1;
@@ -246,20 +243,49 @@ public abstract class Tile<T> extends FrameLayout
       super(params);
       if (params instanceof LayoutParams)
       {
-        top = ((LayoutParams) params).top;
-        left = ((LayoutParams) params).left;
-        colSpan = ((LayoutParams) params).colSpan;
-        rowSpan = ((LayoutParams) params).rowSpan;
-        expandable = ((LayoutParams) params).expandable;
-        editable = ((LayoutParams) params).editable;
+        top = ((LayoutParams)params).top;
+        left = ((LayoutParams)params).left;
+        colSpan = ((LayoutParams)params).colSpan;
+        rowSpan = ((LayoutParams)params).rowSpan;
+        expandable = ((LayoutParams)params).expandable;
+        editable = ((LayoutParams)params).editable;
       }
     }
 
     public void incorporateSpec(final ViewGroup.LayoutParams spec)
     {
+      LOG.error("Current spec is {}", ViewUtils.dump(this));
+      LOG.error("Need to incorporate spec {}", ViewUtils.dump(spec));
       // FIXME incorporate spec - how?
-//      LOG.error("FIXME: incorporate spec {}", spec.toString());
+      //      LOG.error("FIXME: incorporate spec {}", spec.toString());
     }
+  }
+
+  @Override
+  public void onDraw(final Canvas canvas)
+  {
+    LOG.error("onDraw()");
+    super.onDraw(canvas);
+  }
+
+  @Override
+  public void onLayout(final boolean changed, final int l, final int t, final int r, final int b)
+  {
+    LOG.error("onLayout({}, {}, {}, {}, {})", changed, l, t, r, b);
+    super.onLayout(changed, l, t, r, b);
+  }
+
+  @Override
+  public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec)
+  {
+    LOG.error("onMeasure({}, {})", widthMeasureSpec, heightMeasureSpec);
+    // Tiles are always the full size of the available space (minus margins and padding); spec passed in should always be EXACTLY
+    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+    int width = MeasureSpec.getSize(widthMeasureSpec);
+    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+    int height = MeasureSpec.getSize(heightMeasureSpec);
+//    LOG.error("onMeasure({}, {}) / ({}, {})         AT_MOST:{} EXACTLY:{} UNSPECIFIED:{}", width, height, widthMode, heightMode, MeasureSpec.AT_MOST, MeasureSpec.EXACTLY, MeasureSpec.UNSPECIFIED);
+    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
   }
 
   @Override
@@ -319,6 +345,7 @@ public abstract class Tile<T> extends FrameLayout
 
   /**
    * Work out if this tile will show information.  Useful to run prior to instantiating a tile to decide if it's worth it or not
+   *
    * @return {@code true} if the tile will show information; otherwise {@code false}
    */
   public static <T> boolean willShowInformation(final T data)

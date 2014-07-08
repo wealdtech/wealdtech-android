@@ -15,7 +15,7 @@ public class TileLayoutTest extends ActivityInstrumentationTestCase2<TileLayoutT
 //    super.setUp();
 //    setActivityInitialTouchMode(false);
 //  }
-//
+
 //  public void testNull()
 //  {
 //    final TileLayoutTestActivity activity = getActivity();

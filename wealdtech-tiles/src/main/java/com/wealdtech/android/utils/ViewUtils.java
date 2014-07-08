@@ -3,6 +3,7 @@ package com.wealdtech.android.utils;
 import android.os.Build;
 import android.view.View;
 
+import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,5 +35,46 @@ public class ViewUtils
     {
       return View.generateViewId();
     }
+  }
+
+  public static String dump(Object object)
+  {
+    Field[] fields = object.getClass().getDeclaredFields();
+    StringBuilder sb = new StringBuilder();
+    sb.append(object.getClass().getSimpleName()).append('{');
+
+    boolean firstRound = true;
+
+    for (final Field field : fields)
+    {
+      if (!firstRound)
+      {
+        sb.append(", ");
+      }
+      firstRound = false;
+      field.setAccessible(true);
+      try
+      {
+        final Object fieldObj = field.get(object);
+        final String value;
+        if (null == fieldObj)
+        {
+          value = "null";
+        }
+        else
+        {
+          value = fieldObj.toString();
+        }
+        sb.append(field.getName()).append('=').append('\'').append(value).append('\'');
+      }
+      catch (IllegalAccessException ignore)
+      {
+        //this should never happen
+      }
+
+    }
+
+    sb.append('}');
+    return sb.toString();
   }
 }
