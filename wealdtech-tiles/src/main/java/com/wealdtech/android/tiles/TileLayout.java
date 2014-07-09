@@ -35,6 +35,12 @@ public class TileLayout extends ViewGroup
   private int portraitRows = DEFAULT_PORTRAIT_ROWS;
   private float spacing = DEFAULT_SPACING;
 
+  // FIXME remove after testing
+  private int num;
+
+  // The current orientation, and an orientation listener
+  private int currentOrientation;
+
   public TileLayout(final Context context)
   {
     this(context, null);
@@ -78,19 +84,20 @@ public class TileLayout extends ViewGroup
   }
 
   /**
-   * Calculate the size of a tile side.
+   * Calculate the size of a tile side. Calculation returns the largest tile we can have within the constraints of available space
+   * and number of rows/columns
    *
    * @return the size of a tile side
    */
   private float calculateTileUnit(final int width, final int height)
   {
-    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT)
     {
-      return (width - spacing) / portraitCols - spacing;
+      return Math.min((width - spacing) / portraitCols - spacing, (height - spacing) / portraitRows - spacing);
     }
     else
     {
-      return (height - spacing) / portraitRows - spacing;
+      return Math.min((width - spacing) / portraitRows - spacing, (height - spacing) / portraitCols - spacing);
     }
   }
 
@@ -122,6 +129,9 @@ public class TileLayout extends ViewGroup
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b)
   {
+    // Reset the current orientation
+    currentOrientation = getResources().getConfiguration().orientation;
+
     final int width = r - l;
     final int height = b - t;
 
@@ -131,28 +141,20 @@ public class TileLayout extends ViewGroup
     if (expandedTile != null)
     {
       // We have an expanded tile; just display that
-      LOG.error("Have an expanded tile; laying it out only");
       expandedTile.layout(l + (int)spacing, t + (int)spacing, r - (int)spacing, b - (int)spacing);
     }
     else
     {
-      final int rows;
-      final int cols;
-      if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-      {
-        rows = portraitRows;
-        cols = portraitCols;
-      }
-      else
-      {
-        rows = portraitCols;
-        cols = portraitRows;
-      }
+      // Work out number of rows and columns depending on orientation
+      final int rows = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? portraitRows : portraitCols;
+      final int cols = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? portraitCols : portraitRows;
 
       // Set up a boolean which shows which spaces have been taken
       final boolean[][] spaceTaken = new boolean[cols][rows];
 
       final int numChildren = getChildCount();
+
+      // Need to take two passes.  First we set up any children with defined position
       for (int i = 0; i < numChildren; i++)
       {
         final View child = getChildAt(i);
@@ -160,15 +162,42 @@ public class TileLayout extends ViewGroup
         {
           final Tile tile = (Tile)child;
           final Tile.LayoutParams lp = tile.getLayoutParams();
-          final Point start = findSpaceForTile(spaceTaken, lp.left, lp.top, lp.colSpan, lp.rowSpan);
-          if (start != null)
+          final int left = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? lp.left : lp.top;
+          final int top = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? lp.top : lp.left;
+          if (left != -1 && top != -1)
           {
-            setSpaceOccupied(spaceTaken, start.x, start.y, start.x + lp.colSpan, start.y + lp.rowSpan);
-            final int left = (int)(start.x * tileUnit + ((start.x + 1) * spacing));
-            final int right = left + (int)((lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
-            final int top = (int)(start.y * tileUnit + ((start.y + 1) * spacing));
-            final int bottom = top + (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
-            tile.layout(left, top, right, bottom);
+            setSpaceOccupied(spaceTaken, left, top, left + lp.colSpan, top + lp.rowSpan);
+            final int leftPx = (int)(left * tileUnit + ((left + 1) * spacing));
+            final int rightPx = leftPx + (int)((lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
+            final int topPx = (int)(top * tileUnit + ((top + 1) * spacing));
+            final int bottomPx = topPx + (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
+            tile.layout(leftPx, topPx, rightPx, bottomPx);
+          }
+        }
+      }
+
+      // Second pass we set up any children without defined position
+      for (int i = 0; i < numChildren; i++)
+      {
+        final View child = getChildAt(i);
+        if (child instanceof Tile && child.getVisibility() != View.GONE)
+        {
+          final Tile tile = (Tile)child;
+          final Tile.LayoutParams lp = tile.getLayoutParams();
+          final int left = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? lp.left : lp.top;
+          final int top = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? lp.top : lp.left;
+          if (left == -1 && top == -1)
+          {
+            final Point start = findSpaceForTile(spaceTaken, left, top, lp.colSpan, lp.rowSpan);
+            if (start != null)
+            {
+              setSpaceOccupied(spaceTaken, start.x, start.y, start.x + lp.colSpan, start.y + lp.rowSpan);
+              final int leftPx = (int)(start.x * tileUnit + ((start.x + 1) * spacing));
+              final int rightPx = leftPx + (int)((lp.colSpan * tileUnit) + ((lp.colSpan - 1) * spacing));
+              final int topPx = (int)(start.y * tileUnit + ((start.y + 1) * spacing));
+              final int bottomPx = topPx + (int)((lp.rowSpan * tileUnit) + ((lp.rowSpan - 1) * spacing));
+              tile.layout(leftPx, topPx, rightPx, bottomPx);
+            }
           }
         }
       }
@@ -253,7 +282,6 @@ public class TileLayout extends ViewGroup
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
   {
-    // FIXME sort out orientation for non-square layouts
     final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
     final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
     int width;
@@ -276,22 +304,12 @@ public class TileLayout extends ViewGroup
       throw new RuntimeException("heightMeasureSpec must be AT_MOST or EXACTLY not UNSPECIFIED when orientation == VERTICAL");
     }
 
-    final int rows;
-    final int cols;
-    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-    {
-      rows = portraitRows;
-      cols = portraitCols;
-    }
-    else
-    {
-      rows = portraitCols;
-      cols = portraitRows;
-    }
+    // Work out number of rows and columns depending on orientation
+    final int rows = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? portraitRows : portraitCols;
+    final int cols = currentOrientation == Configuration.ORIENTATION_PORTRAIT ? portraitCols : portraitRows;
 
     // Tile unit is the size of the side of a tile
     final float tileUnit = calculateTileUnit(width, height);
-    //    final float tileUnit = (width < height ? width - spacing : height - spacing) / cols - spacing;
 
     final int numChildren = getChildCount();
     for (int i = 0; i < numChildren; i++)
@@ -326,17 +344,18 @@ public class TileLayout extends ViewGroup
     }
     final Tile tile = (Tile)child;
     tiles.add(tile);
-    super.addView(tile, index, params);
     if (tile.hasControls())
     {
       tile.controlLayout.setClickable(true);
       tile.controlLayout.setOnClickListener(new ExpandClickListener(tile));
     }
+    super.addView(child, index, params);
     requestLayout();
   }
 
   public void removeView(@Nonnull final View child)
   {
+    super.removeView(child);
     if (!(child instanceof Tile))
     {
       throw new RuntimeException("Can only remove tiles from tile layout");
@@ -380,4 +399,78 @@ public class TileLayout extends ViewGroup
       requestLayout();
     }
   }
+
+//  @Override
+//  protected void onRestoreInstanceState(final Parcelable state)
+//  {
+//    LOG.error("onRestoreInstanceState()");
+//    if (!(state instanceof SavedState))
+//    {
+//      super.onRestoreInstanceState(state);
+//      return;
+//    }
+//
+//    SavedState ss = (SavedState)state;
+//    super.onRestoreInstanceState(ss.getSuperState());
+//
+//    LOG.error("Restoring num {}", num);
+//    num = ss.num;
+//  }
+//
+//  @Override
+//  protected Parcelable onSaveInstanceState()
+//  {
+//    Parcelable superState = super.onSaveInstanceState();
+//
+//    LOG.error("onSaveInstanceState()");
+//
+//    SavedState ss = new SavedState(superState);
+//    LOG.error("Storing num {}", ++num);
+//    ss.num = num;
+//
+//    return ss;
+//  }
+
+//  public static class SavedState extends BaseSavedState
+//  {
+//    private int num;
+//
+//    SavedState(Parcelable superState)
+//    {
+//      super(superState);
+//    }
+//
+//    @Override
+//    public void writeToParcel(Parcel out, int flags)
+//    {
+//      super.writeToParcel(out, flags);
+//      out.writeInt(num);
+//    }
+//
+//    @Override
+//    public String toString()
+//    {
+//      return "TileLayout.SavedState{" + Integer.toHexString(System.identityHashCode(this)) + " num=" + num + "}";
+//    }
+//
+//    @SuppressWarnings("hiding")
+//    public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>()
+//    {
+//      public SavedState createFromParcel(Parcel in)
+//      {
+//        return new SavedState(in);
+//      }
+//
+//      public SavedState[] newArray(int size)
+//      {
+//        return new SavedState[size];
+//      }
+//    };
+//
+//    private SavedState(Parcel in)
+//    {
+//      super(in);
+//      num = in.readInt();
+//    }
+//  }
 }
