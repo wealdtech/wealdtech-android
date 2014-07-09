@@ -48,20 +48,18 @@ public class DynamicLayoutTestActivity extends Activity
 
     holder.textTile1 = new TextTile(this);
     textProvider1.addDataChangedListener(holder.textTile1);
-    holder.textTile1.getLayoutParams().rowSpan = 1;
-    holder.textTile1.getLayoutParams().colSpan = 3;
+    holder.textTile1.setColSpan(3);
     holder.layout.addView(holder.textTile1);
 
     holder.textTile2 = new TextTile(this);
     textProvider2.addDataChangedListener(holder.textTile2);
-    holder.textTile2.getLayoutParams().rowSpan = 2;
-    holder.textTile2.getLayoutParams().colSpan = 2;
+    holder.textTile2.setRowSpan(2);
+    holder.textTile2.setColSpan(2);
     holder.layout.addView(holder.textTile2);
 
     holder.textTile3 = new TextTile(this);
     textProvider3.addDataChangedListener(holder.textTile3);
-    holder.textTile3.getLayoutParams().rowSpan = 2;
-    holder.textTile3.getLayoutParams().colSpan = 1;
+    holder.textTile3.setRowSpan(2);
     holder.layout.addView(holder.textTile3);
   }
 

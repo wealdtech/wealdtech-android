@@ -1,35 +1,35 @@
 package com.wealdtech.android;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.view.View;
 import ch.qos.logback.classic.android.BasicLogcatConfigurator;
+import com.wealdtech.android.tiles.SimpleTextTile;
+import com.wealdtech.android.tiles.TileLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class PlayActivity extends Activity
 {
-//  private static final Logger LOG = LoggerFactory.getLogger(PlayActivity.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PlayActivity.class);
 
   public PlayActivity()
   {
-    BasicLogcatConfigurator.configureDefaultContext();
   }
 
-//  private AsyncTask<Void, Void, Void> visibilityTask;
+  private AsyncTask<Void, Void, Void> visibilityTask;
 
   public class ViewHolder
   {
-    public LinearLayout layout;
-    public TextView textView1;
-//    public TileLayout layout;
-//    public SimpleTextTile textTile1;
-//    public SimpleTextTile textTile2;
-//    public SimpleTextTile textTile3;
-//    public SimpleTextTile textTile4;
+    public TileLayout layout;
+    public SimpleTextTile textTile1;
+    public SimpleTextTile textTile2;
+    public SimpleTextTile textTile3;
+    public SimpleTextTile textTile4;
   }
   private ViewHolder holder = new ViewHolder();
 
@@ -38,16 +38,19 @@ public class PlayActivity extends Activity
   {
     super.onCreate(savedInstanceState);
 
-    holder.layout = new LinearLayout(this);
-    final ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    holder.layout.setLayoutParams(layoutParams);
-    setContentView(holder.layout);
+    BasicLogcatConfigurator.configureDefaultContext();
 
-    holder.textView1 = new TextView(this);
-    final ViewGroup.LayoutParams tvLayoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-    holder.textView1.setLayoutParams(tvLayoutParams);
-    holder.layout.addView(holder.textView1);
+    setContentView(R.layout.play);
+    holder.layout = (TileLayout)findViewById(R.id.play_layout);
 
+    holder.textTile1 = (SimpleTextTile)findViewById(R.id.play_text_tile_1);
+    holder.textTile1.onDataChanged("Tile 1");
+    holder.textTile2 = (SimpleTextTile)findViewById(R.id.play_text_tile_2);
+    holder.textTile2.onDataChanged("Tile 2");
+    holder.textTile3 = (SimpleTextTile)findViewById(R.id.play_text_tile_3);
+    holder.textTile3.onDataChanged("Tile 3");
+    holder.textTile4 = (SimpleTextTile)findViewById(R.id.play_text_tile_4);
+    holder.textTile4.onDataChanged("Tile 4");
 //    holder.layout = new TileLayout(this);
 //    holder.layout.setRows(5);
 //    holder.layout.setCols(4);
@@ -63,7 +66,7 @@ public class PlayActivity extends Activity
 //    textTile1Params.rowSpan = 3;
 //    holder.textTile1.setLayoutParams(textTile1Params);
 //    holder.layout.addView(holder.textTile1);
-
+//
 //    holder.textTile2 = new SimpleTextTile(this);
 //    holder.textTile2.onDataChanged("Tile 2");
 //    final Tile.LayoutParams textTile2Params = holder.textTile2.getLayoutParams();
@@ -86,59 +89,57 @@ public class PlayActivity extends Activity
 //    holder.textTile4.setLayoutParams(textTile4Params);
 //    holder.layout.addView(holder.textTile4);
 
-
     Log.i("play", "onCreate()");
 
-//    LOG.error("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++Creating new task");
-//    visibilityTask = new AsyncTask<Void, Void, Void>()
-//    {
-//      int count = 0;
-//      @Override
-//      protected Void doInBackground(final Void... params)
-//      {
-//        while (!isCancelled())
-//        {
-//          publishProgress();
-//          try
-//          {
-//            Thread.sleep(5000L);
-//          }
-//          catch (final InterruptedException ignored)
-//          {
+//    LOG.error("onCreate()");
+    visibilityTask = new AsyncTask<Void, Void, Void>()
+    {
+      int count = 0;
+      @Override
+      protected Void doInBackground(final Void... params)
+      {
+        while (!isCancelled())
+        {
+          publishProgress();
+          try
+          {
+            Thread.sleep(5000L);
+          }
+          catch (final InterruptedException ignored)
+          {
 //            LOG.error("--------------------------------{}-------------------------", isCancelled());
-//          }
-//        }
+          }
+        }
 //        LOG.error("###################################Done##########################");
-//        return null;
-//      }
-//
-//      @Override
-//      protected void onProgressUpdate(final Void... item)
-//      {
+        return null;
+      }
+
+      @Override
+      protected void onProgressUpdate(final Void... item)
+      {
 //        LOG.info("polling update");
-//        if (count++ % 2 == 0)
-//        {
-////          LOG.error("Setting visibility of first tile to GONE");
-//          holder.textTile1.setVisibility(View.GONE);
-//        }
-//        else
-//        {
-////          LOG.error("Setting visibility of first tile to VISIBLE");
-//          holder.textTile1.setVisibility(View.VISIBLE);
-//        }
-//        holder.textTile1.requestLayout();
-//      }
-//    };
-//    visibilityTask.execute(null, null, null);
+        if (count++ % 2 == 0)
+        {
+//          LOG.error("Setting visibility of first tile to GONE");
+          holder.textTile1.setVisibility(View.GONE);
+        }
+        else
+        {
+//          LOG.error("Setting visibility of first tile to VISIBLE");
+          holder.textTile1.setVisibility(View.VISIBLE);
+        }
+        holder.textTile1.requestLayout();
+      }
+    };
+    visibilityTask.execute(null, null, null);
   }
-//
+
   @Override
   protected void onDestroy()
   {
     super.onDestroy();
     Log.i("play", "onDestroy()");
-//    LOG.error("****************************onDestroy({})*******************************", visibilityTask.isCancelled());
-//    visibilityTask.cancel(true);
+    visibilityTask.cancel(true);
 //    LOG.error("****************************onDestroy({})*******************************", visibilityTask.isCancelled());
   }
 }

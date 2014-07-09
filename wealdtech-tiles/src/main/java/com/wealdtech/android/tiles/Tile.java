@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import com.wealdtech.android.R;
-import com.wealdtech.android.utils.ViewUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +22,26 @@ public abstract class Tile<T> extends FrameLayout
 {
   private static final Logger LOG = LoggerFactory.getLogger(Tile.class);
 
+  public static final int FLOATING = -1;
+
   /** The controls for the tile */
-  protected final View controlLayout;
+  protected TextView controlLayout;
 
   /** If the tile is currently expanded */
   private boolean expanded = false;
+
+  /** The position of the leftmost edge of the tile */
+  private int left = FLOATING;
+  /** The position of the topmost edge of the tile */
+  private int top = FLOATING;
+  /** The number of columns the tile spans */
+  private int colSpan = 1;
+  /** The number of rows the tile spans */
+  private int rowSpan = 1;
+  /** Under which circumstances the tile is editable */
+  private Editable editable = Editable.NEVER;
+  /** If the tile can be expanded */
+  private boolean expandable = false;
 
   public Tile(final Context context)
   {
@@ -41,7 +55,7 @@ public abstract class Tile<T> extends FrameLayout
 
   public Tile(final Context context, final AttributeSet attrs, final int defStyle)
   {
-    this(context, attrs, defStyle, Editable.NEVER, false);
+    this(context, attrs, 0, Editable.NEVER, false);
   }
 
   public Tile(final Context context,
@@ -51,83 +65,77 @@ public abstract class Tile<T> extends FrameLayout
               final boolean expandable)
   {
     super(context, attrs, defStyle);
-    setWillNotDraw(false);
-    setAttrs(context, attrs, defStyle, editable, expandable);
-    controlLayout = initControlView(context);
-    final LayoutParams params = getLayoutParams();
+    this.editable = editable;
+    this.expandable = expandable;
+    setAttrs(context, attrs, defStyle);
+    initControlView();
   }
 
-  private View initControlView(final Context context)
+  private void initControlView()
   {
-    final TextView controlView;
+    // If we already had one then remove it
+    if (controlLayout != null)
+    {
+      removeView(controlLayout);
+    }
+
     if (hasControls())
     {
-      controlView = new TextView(context);
-      controlView.setText("+");
-      controlView.setBackgroundColor(Color.TRANSPARENT);
-      controlView.setTextColor(Color.GREEN);
-      controlView.setTextSize(24);
+      controlLayout = new TextView(getContext());
+      controlLayout.setText("+");
+      controlLayout.setBackgroundColor(Color.TRANSPARENT);
+      controlLayout.setTextColor(Color.GREEN);
+      controlLayout.setTextSize(24);
 
-      controlView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+      controlLayout.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                                                                ViewGroup.LayoutParams.WRAP_CONTENT,
                                                                Gravity.BOTTOM | Gravity.RIGHT));
-      addView(controlView);
+      addView(controlLayout);
     }
     else
     {
       // No controls
-      controlView = null;
+      controlLayout = null;
     }
-    return controlView;
   }
 
-  private void setAttrs(final Context context,
-                        final AttributeSet attrs,
-                        final int defStyle,
-                        final Editable editable,
-                        final boolean expandable)
+  private void setAttrs(final Context context, final AttributeSet attrs, final int defStyle)
   {
-    final LayoutParams params = new LayoutParams();
-    params.editable = editable;
-    params.expandable = expandable;
     final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Tile);
-    final int N = a.getIndexCount();
-    for (int i = 0; i < N; ++i)
+    final int numAttrs = a.getIndexCount();
+    for (int i = 0; i < numAttrs; ++i)
     {
       int attr = a.getIndex(i);
-      // When we have auto-layout then top and left will go away.
       if (attr == R.styleable.Tile_tile_top)
       {
-        params.top = a.getInteger(attr, -1);
+        top = a.getInteger(attr, top);
       }
       else if (attr == R.styleable.Tile_tile_left)
       {
-        params.left = a.getInteger(attr, -1);
+        left = a.getInteger(attr, left);
       }
       else if (attr == R.styleable.Tile_tile_colspan)
       {
-        params.colSpan = a.getInteger(attr, params.colSpan);
+        colSpan = a.getInteger(attr, colSpan);
       }
       else if (attr == R.styleable.Tile_tile_rowspan)
       {
-        params.rowSpan = a.getInteger(attr, params.rowSpan);
+        rowSpan = a.getInteger(attr, rowSpan);
       }
       else if (attr == R.styleable.Tile_tile_expandable)
       {
-        params.expandable = calcExpandable(expandable, a.getBoolean(attr, params.expandable));
+        expandable = calcExpandable(expandable, a.getBoolean(attr, expandable));
       }
       else if (attr == R.styleable.Tile_tile_editable)
       {
         final String editableStr = a.getString(attr);
         if (editableStr != null)
         {
-          params.editable = calcEditable(editable, Editable.valueOf(editableStr));
+          editable = calcEditable(editable, Editable.valueOf(editableStr));
         }
       }
     }
     a.recycle();
-
-    setLayoutParams(params);
     setBackgroundResource(R.drawable.tile_border);
   }
 
@@ -137,7 +145,6 @@ public abstract class Tile<T> extends FrameLayout
    *
    * @param able the tile's inherent ability
    * @param requested the implementer's requested ability
-   *
    * @return the lesser of the inherent and requested abilities
    */
   private boolean calcExpandable(final boolean able, final boolean requested)
@@ -151,7 +158,6 @@ public abstract class Tile<T> extends FrameLayout
    *
    * @param able the tile's inherent ability
    * @param requested the implementer's requested ability
-   *
    * @return the lesser of the inherent and requested abilities
    */
   private Editable calcEditable(final Editable able, final Editable requested)
@@ -198,69 +204,6 @@ public abstract class Tile<T> extends FrameLayout
   }
 
   @Override
-  public LayoutParams getLayoutParams()
-  {
-    return (LayoutParams)super.getLayoutParams();
-  }
-
-  public static class LayoutParams extends ViewGroup.LayoutParams
-  {
-    public int top = -1;
-    public int left = -1;
-    public int colSpan = 1;
-    public int rowSpan = 1;
-    public boolean expandable = false;
-    public Editable editable = Editable.NEVER;
-
-    public LayoutParams()
-    {
-      super(MATCH_PARENT, MATCH_PARENT);
-    }
-
-    public LayoutParams(Context context, AttributeSet attrs)
-    {
-      super(context, attrs);
-      final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Tile);
-      top = a.getInt(R.styleable.Tile_tile_top, top);
-      left = a.getInt(R.styleable.Tile_tile_left, left);
-      colSpan = a.getInt(R.styleable.Tile_tile_colspan, colSpan);
-      rowSpan = a.getInt(R.styleable.Tile_tile_rowspan, rowSpan);
-      if (a.hasValue(R.styleable.Tile_tile_expandable))
-      {
-        expandable = a.getBoolean(R.styleable.Tile_tile_expandable, expandable);
-      }
-      final String editableStr = a.getString(R.styleable.Tile_tile_editable);
-      if (editableStr != null)
-      {
-        editable = Editable.valueOf(editableStr);
-      }
-      a.recycle();
-    }
-
-    public LayoutParams(ViewGroup.LayoutParams params)
-    {
-      super(params);
-      if (params instanceof LayoutParams)
-      {
-        top = ((LayoutParams)params).top;
-        left = ((LayoutParams)params).left;
-        colSpan = ((LayoutParams)params).colSpan;
-        rowSpan = ((LayoutParams)params).rowSpan;
-        expandable = ((LayoutParams)params).expandable;
-        editable = ((LayoutParams)params).editable;
-      }
-    }
-
-    public void incorporateSpec(final ViewGroup.LayoutParams spec)
-    {
-      LOG.error("Current spec is {}", ViewUtils.dump(this));
-      LOG.error("Need to incorporate spec {}", ViewUtils.dump(spec));
-      // FIXME incorporate spec - how?
-      //      LOG.error("FIXME: incorporate spec {}", spec.toString());
-    }
-  }
-
-  @Override
   public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec)
   {
     // TODO Tiles are always the full size of the available space (minus margins and padding); spec passed in should always be EXACTLY, so we shouldn't pass this
@@ -286,6 +229,91 @@ public abstract class Tile<T> extends FrameLayout
   // Control methods
 
   /**
+   * @return the position of the leftmost edge of the tile.  Can be {@code FLOATING}
+   */
+  public int getTileLeft()
+  {
+    return this.left;
+  }
+
+  /**
+   * Set the position of the leftmost edge of the tile
+   *
+   * @param left the position.  Can be {@code TILE_FLOATING}
+   */
+  public void setTileLeft(final int left)
+  {
+    this.left = left;
+  }
+
+  /**
+   * @return the position of the topmost edge of the tile.  Can be {@code FLOATING}
+   */
+  public int getTileTop()
+  {
+    return this.top;
+  }
+
+  /**
+   * Set the position of the topmost edge of the tile
+   *
+   * @param top the position.  Can be {@code TILE_FLOATING}
+   */
+  public void setTileTop(final int top)
+  {
+    this.top = top;
+  }
+
+  /**
+   * @return the number of columns this tile covers.
+   */
+  public int getColSpan()
+  {
+    return this.colSpan;
+  }
+
+  /**
+   * Set the number of columns this tile covers.
+   *
+   * @param colSpan the number of columns this tile covers.  Must be greater than 0
+   */
+  public void setColSpan(final int colSpan)
+  {
+    if (colSpan < 1)
+    {
+      throw new RuntimeException("Tile column span must be at least 1");
+    }
+    this.colSpan = colSpan;
+  }
+
+  /**
+   * @return the number of rows this tile covers.
+   */
+  public int getRowSpan()
+  {
+    return this.rowSpan;
+  }
+
+  /**
+   * Set the number of rows this tile covers.
+   *
+   * @param rowSpan the number of columns this tile covers.  Must be greater than 0
+   */
+  public void setRowSpan(final int rowSpan)
+  {
+    if (rowSpan < 1)
+    {
+      throw new RuntimeException("Tile row span must be at least 1");
+    }
+    this.rowSpan = rowSpan;
+  }
+
+  public boolean isFloating()
+  {
+    return top == FLOATING && left == FLOATING;
+  }
+
+  /**
    * @return {@code true} if the tile is currently expanded; otherwise {@code false}
    */
   public boolean isExpanded()
@@ -298,7 +326,13 @@ public abstract class Tile<T> extends FrameLayout
    */
   public boolean isExpandable()
   {
-    return getLayoutParams().expandable;
+    return expandable;
+  }
+
+  public void setExpandable(final boolean expandable)
+  {
+    this.expandable = expandable;
+    initControlView();
   }
 
   /**
@@ -306,10 +340,15 @@ public abstract class Tile<T> extends FrameLayout
    */
   public boolean isEditable()
   {
-    final LayoutParams params = getLayoutParams();
-    return (params.editable == Editable.ALWAYS ||
-            (params.editable == Editable.WHEN_CONTRACTED && !expanded) ||
-            (params.editable == Editable.WHEN_EXPANDED && expanded));
+    return (editable == Editable.ALWAYS ||
+            (editable == Editable.WHEN_CONTRACTED && !expanded) ||
+            (editable == Editable.WHEN_EXPANDED && expanded));
+  }
+
+  public void setEditable(final Editable editable)
+  {
+    this.editable = editable;
+    initControlView();
   }
 
   /**
@@ -317,7 +356,7 @@ public abstract class Tile<T> extends FrameLayout
    */
   public boolean isEverEditable()
   {
-    return getLayoutParams().editable != Editable.NEVER;
+    return editable != Editable.NEVER;
   }
 
   public enum Editable

@@ -39,13 +39,14 @@ public class SimpleTextTile extends Tile<String> implements DataChangedListener<
 
   public SimpleTextTile(final Context context, final AttributeSet attrs, final int defStyle)
   {
-    super(context, attrs, defStyle, EDITABLE, EXPANDABLE);
+    super(context, attrs, defStyle);
+    this.setEditable(EDITABLE);
+    this.setExpandable(EXPANDABLE);
 
     holder.text = new TextView(context);
     holder.text.setId(ViewUtils.generateViewId());
     holder.text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                            ViewGroup.LayoutParams.MATCH_PARENT));
-
     addView(holder.text);
   }
 

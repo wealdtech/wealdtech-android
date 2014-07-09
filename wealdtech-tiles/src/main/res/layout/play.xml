@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.wealdtech.android.tiles.TileLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:wealdtech="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/play_layout"
+    wealdtech:rows="5"
+    wealdtech:columns="4">
+
+    <com.wealdtech.android.tiles.SimpleTextTile
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/play_text_tile_1"
+        wealdtech:tile_colspan="3"
+        wealdtech:tile_rowspan="3"/>
+
+    <com.wealdtech.android.tiles.SimpleTextTile
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/play_text_tile_2"
+        wealdtech:tile_colspan="2"
+        wealdtech:tile_rowspan="2"/>
+
+    <com.wealdtech.android.tiles.SimpleTextTile
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/play_text_tile_3"
+        wealdtech:tile_colspan="1"
+        wealdtech:tile_rowspan="1" />
+
+    <com.wealdtech.android.tiles.SimpleTextTile
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/play_text_tile_4"
+        wealdtech:tile_colspan="1"
+        wealdtech:tile_rowspan="1"
+        wealdtech:tile_top="4"
+        wealdtech:tile_left="3"/>
+
+</com.wealdtech.android.tiles.TileLayout>
