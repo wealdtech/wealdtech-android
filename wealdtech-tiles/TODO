@@ -6,8 +6,6 @@ Animate tile expansion/contraction
 
 Optimise drawing of layout when tile is expanded (i.e. don't draw other children)
 
-Honour View.GONE in onLayout()
-
 Additional controls
   - edit
   - others?
