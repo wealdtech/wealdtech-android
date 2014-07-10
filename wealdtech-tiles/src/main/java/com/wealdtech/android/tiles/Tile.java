@@ -83,7 +83,7 @@ public abstract class Tile<T> extends FrameLayout
     {
       controlLayout = new TextView(getContext());
       controlLayout.setText("+");
-      controlLayout.setBackgroundColor(Color.TRANSPARENT);
+      controlLayout.setBackgroundColor(Color.BLUE);
       controlLayout.setTextColor(Color.GREEN);
       controlLayout.setTextSize(24);
 
@@ -203,18 +203,18 @@ public abstract class Tile<T> extends FrameLayout
     return isExpandable() || isEditable();
   }
 
-  @Override
-  public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec)
-  {
-    // TODO Tiles are always the full size of the available space (minus margins and padding); spec passed in should always be EXACTLY, so we shouldn't pass this
-    // up to the parent to do the work as it over-calculates
-    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-    int width = MeasureSpec.getSize(widthMeasureSpec);
-    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-    int height = MeasureSpec.getSize(heightMeasureSpec);
+//  @Override
+//  public void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec)
+//  {
+//    // TODO Tiles are always the full size of the available space (minus margins and padding); spec passed in should always be EXACTLY, so we shouldn't pass this
+//    // up to the parent to do the work as it over-calculates
+//    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+//    int width = MeasureSpec.getSize(widthMeasureSpec);
+//    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+//    int height = MeasureSpec.getSize(heightMeasureSpec);
 //    LOG.error("onMeasure({}, {}) / ({}, {})         AT_MOST:{} EXACTLY:{} UNSPECIFIED:{}", width, height, widthMode, heightMode, MeasureSpec.AT_MOST, MeasureSpec.EXACTLY, MeasureSpec.UNSPECIFIED);
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-  }
+//    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+//  }
 
   @Override
   public void addView(@Nonnull final View view)
@@ -223,6 +223,17 @@ public abstract class Tile<T> extends FrameLayout
     if (controlLayout != null && controlLayout != view)
     {
       controlLayout.bringToFront();
+    }
+  }
+
+  @Override
+  public void removeAllViews()
+  {
+    //... except our control layout, if we have one
+    super.removeAllViews();
+    if (controlLayout != null)
+    {
+      addView(controlLayout);
     }
   }
 
