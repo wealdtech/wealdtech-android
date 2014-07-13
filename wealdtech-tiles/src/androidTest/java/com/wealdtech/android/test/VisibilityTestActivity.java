@@ -25,7 +25,10 @@ public class VisibilityTestActivity extends Activity
   public class ViewHolder
   {
     public TileLayout layout;
-    public TextTile textTile;
+    public TextTile textTile1;
+    public TextTile textTile2;
+    public TextTile textTile3;
+    public TextTile textTile4;
     public FlipTile flipTile;
   }
   public ViewHolder holder = new ViewHolder();
@@ -41,9 +44,21 @@ public class VisibilityTestActivity extends Activity
     holder.layout.setLayoutParams(layoutParams);
     setContentView(holder.layout);
 
-    holder.textTile = new TextTile(this);
-    holder.textTile.setId(ViewUtils.generateViewId());
-    holder.layout.addView(holder.textTile);
+    holder.textTile1 = new TextTile(this);
+    holder.textTile1.setId(ViewUtils.generateViewId());
+    holder.layout.addView(holder.textTile1);
+
+    holder.textTile2 = new TextTile(this);
+    holder.textTile2.setId(ViewUtils.generateViewId());
+    holder.layout.addView(holder.textTile2);
+
+    holder.textTile3 = new TextTile(this);
+    holder.textTile3.setId(ViewUtils.generateViewId());
+    holder.layout.addView(holder.textTile3);
+
+    holder.textTile4 = new TextTile(this);
+    holder.textTile4.setId(ViewUtils.generateViewId());
+    holder.layout.addView(holder.textTile4);
 
     holder.flipTile = new FlipTile(this);
     holder.flipTile.setId(ViewUtils.generateViewId());

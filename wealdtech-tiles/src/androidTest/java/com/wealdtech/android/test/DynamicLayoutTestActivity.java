@@ -24,7 +24,6 @@ public class DynamicLayoutTestActivity extends Activity
     textProvider1 = new PresetTextProvider("Test 1");
     textProvider2 = new PresetTextProvider("Test 2");
     textProvider3 = new PresetTextProvider("Test 3");
-    BasicLogcatConfigurator.configureDefaultContext();
   }
 
   private class ViewHolder

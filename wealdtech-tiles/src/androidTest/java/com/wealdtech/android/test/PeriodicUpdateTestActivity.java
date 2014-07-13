@@ -3,7 +3,6 @@ package com.wealdtech.android.test;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
-import ch.qos.logback.classic.android.BasicLogcatConfigurator;
 import com.wealdtech.android.test.tiles.ClockTile;
 import com.wealdtech.android.tiles.TileLayout;
 import com.wealdtech.android.utils.ViewUtils;
@@ -18,7 +17,6 @@ public class PeriodicUpdateTestActivity extends Activity
 
   public PeriodicUpdateTestActivity()
   {
-    BasicLogcatConfigurator.configureDefaultContext();
   }
 
   public class ViewHolder

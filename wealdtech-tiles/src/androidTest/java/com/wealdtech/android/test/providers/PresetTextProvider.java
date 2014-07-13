@@ -24,6 +24,12 @@ public class PresetTextProvider extends AbstractProvider<String>
   }
 
   @Override
+  public String getConfiguration()
+  {
+    return text;
+  }
+
+  @Override
   public boolean canProvideData()
   {
     return true;

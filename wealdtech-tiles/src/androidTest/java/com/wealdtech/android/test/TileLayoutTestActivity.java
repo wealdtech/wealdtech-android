@@ -2,7 +2,6 @@ package com.wealdtech.android.test;
 
 import android.app.Activity;
 import android.os.Bundle;
-import ch.qos.logback.classic.android.BasicLogcatConfigurator;
 import com.android.debug.hv.ViewServer;
 import com.wealdtech.android.providers.Provider;
 import com.wealdtech.android.test.providers.DateProvider;
@@ -29,7 +28,6 @@ public class TileLayoutTestActivity extends Activity
     clockProvider = new DateProvider();
     textProvider = new PresetTextProvider("Hello, world");
     holder = new ViewHolder();
-    BasicLogcatConfigurator.configureDefaultContext();
   }
 
   private class ViewHolder

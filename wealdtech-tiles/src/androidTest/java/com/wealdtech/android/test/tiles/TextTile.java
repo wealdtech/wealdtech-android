@@ -47,6 +47,7 @@ public class TextTile extends Tile<String> implements DataChangedListener<String
     holder.text.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                                            ViewGroup.LayoutParams.MATCH_PARENT));
 
+    holder.text.setText("Awaiting data...");
     addView(holder.text);
   }
 

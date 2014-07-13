@@ -2,6 +2,7 @@ package com.wealdtech.android.test.tiles;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.wealdtech.android.providers.DataChangedListener;
@@ -72,33 +73,21 @@ public class FlipTile extends Tile<Date> implements DataChangedListener<Date>
   @Override
   public void refreshDisplay(final Date date)
   {
-    holder.text.setText(date.toString());
-    holder.text.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
-    holder.text.getLayoutParams().height = LayoutParams.WRAP_CONTENT;
-    holder.text.setLayoutParams(holder.text.getLayoutParams());
-    holder.text.invalidate();
-    holder.text3.setText(date.toString());
-    holder.text3.getLayoutParams().width = LayoutParams.WRAP_CONTENT;
-    holder.text3.getLayoutParams().height = LayoutParams.WRAP_CONTENT;
-    holder.text3.setLayoutParams(holder.text3.getLayoutParams());
-    holder.text3.invalidate();
-    holder.layout.requestLayout();
-    holder.layout.invalidate();
-//    LOG.error("Setting display to {} (counter is {})", date.toString(), counter);
-//    if (counter % 2 == 0)
-//    {
-////      holder.text.setVisibility(View.INVISIBLE);
-//
-//      holder.text3.setText(date.toString());
-////      holder.text3.setVisibility(View.VISIBLE);
-//    }
-//    else
-//    {
-////      holder.text3.setVisibility(View.INVISIBLE);
-//
-//      holder.text.setText(date.toString());
-////      holder.text.setVisibility(View.VISIBLE);
-//    }
-//    counter++;
+    LOG.error("Setting display to {} (counter is {})", date.toString(), counter);
+    if (counter % 2 == 0)
+    {
+      holder.text.setVisibility(View.INVISIBLE);
+
+     holder.text3.setText(date.toString());
+      holder.text3.setVisibility(View.VISIBLE);
+    }
+    else
+    {
+      holder.text3.setVisibility(View.INVISIBLE);
+
+      holder.text.setText(date.toString());
+      holder.text.setVisibility(View.VISIBLE);
+    }
+    counter++;
   }
 }
