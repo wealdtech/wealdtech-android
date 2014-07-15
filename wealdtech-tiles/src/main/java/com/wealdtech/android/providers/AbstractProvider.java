@@ -91,6 +91,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
       @Override
       protected Void doInBackground(final Void... params)
       {
+        Thread.currentThread().setName(name + " provider");
         while (!isCancelled())
         {
           if (canProvideData())
