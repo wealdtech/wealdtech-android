@@ -1,1 +1,1 @@
-include ':wealdtech-tiles'
+include ':wealdtech-fabric', ':wealdtech-tiles'
