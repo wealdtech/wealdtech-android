@@ -133,7 +133,7 @@ public abstract class AbstractProvider<T> implements Provider<T>
     }
   }
 
-  private void fetchOnce()
+  protected void fetchOnce()
   {
     obtainedData = false;
     final AsyncTask<Void, Void, T> task = new AsyncTask<Void, Void, T>()
