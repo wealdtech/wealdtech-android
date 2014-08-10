@@ -2,8 +2,6 @@ package com.wealdtech.android.fabric;
 
 import android.app.Activity;
 import android.content.Context;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.wealdtech.TwoTuple;
@@ -47,16 +45,22 @@ public class Fabric
   // Activity scope
   private final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope;
   // Component scope
-  private final Map<String, Map<String, Map<String, Object>>> componentScope;
+  private final Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> componentScope;
 
-  @JsonCreator
-  private Fabric(@JsonProperty("globalscope") final Map<String, Object> globalScope,
-                 @JsonProperty("activityscope") final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope,
-                 @JsonProperty("componentscope") final Map<String, Map<String, Map<String, Object>>> componentScope)
+  /**
+   * Create a new fabric.
+   * This is usually only called from
+   * @param globalScope
+   * @param activityScope
+   * @param componentScope
+   */
+  public Fabric(final Map<String, Object> globalScope,
+                final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope,
+                final Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> componentScope)
   {
     this.globalScope = Objects.firstNonNull(globalScope, Maps.<String, Object>newConcurrentMap());
     this.activityScope = Objects.firstNonNull(activityScope, Maps.<String, Map<String, TwoTuple<Object, Boolean>>>newConcurrentMap());
-    this.componentScope = Objects.firstNonNull(componentScope, Maps.<String, Map<String, Map<String, Object>>>newConcurrentMap());
+    this.componentScope = Objects.firstNonNull(componentScope, Maps.<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>>newConcurrentMap());
   }
 
   /**
@@ -76,6 +80,21 @@ public class Fabric
   public static void setPersistenceStore(final FabricPersistenceStore persistenceStore)
   {
     Fabric.persistenceStore = persistenceStore;
+  }
+
+  public Map<String, Object> getGlobalScope()
+  {
+    return this.globalScope;
+  }
+
+  public Map<String, Map<String, TwoTuple<Object, Boolean>>> getActivityScope()
+  {
+    return this.activityScope;
+  }
+
+  public Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> getComponentScope()
+  {
+    return this.componentScope;
   }
 
   public static Fabric getInstance()
@@ -192,8 +211,8 @@ public class Fabric
       scope = Maps.newConcurrentMap();
       activityScope.put(activity.getLocalClassName(), scope);
     }
-    final TwoTuple<Object, Boolean> curEntry = scope.get(key);
-    if (curEntry == null || !curEntry.getT())
+    final TwoTuple<Object, Boolean> oldEntry = scope.get(key);
+    if (oldEntry == null || !oldEntry.getT())
     {
       scope.put(key, new TwoTuple<Object, Boolean>(value, false));
     }
@@ -214,8 +233,8 @@ public class Fabric
     Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
     if (scope != null)
     {
-      final TwoTuple<Object, Boolean> value = scope.remove(key);
-      if (value != null && value.getT())
+      final TwoTuple<Object, Boolean> oldEntry = scope.remove(key);
+      if (oldEntry != null && oldEntry.getT())
       {
         // This was persisted, so we need to mark as dirty
         persistenceStrategy.markDirty();
@@ -234,14 +253,14 @@ public class Fabric
   public <T> T get(final Activity activity, final String component, final String key)
   {
     final T result;
-    final Map<String, Map<String, Object>> activityScope = componentScope.get(activity.getLocalClassName());
+    final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
     if (activityScope == null)
     {
       result = null;
     }
     else
     {
-      final Map<String, Object> scope = activityScope.get(component);
+      final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(component);
       if (scope == null)
       {
         result = null;
@@ -279,20 +298,20 @@ public class Fabric
    */
   public <T> void set(final Activity activity, final String component, final String key, final T value)
   {
-    Map<String, Map<String, Object>> activityScope = componentScope.get(activity.getLocalClassName());
+    Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
     if (activityScope == null)
     {
       activityScope = Maps.newConcurrentMap();
       componentScope.put(activity.getLocalClassName(), activityScope);
     }
-    Map<String, Object> scope = activityScope.get(component);
+    Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(component);
     if (scope == null)
     {
       scope = Maps.newConcurrentMap();
       activityScope.put(component, scope);
     }
 
-    scope.put(key, value);
+    scope.put(key, new TwoTuple<Object, Boolean>(value, false));
   }
 
   /**
@@ -303,10 +322,10 @@ public class Fabric
    */
   public void clear(final Activity activity, final String component, final String key)
   {
-    Map<String, Map<String, Object>> activityScope = componentScope.get(activity.getLocalClassName());
+    Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
     if (activityScope != null)
     {
-      Map<String, Object> scope = activityScope.get(component);
+      Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(component);
       if (scope != null)
       {
         scope.remove(key);
