@@ -5,9 +5,8 @@ import android.content.Context;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.wealdtech.TwoTuple;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStore;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStrategy;
 import com.wealdtech.android.fabric.persistence.PrefsPersistenceStore;
@@ -46,21 +45,17 @@ public class Fabric
   // Global scope is contained in a single key:value store
   private final Map<String, Object> globalScope;
   // Activity scope
-  private final Map<String, Map<String, Object>> activityScope;
-  private final Multimap<String, String> activityPersists;
+  private final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope;
   // Component scope
   private final Map<String, Map<String, Map<String, Object>>> componentScope;
-//  private final Map<String, Map<String, String>> componentPersists;
 
   @JsonCreator
   private Fabric(@JsonProperty("globalscope") final Map<String, Object> globalScope,
-                 @JsonProperty("activityscope") final Map<String, Map<String, Object>> activityScope,
-                 @JsonProperty("activitypersists") final Multimap<String, String> activityPersists,
+                 @JsonProperty("activityscope") final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope,
                  @JsonProperty("componentscope") final Map<String, Map<String, Map<String, Object>>> componentScope)
   {
     this.globalScope = Objects.firstNonNull(globalScope, Maps.<String, Object>newConcurrentMap());
-    this.activityScope = Objects.firstNonNull(activityScope, Maps.<String, Map<String, Object>>newConcurrentMap());
-    this.activityPersists = Objects.firstNonNull(activityPersists, ArrayListMultimap.<String, String>create());
+    this.activityScope = Objects.firstNonNull(activityScope, Maps.<String, Map<String, TwoTuple<Object, Boolean>>>newConcurrentMap());
     this.componentScope = Objects.firstNonNull(componentScope, Maps.<String, Map<String, Map<String, Object>>>newConcurrentMap());
   }
 
@@ -163,14 +158,14 @@ public class Fabric
   public <T> T get(final Activity activity, final String key)
   {
     final T result;
-    final Map<String, Object> scope = activityScope.get(activity.getLocalClassName());
+    final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
     if (scope == null)
     {
       result = null;
     }
     else
     {
-      final T activityResult = (T)scope.get(key);
+      final T activityResult = (T)scope.get(key).getS();
       if (activityResult == null)
       {
         result = get(key);
@@ -191,15 +186,20 @@ public class Fabric
    */
   public <T> void set(final Activity activity, final String key, final T value)
   {
-    Map<String, Object> scope = activityScope.get(activity.getLocalClassName());
+    Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
     if (scope == null)
     {
       scope = Maps.newConcurrentMap();
       activityScope.put(activity.getLocalClassName(), scope);
     }
-    scope.put(key, value);
-    if (activityPersists.containsKey(activity.getLocalClassName()))
+    final TwoTuple<Object, Boolean> curEntry = scope.get(key);
+    if (curEntry == null || !curEntry.getT())
     {
+      scope.put(key, new TwoTuple<Object, Boolean>(value, false));
+    }
+    else
+    {
+      scope.put(key, new TwoTuple<Object, Boolean>(value, true));
       persistenceStrategy.markDirty();
     }
   }
@@ -211,12 +211,13 @@ public class Fabric
    */
   public void clear(final Activity activity, final String key)
   {
-    Map<String, Object> scope = activityScope.get(activity.getLocalClassName());
+    Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
     if (scope != null)
     {
-      scope.remove(key);
-      if (activityPersists.containsKey(activity.getLocalClassName()))
+      final TwoTuple<Object, Boolean> value = scope.remove(key);
+      if (value != null && value.getT())
       {
+        // This was persisted, so we need to mark as dirty
         persistenceStrategy.markDirty();
       }
     }
@@ -318,32 +319,41 @@ public class Fabric
    */
   public void persist(final Activity activity, final String key)
   {
-    if (!activityPersists.containsKey(activity.getLocalClassName()) || activityPersists.containsEntry(activity.getLocalClassName(), key))
+    final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
+    if (scope == null)
     {
-      activityPersists.put(activity.getLocalClassName(), key);
-      if (get(activity, key) != null)
-      {
-        // Re-set it to force save
-        set(activity, key, get(activity, key));
-      }
+      throw new IllegalStateException("Attempt to persist a non-existent item");
+    }
+    final TwoTuple<Object, Boolean> value = scope.get(key);
+    if (value == null)
+    {
+      throw new IllegalStateException("Attempt to persist a non-existent item");
+    }
+    if (!value.getT())
+    {
+      // This item was not persisted but now is.  Set it accordingly
+      scope.put(key, new TwoTuple<>(value.getS(), true));
+      persistenceStrategy.markDirty();
     }
   }
 
   public void unpersist(final Activity activity, final String key)
   {
-    if (activityPersists.containsKey(activity.getLocalClassName()) && activityPersists.containsEntry(activity.getLocalClassName(), key))
+    final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
+    if (scope == null)
     {
-      Object value = get(activity, key);
-      if (value != null)
-      {
-        clear(activity, key);
-      }
-      activityPersists.remove(activity.getLocalClassName(), key);
-      if (value != null)
-      {
-        // Re-set it as we just removed it from persistent and local storage
-        set(activity, key, value);
-      }
+      throw new IllegalStateException("Attempt to unpersist a non-existent item");
+    }
+    final TwoTuple<Object, Boolean> value = scope.get(key);
+    if (value == null)
+    {
+      throw new IllegalStateException("Attempt to unpersist a non-existent item");
+    }
+    if (value.getT())
+    {
+      // This item was persisted but now is not.  Set it accordingly
+      scope.put(key, new TwoTuple<>(value.getS(), false));
+      // We mark as dirty because of the change of persistence state
       persistenceStrategy.markDirty();
     }
   }
