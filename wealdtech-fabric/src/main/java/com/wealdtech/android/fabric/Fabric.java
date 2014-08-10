@@ -13,6 +13,7 @@ import com.wealdtech.jackson.WealdMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
@@ -25,7 +26,11 @@ import java.util.Map;
  * Data can be stored at any of these scopes.  Global scope is persisted through instances of the application,
  * activity scope is persisted through the lifetime of the application and component scope is persisted through
  * the lifetime of the component.  Data in activity or component scope which should be persisted past the lifetime
- * of the component can be done so by using the {@code persist} method
+ * of the component can be done so by using the {@code persist()} method.
+ * <p/>
+ * Note that there is no visibility from one scope to another, so a named variable in global scope will not be
+ * returned if that name is asked for in activity scope.  Activity and component scope are purely used for partitioning
+ * rather than implying any sort of hierarchy.
  */
 public class Fabric
 {
@@ -170,9 +175,10 @@ public class Fabric
    * @return the value of the item
    */
   @SuppressWarnings("unchecked")
-  public <T> T get(final Activity activity, final String key)
+  @Nullable public <T> T get(final Activity activity, final String key)
   {
     final T result;
+
     final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
     if (scope == null)
     {
@@ -183,13 +189,14 @@ public class Fabric
       final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>)scope.get(key);
       if (activityResult == null)
       {
-        result = get(key);
+        result = null;
       }
       else
       {
         result = activityResult.getS();
       }
     }
+
     return result;
   }
 
@@ -296,10 +303,23 @@ public class Fabric
    * @param key the key of the item
    * @return the value of the item
    */
+  public <T> T get(final Activity activity, final Integer component, final String key)
+  {
+    return get(activity, Integer.toString(component), key);
+  }
+
+  /**
+   * Fetch an item from component scope
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   * @return the value of the item
+   */
   @SuppressWarnings("unchecked")
-  public <T> T get(final Activity activity, final String component, final String key)
+  @Nullable public <T> T get(final Activity activity, final String component, final String key)
   {
     final T result;
+
     final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
     if (activityScope == null)
     {
@@ -314,26 +334,31 @@ public class Fabric
       }
       else
       {
-        final T componentResult = (T)scope.get(key);
-        if (componentResult == null)
+        final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>) scope.get(key);
+        if (activityResult == null)
         {
-          final T activityResult = get(activity, key);
-          if (activityResult == null)
-          {
-            result = get(key);
-          }
-          else
-          {
-            result = activityResult;
-          }
+          result = null;
         }
         else
         {
-          result = componentResult;
+          result = activityResult.getS();
         }
       }
     }
+
     return result;
+  }
+
+  /**
+   * Set an item in component scope
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   * @param value the value of the item
+   */
+  public <T> void set(final Activity activity, final Integer component, final String key, final T value)
+  {
+    set(activity, Integer.toString(component), key, value);
   }
 
   /**
@@ -367,6 +392,17 @@ public class Fabric
    * @param component the component for scoping
    * @param key the key of the item
    */
+  public void clear(final Activity activity, final Integer component, final String key)
+  {
+    clear(activity, Integer.toString(component), key);
+  }
+
+  /**
+   * Clear an item in component scope
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   */
   public void clear(final Activity activity, final String component, final String key)
   {
     Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
@@ -378,6 +414,17 @@ public class Fabric
         scope.remove(key);
       }
     }
+  }
+
+  /**
+   * Mark a component-level item to be persisted
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   */
+  public void persist(final Activity activity, final Integer component, final String key)
+  {
+    persist(activity, Integer.toString(component), key);
   }
 
   /**
@@ -409,6 +456,17 @@ public class Fabric
       scope.put(key, new TwoTuple<>(value.getS(), true));
       persistenceStrategy.markDirty(activity.getLocalClassName(), component, key);
     }
+  }
+
+  /**
+   * Mark a component-level item to be unpersisted
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   */
+  public void unpersist(final Activity activity, final Integer component, final String key)
+  {
+    unpersist(activity, Integer.toString(component), key);
   }
 
   /**

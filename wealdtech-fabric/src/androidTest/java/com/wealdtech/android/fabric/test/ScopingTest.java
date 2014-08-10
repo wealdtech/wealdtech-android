@@ -3,8 +3,6 @@ package com.wealdtech.android.fabric.test;
 import android.test.ActivityInstrumentationTestCase2;
 import com.wealdtech.android.fabric.Fabric;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
 /**
  * Test scoping from component up to global
  */
@@ -35,19 +33,20 @@ public class ScopingTest extends ActivityInstrumentationTestCase2<ActivityScopeT
     Fabric.getInstance().set(activity, "test integer", testActivityInt);
 
     // Component scope
-    final Integer testScopeInt = 3;
-    Fabric.getInstance().set(activity, "test component", "test integer", testScopeInt);
+    final Integer testComponentInt = 3;
+    Fabric.getInstance().set(activity, "test component", "test integer", testComponentInt);
 
-    assertThat(Fabric.getInstance().get(activity, "test component", "test integer").equals(testScopeInt));
-
+    assertEquals(Fabric.getInstance().get(activity, "test component", "test integer"), testComponentInt);
     Fabric.getInstance().clear(activity, "test component", "test integer");
-    assertThat(Fabric.getInstance().get(activity, "test component", "test integer").equals(testActivityInt));
-
-    Fabric.getInstance().clear(activity, "test integer");
-    assertThat(Fabric.getInstance().get(activity, "test component", "test integer").equals(testGlobalInt));
-
-    Fabric.getInstance().clear("test integer");
     assertNull(Fabric.getInstance().get(activity, "test component", "test integer"));
+
+    assertEquals(Fabric.getInstance().get(activity, "test integer"), testActivityInt);
+    Fabric.getInstance().clear(activity, "test integer");
+    assertNull(Fabric.getInstance().get(activity, "test integer"));
+
+    assertEquals(Fabric.getInstance().get("test integer"), testGlobalInt);
+    Fabric.getInstance().clear("test integer");
+    assertNull(Fabric.getInstance().get("test integer"));
 
     activity.finish();
   }

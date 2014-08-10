@@ -59,8 +59,8 @@ public class PlayActivity extends Activity
       @Override
       public void onClick(final View v)
       {
-        Fabric.getInstance().set(thisActivity, "count", Fabric.getInstance().<Integer>get(thisActivity, "count") + 1);
-        holder.textView2.setText("Button has been pressed " + Fabric.getInstance().get(thisActivity, "count") + " times");
+        Fabric.getInstance().set(thisActivity, R.id.play_button_1, "count", Fabric.getInstance().<Integer>get(thisActivity, R.id.play_button_1, "count") + 1);
+        holder.textView2.setText("Button has been pressed " + Fabric.getInstance().get(thisActivity, R.id.play_button_1, "count") + " times");
       }
     });
 
@@ -70,7 +70,7 @@ public class PlayActivity extends Activity
       @Override
       public void onClick(final View v)
       {
-        Fabric.getInstance().persist(thisActivity, "count");
+        Fabric.getInstance().persist(thisActivity, R.id.play_button_1, "count");
         holder.textView1.setText("Persisting press count");
       }
     });
@@ -81,7 +81,7 @@ public class PlayActivity extends Activity
       @Override
       public void onClick(final View v)
       {
-        Fabric.getInstance().unpersist(thisActivity, "count");
+        Fabric.getInstance().unpersist(thisActivity, R.id.play_button_1, "count");
         holder.textView1.setText("Not persisting press count");
       }
     });
@@ -90,13 +90,13 @@ public class PlayActivity extends Activity
     Fabric.init(getApplicationContext());
 
     Integer pressCount;
-    pressCount = Fabric.getInstance().get(this, "count");
+    pressCount = Fabric.getInstance().get(this, R.id.play_button_1, "count");
     if (pressCount == null)
     {
       // Don't have it; set it up
       pressCount = 0;
-      Fabric.getInstance().set(this, "count", pressCount);
-      Fabric.getInstance().persist(this, "count");
+      Fabric.getInstance().set(this, R.id.play_button_1, "count", pressCount);
+      Fabric.getInstance().persist(this, R.id.play_button_1, "count");
     }
     holder.textView2.setText("Button has been pressed " + pressCount + " times");
   }
