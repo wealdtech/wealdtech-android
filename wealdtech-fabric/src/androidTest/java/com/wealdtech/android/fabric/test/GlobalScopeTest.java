@@ -37,10 +37,4 @@ public class GlobalScopeTest extends ActivityInstrumentationTestCase2<GlobalScop
 
     activity.finish();
   }
-
-  public void testPersistence()
-  {
-
-  }
-
 }

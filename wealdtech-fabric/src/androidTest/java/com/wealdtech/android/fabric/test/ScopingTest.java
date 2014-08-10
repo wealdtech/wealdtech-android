@@ -46,6 +46,9 @@ public class ScopingTest extends ActivityInstrumentationTestCase2<ActivityScopeT
     Fabric.getInstance().clear(activity, "test integer");
     assertThat(Fabric.getInstance().get(activity, "test component", "test integer").equals(testGlobalInt));
 
+    Fabric.getInstance().clear("test integer");
+    assertNull(Fabric.getInstance().get(activity, "test component", "test integer"));
+
     activity.finish();
   }
 }
