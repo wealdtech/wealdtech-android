@@ -22,7 +22,7 @@ public class ScopingTest extends ActivityInstrumentationTestCase2<ActivityScopeT
     setActivityInitialTouchMode(false);
   }
 
-  public void testActivityScope()
+  public void testScoping()
   {
     final ActivityScopeTestActivity activity = getActivity();
 

@@ -20,8 +20,20 @@ public class SafePersistenceStrategy implements FabricPersistenceStrategy
   }
 
   @Override
-  public void markDirty()
+  public void markDirty(final String key)
   {
-    this.store.save(Fabric.getInstance());
+    this.store.save(Fabric.getInstance(), null, null, key);
+  }
+
+  @Override
+  public void markDirty(final String activity, final String key)
+  {
+    this.store.save(Fabric.getInstance(), activity, null, key);
+  }
+
+  @Override
+  public void markDirty(final String activity, final String component, final String key)
+  {
+    this.store.save(Fabric.getInstance(), activity, component, key);
   }
 }

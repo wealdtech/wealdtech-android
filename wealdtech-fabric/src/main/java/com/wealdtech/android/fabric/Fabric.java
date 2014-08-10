@@ -49,10 +49,6 @@ public class Fabric
 
   /**
    * Create a new fabric.
-   * This is usually only called from
-   * @param globalScope
-   * @param activityScope
-   * @param componentScope
    */
   public Fabric(final Map<String, Object> globalScope,
                 final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope,
@@ -137,8 +133,8 @@ public class Fabric
 
   /**
    * Fetch an item from global scope
-   * @param key the key
-   * @return the value
+   * @param key the key of the item
+   * @return the value of the item
    */
   @SuppressWarnings("unchecked")
   public <T> T get(final String key)
@@ -148,30 +144,30 @@ public class Fabric
 
   /**
    * Set an item in global scope
-   * @param key the key
-   * @param value the value
+   * @param key the key of the item
+   * @param value the value of the item
    */
   public <T> void set(final String key, final T value)
   {
     globalScope.put(key, value);
-    persistenceStrategy.markDirty();
+    persistenceStrategy.markDirty(key);
   }
 
   /**
    * Clear an item in global scope
-   * @param key the key
+   * @param key the key of the item
    */
   public void clear(final String key)
   {
     globalScope.remove(key);
-    persistenceStrategy.markDirty();
+    persistenceStrategy.markDirty(key);
   }
 
   /**
    * Fetch an item from activity scope
-   * @param activity the activity
-   * @param key the key
-   * @return the value
+   * @param activity the activity for scoping
+   * @param key the key of the item
+   * @return the value of the item
    */
   @SuppressWarnings("unchecked")
   public <T> T get(final Activity activity, final String key)
@@ -184,14 +180,14 @@ public class Fabric
     }
     else
     {
-      final T activityResult = (T)scope.get(key).getS();
+      final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>)scope.get(key);
       if (activityResult == null)
       {
         result = get(key);
       }
       else
       {
-        result = activityResult;
+        result = activityResult.getS();
       }
     }
     return result;
@@ -199,9 +195,9 @@ public class Fabric
 
   /**
    * Set an item in activity scope
-   * @param activity the activity
-   * @param key the key
-   * @param value the value
+   * @param activity the activity for scoping
+   * @param key the key of the item
+   * @param value the value of the item
    */
   public <T> void set(final Activity activity, final String key, final T value)
   {
@@ -219,14 +215,14 @@ public class Fabric
     else
     {
       scope.put(key, new TwoTuple<Object, Boolean>(value, true));
-      persistenceStrategy.markDirty();
+      persistenceStrategy.markDirty(activity.getLocalClassName(), key);
     }
   }
 
   /**
    * Clear an item in activity scope
-   * @param activity the activity
-   * @param key the key
+   * @param activity the activity for scoping
+   * @param key the key of the item
    */
   public void clear(final Activity activity, final String key)
   {
@@ -237,17 +233,68 @@ public class Fabric
       if (oldEntry != null && oldEntry.getT())
       {
         // This was persisted, so we need to mark as dirty
-        persistenceStrategy.markDirty();
+        persistenceStrategy.markDirty(activity.getLocalClassName(), key);
       }
     }
   }
 
   /**
+   * Mark an activity-level item to be persisted
+   * @param activity the activity for scoping
+   * @param key the key of the item
+   */
+  public void persist(final Activity activity, final String key)
+  {
+    final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
+    if (scope == null)
+    {
+      throw new IllegalStateException("Attempt to persist a non-existent item");
+    }
+    final TwoTuple<Object, Boolean> value = scope.get(key);
+    if (value == null)
+    {
+      throw new IllegalStateException("Attempt to persist a non-existent item");
+    }
+    if (!value.getT())
+    {
+      // This item was not persisted but now is.  Set it accordingly
+      scope.put(key, new TwoTuple<>(value.getS(), true));
+      persistenceStrategy.markDirty(activity.getLocalClassName(), key);
+    }
+  }
+
+  /**
+   * Mark an activity-level item to be unpersisted
+   * @param activity the activity for scoping
+   * @param key the key of the item
+   */
+  public void unpersist(final Activity activity, final String key)
+  {
+    final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
+    if (scope == null)
+    {
+      throw new IllegalStateException("Attempt to unpersist a non-existent item");
+    }
+    final TwoTuple<Object, Boolean> value = scope.get(key);
+    if (value == null)
+    {
+      throw new IllegalStateException("Attempt to unpersist a non-existent item");
+    }
+    if (value.getT())
+    {
+      // This item was persisted but now is not.  Set it accordingly
+      scope.put(key, new TwoTuple<>(value.getS(), false));
+      // We mark as dirty because of the change of persistence state
+      persistenceStrategy.markDirty(activity.getLocalClassName(), key);
+    }
+  }
+
+  /**
    * Fetch an item from component scope
-   * @param activity the activity
-   * @param component the component
-   * @param key the key
-   * @return the value
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   * @return the value of the item
    */
   @SuppressWarnings("unchecked")
   public <T> T get(final Activity activity, final String component, final String key)
@@ -291,10 +338,10 @@ public class Fabric
 
   /**
    * Set an item in component scope
-   * @param activity the activity
-   * @param component the component
-   * @param key the key
-   * @param value the value
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   * @param value the value of the item
    */
   public <T> void set(final Activity activity, final String component, final String key, final T value)
   {
@@ -316,9 +363,9 @@ public class Fabric
 
   /**
    * Clear an item in component scope
-   * @param activity the activity
-   * @param component the component
-   * @param key the key
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
    */
   public void clear(final Activity activity, final String component, final String key)
   {
@@ -334,11 +381,19 @@ public class Fabric
   }
 
   /**
-   * Mark an activity-level item to be persisted
+   * Mark a component-level item to be persisted
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
    */
-  public void persist(final Activity activity, final String key)
+  public void persist(final Activity activity, final String component, final String key)
   {
-    final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
+    final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
+    if (activityScope == null)
+    {
+      throw new IllegalStateException("Attempt to persist a non-existent item");
+    }
+    final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(component);
     if (scope == null)
     {
       throw new IllegalStateException("Attempt to persist a non-existent item");
@@ -352,12 +407,23 @@ public class Fabric
     {
       // This item was not persisted but now is.  Set it accordingly
       scope.put(key, new TwoTuple<>(value.getS(), true));
-      persistenceStrategy.markDirty();
+      persistenceStrategy.markDirty(activity.getLocalClassName(), component, key);
     }
   }
 
-  public void unpersist(final Activity activity, final String key)
+  /**
+   * Mark a component-level item to be unpersisted
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   */
+  public void unpersist(final Activity activity, final String component, final String key)
   {
+    final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
+    if (activityScope == null)
+    {
+      throw new IllegalStateException("Attempt to unpersist a non-existent item");
+    }
     final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
     if (scope == null)
     {
@@ -373,7 +439,7 @@ public class Fabric
       // This item was persisted but now is not.  Set it accordingly
       scope.put(key, new TwoTuple<>(value.getS(), false));
       // We mark as dirty because of the change of persistence state
-      persistenceStrategy.markDirty();
+      persistenceStrategy.markDirty(activity.getLocalClassName(), component, key);
     }
   }
 }

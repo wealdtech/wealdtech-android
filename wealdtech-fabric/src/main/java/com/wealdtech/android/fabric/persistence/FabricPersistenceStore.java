@@ -9,5 +9,5 @@ public interface FabricPersistenceStore
 {
   Fabric load();
 
-  void save(Fabric fabric);
+  void save(Fabric fabric, String activity, String component, String key);
 }

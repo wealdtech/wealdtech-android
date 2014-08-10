@@ -2,11 +2,9 @@ package com.wealdtech.android.fabric.persistence;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.common.base.Objects;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.wealdtech.TwoTuple;
 import com.wealdtech.android.fabric.Fabric;
@@ -26,9 +24,14 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
 
   private final SharedPreferences prefs;
 
+  private final ObjectMapper mapper;
+
   public PrefsPersistenceStore(final Context context)
   {
     this.prefs = context.getSharedPreferences("fabric", Context.MODE_PRIVATE);
+    // Create a custom object mapper which saves type information, allowing complex objects to be stored in prefs
+    this.mapper = WealdMapper.getServerMapper().copy();
+    this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
   }
 
   @Override
@@ -36,13 +39,45 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
   {
     try
     {
-      LOG.error("Fabric data is {}", prefs.getString("fabric", "{}"));
-      final FabricData fabricData = WealdMapper.getServerMapper().readValue(prefs.getString("fabric", "{}"), FabricData.class);
-      if (LOG.isTraceEnabled())
+      final String globalScopeStr = prefs.getString("global", null);
+      LOG.error("Global scope is {}", globalScopeStr);
+      final Map<String, Object> globalScope;
+      if (globalScopeStr == null)
       {
-        LOG.trace("Fabric data is {}", WealdMapper.getServerMapper().writeValueAsString(fabricData));
+        globalScope = Maps.newHashMap();
       }
-      return new Fabric(fabricData.globalScope, fabricData.getActivityScopeForFabric(), fabricData.getComponentScopeForFabric());
+      else
+      {
+        globalScope = mapper.readValue(globalScopeStr, new TypeReference<Map<String, Object>>(){});
+      }
+
+      final String activityScopeStr = prefs.getString("activity", null);
+      LOG.error("Activity scope is {}", activityScopeStr);
+      final Map<String, Map<String, Object>> activityScope;
+      if (activityScopeStr == null)
+      {
+        activityScope = Maps.newHashMap();
+      }
+      else
+      {
+        activityScope = mapper.readValue(activityScopeStr, new TypeReference<Map<String, Map<String, Object>>>() {});
+      }
+
+      final String componentScopeStr = prefs.getString("component", null);
+      LOG.error("Component scope is {}", componentScopeStr);
+      final Map<String, Map<String, Map<String, Object>>> componentScope;
+      if (componentScopeStr == null)
+      {
+        componentScope = Maps.newHashMap();
+      }
+      else
+      {
+
+        componentScope = mapper.readValue(componentScopeStr,
+                                               new TypeReference<Map<String, Map<String, Map<String, Object>>>>() {});
+      }
+      return new Fabric(globalScope, getActivityScopeForFabric(activityScope),
+                        getComponentScopeForFabric(componentScope));
     }
     catch (IOException e)
     {
@@ -52,53 +87,63 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
   }
 
   @Override
-  public void save(final Fabric fabric)
+  public void save(final Fabric fabric, final String activity, final String component, final String key)
   {
-    final FabricData fabricData = new FabricData(fabric.getGlobalScope(),
-                                                 setActivityScopeForFabricData(fabric.getActivityScope()),
-                                                 null);
-//                                                 FabricData.setComponentScopeForFabricData(fabric.getComponentScope()));
-
-    final SharedPreferences.Editor editor = prefs.edit();
     try
     {
-      final String fabricDataStr = WealdMapper.getServerMapper().writeValueAsString(fabricData);
-      LOG.trace("Saving fabric data: {}", fabricDataStr);
-      editor.putString("fabric", fabricDataStr);
+      final SharedPreferences.Editor editor = prefs.edit();
+
+      if (activity == null)
+      {
+        final Map<String, Object> globalScope = setGlobalScopeForFabricData(fabric.getGlobalScope());
+        final String globalScopeStr = mapper.writeValueAsString(globalScope);
+        editor.putString("global", globalScopeStr);
+        LOG.error("Global scope is now {}", globalScopeStr);
+      }
+      else if (component == null)
+      {
+        final Map<String, Map<String, Object>> activityScope = setActivityScopeForFabricData(fabric.getActivityScope());
+        final String activityScopeStr = mapper.writeValueAsString(activityScope);
+        editor.putString("activity", activityScopeStr);
+        LOG.error("Activity scope is now {}", activityScopeStr);
+      }
+      else
+      {
+        final Map<String, Map<String, Map<String, Object>>> componentScope = setComponentScopeForFabricData(fabric.getComponentScope());
+        final String componentScopeStr = mapper.writeValueAsString(componentScope);
+        editor.putString("component", componentScopeStr);
+        LOG.error("Component scope is now {}", componentScopeStr);
+      }
+      editor.commit();
     }
-    catch (final JsonProcessingException e)
+    catch (IOException e)
     {
       LOG.error("Failed to save fabric: ", e);
       throw new IllegalArgumentException("Failed to save fabric", e);
     }
-    editor.commit();
   }
 
-  // Helper class used for loading and saving the fabric data
-  private class FabricData
-  {
-    // Global scope
-    public final Map<String, Object> globalScope;
-    // Persistent activity scope data
-    public final Map<String, Map<String, Object>> activityScope;
-    // Persistent component scope data
-    public final Map<String, Map<String, Map<String, Object>>> componentScope;
-
-    @JsonCreator
-    private FabricData(@JsonProperty("globalscope") final Map<String, Object> globalScope,
-                       @JsonProperty("activityscope") final Map<String, Map<String, Object>> activityScope,
-                       @JsonProperty("componentscope") final Map<String, Map<String, Map<String, Object>>> componentScope)
-    {
-      this.globalScope = Objects.firstNonNull(globalScope, Maps.<String, Object>newConcurrentMap());
-      this.activityScope = Objects.firstNonNull(activityScope, Maps.<String, Map<String, Object>>newConcurrentMap());
-      this.componentScope = Objects.firstNonNull(componentScope, Maps.<String, Map<String, Map<String, Object>>>newConcurrentMap());
-    }
+//   /**
+//     * Convert our local format global scope data to that suitable for feeding to fabric
+//     *
+//     * @return
+//     */
+//    @JsonIgnore
+//    private Map<String, Object> getGlobalScopeForFabric()
+//    {
+//      Map<String, Object> fabricGlobalScope = Maps.newHashMap();
+//      for (final Map.Entry<String, Object> entry : globalScope.entrySet())
+//      {
+//        fabricGlobalScope.put(entry.getKey(), entry.getValue());
+//      }
+//      return fabricGlobalScope;
+//    }
 
     /**
      * Convert our local format activity scope data to that suitable for feeding to fabric
      */
     @JsonIgnore
-    private Map<String, Map<String, TwoTuple<Object, Boolean>>> getActivityScopeForFabric()
+    private Map<String, Map<String, TwoTuple<Object, Boolean>>> getActivityScopeForFabric(final Map<String, Map<String, Object>> activityScope)
     {
       // By definition, anything we have is persistent.  Set it as such
       Map<String, Map<String, TwoTuple<Object, Boolean>>> fabricActivityScope = Maps.newHashMap();
@@ -118,7 +163,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
      * Convert our local format component scope data to that suitable for feeding to fabric
      */
     @JsonIgnore
-    private Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> getComponentScopeForFabric()
+    private Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> getComponentScopeForFabric(final Map<String, Map<String, Map<String, Object>>> componentScope)
     {
       // By definition, anything we have loaded is persistent.  Set it as such
       Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> persistentComponentScope = Maps.newHashMap();
@@ -138,6 +183,16 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
       return persistentComponentScope;
     }
+
+  @JsonIgnore
+  private Map<String, Object> setGlobalScopeForFabricData(final Map<String, Object> globalScope)
+  {
+    final Map<String, Object> result = Maps.newHashMap();
+    for (final Map.Entry<String, Object> entry : globalScope.entrySet())
+    {
+      result.put(entry.getKey(), entry.getValue());
+    }
+    return result;
   }
 
   @JsonIgnore
@@ -159,13 +214,36 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
         result.put(activityEntry.getKey(), activityResult);
       }
     }
-    if (!result.isEmpty())
+    return result;
+  }
+
+  @JsonIgnore
+  private Map<String, Map<String, Map<String, Object>>> setComponentScopeForFabricData(final Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> componentScope)
+  {
+    final Map<String, Map<String, Map<String, Object>>> result = Maps.newHashMap();
+    for (final Map.Entry<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> activityEntry : componentScope.entrySet())
     {
-      return result;
+      final Map<String, Map<String, Object>> activityResult = Maps.newHashMap();
+      for (final Map.Entry<String, Map<String, TwoTuple<Object, Boolean>>> componentEntry : activityEntry.getValue().entrySet())
+      {
+        final Map<String, Object> componentResult = Maps.newHashMap();
+        for (final Map.Entry<String, TwoTuple<Object, Boolean>> entry : componentEntry.getValue().entrySet())
+        {
+          if (entry.getValue().getT())
+          {
+            componentResult.put(entry.getKey(), entry.getValue().getS());
+          }
+        }
+        if (!componentResult.isEmpty())
+        {
+          activityResult.put(componentEntry.getKey(), componentResult);
+        }
+      }
+      if (!activityResult.isEmpty())
+      {
+        result.put(activityEntry.getKey(), activityResult);
+      }
     }
-    else
-    {
-      return null;
-    }
+    return result;
   }
 }

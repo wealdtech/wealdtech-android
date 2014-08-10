@@ -40,18 +40,17 @@ public class ActivityScopeTest extends ActivityInstrumentationTestCase2<Activity
     activity.finish();
   }
 
-
   public void testPersistence()
   {
     final ActivityScopeTestActivity activity = getActivity();
     final Integer testInt = 53;
     Fabric.getInstance().set(activity, "test persisting integer", testInt);
     Fabric.getInstance().persist(activity, "test persisting integer");
-    assertThat(Fabric.getInstance().<Integer>get("test persisting integer").equals(testInt));
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test persisting integer")));
     activity.finish();
 
     final ActivityScopeTestActivity activity2 = getActivity();
-    assertThat(Fabric.getInstance().<Integer>get("test persisting integer").equals(testInt));
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test persisting integer")));
     activity2.finish();
   }
 }

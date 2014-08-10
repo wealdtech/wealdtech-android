@@ -5,5 +5,18 @@ package com.wealdtech.android.fabric.persistence;
  */
 public interface FabricPersistenceStrategy
 {
-  void markDirty();
+  /**
+   * Called when a global scope item is marked as dirty
+   */
+  void markDirty(String key);
+
+  /**
+   * Called when an activity scope item is marked as dirty
+   */
+  void markDirty(String activity, String key);
+
+  /**
+   * Called when a component scope item is marked as dirty
+   */
+  void markDirty(String activity, String component, String key);
 }

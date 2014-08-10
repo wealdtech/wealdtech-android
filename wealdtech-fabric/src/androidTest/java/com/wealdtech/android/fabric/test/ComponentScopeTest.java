@@ -6,13 +6,13 @@ import com.wealdtech.android.fabric.Fabric;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
- * Test activity-level scope
+ * Test component-level scope
  */
-public class ComponentScopeTest extends ActivityInstrumentationTestCase2<ActivityScopeTestActivity>
+public class ComponentScopeTest extends ActivityInstrumentationTestCase2<ComponentScopeTestActivity>
 {
   public ComponentScopeTest()
   {
-    super(ActivityScopeTestActivity.class);
+    super(ComponentScopeTestActivity.class);
   }
 
   @Override
@@ -22,9 +22,9 @@ public class ComponentScopeTest extends ActivityInstrumentationTestCase2<Activit
     setActivityInitialTouchMode(false);
   }
 
-  public void testActivityScope()
+  public void testComponentScope()
   {
-    final ActivityScopeTestActivity activity = getActivity();
+    final ComponentScopeTestActivity activity = getActivity();
 
     // Global scope
     final Integer testGlobalInt = 1;
@@ -43,5 +43,19 @@ public class ComponentScopeTest extends ActivityInstrumentationTestCase2<Activit
     assertThat(Fabric.getInstance().get(activity, "test component", "test integer").equals(testScopeInt));
 
     activity.finish();
+  }
+
+  public void testPersistence()
+  {
+    final ComponentScopeTestActivity activity = getActivity();
+    final Integer testInt = 623;
+    Fabric.getInstance().set(activity, "test component", "test persisting integer", testInt);
+    Fabric.getInstance().persist(activity, "test component", "test persisting integer");
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test component", "test persisting integer")));
+    activity.finish();
+
+    final ComponentScopeTestActivity activity2 = getActivity();
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity2, "test component", "test persisting integer")));
+    activity2.finish();
   }
 }
