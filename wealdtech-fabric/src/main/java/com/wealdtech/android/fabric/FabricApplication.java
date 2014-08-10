@@ -12,7 +12,7 @@ public class FabricApplication extends Application
   public void onCreate()
   {
     super.onCreate();
-    Fabric.init(getBaseContext(), "wealdtech-fabric");
+    Fabric.init(getBaseContext());
   }
 
   public Fabric fabric()

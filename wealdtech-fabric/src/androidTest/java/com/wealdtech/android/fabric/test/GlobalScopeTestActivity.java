@@ -19,6 +19,6 @@ public class GlobalScopeTestActivity extends Activity
   public void onCreate(final Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-    Fabric.init(getApplicationContext(), "globalscopetest");
+    Fabric.init(getApplicationContext());
   }
 }

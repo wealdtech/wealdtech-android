@@ -2,20 +2,20 @@ package com.wealdtech.android.fabric;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.base.Objects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.wealdtech.android.fabric.persistence.FabricPersistenceStore;
+import com.wealdtech.android.fabric.persistence.FabricPersistenceStrategy;
+import com.wealdtech.android.fabric.persistence.PrefsPersistenceStore;
+import com.wealdtech.android.fabric.persistence.SafePersistenceStrategy;
 import com.wealdtech.jackson.WealdMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -36,17 +36,12 @@ public class Fabric
 
   private static Fabric instance = null;
 
-  // Fabric is backed by shared preferences
-  @JsonIgnore
-  private final SharedPreferences prefs;
+  // A persistence strategy and store
+  private static FabricPersistenceStore persistenceStore = null;
+  private static FabricPersistenceStrategy persistenceStrategy = null;
 
   // A context is required for creating shared preferences.  This is configured in init()
-  @JsonIgnore
   private static Context context;
-
-  // A name is required for creating shared preferences.  This is configured in init()
-  @JsonIgnore
-  private static String name;
 
   // Global scope is contained in a single key:value store
   private final Map<String, Object> globalScope;
@@ -63,35 +58,29 @@ public class Fabric
                  @JsonProperty("activitypersists") final Multimap<String, String> activityPersists,
                  @JsonProperty("componentscope") final Map<String, Map<String, Map<String, Object>>> componentScope)
   {
-    this.prefs = context.getSharedPreferences("fabric-" + name, Context.MODE_PRIVATE);
     this.globalScope = Objects.firstNonNull(globalScope, Maps.<String, Object>newConcurrentMap());
     this.activityScope = Objects.firstNonNull(activityScope, Maps.<String, Map<String, Object>>newConcurrentMap());
     this.activityPersists = Objects.firstNonNull(activityPersists, ArrayListMultimap.<String, String>create());
     this.componentScope = Objects.firstNonNull(componentScope, Maps.<String, Map<String, Map<String, Object>>>newConcurrentMap());
   }
-//  private Fabric()
-//  {
-//    prefs = context.getSharedPreferences("fabric-" + name, Context.MODE_PRIVATE);
-//    globalScope = Maps.newConcurrentMap();
-//    globalScope.putAll(prefs.getAll());
-//    activityScope = Maps.newConcurrentMap();
-//    // Import activity persists from preferences
-//    activityPersists = ArrayListMultimap.create();
-//    // Import existing activity scope data from preferences
-//    componentScope = Maps.newConcurrentMap();
-//    // Read component persists from preferences
-//    // Import existing component scope data
-//  }
 
   /**
    * Initialise the fabric.
    * @param context the application-level context for the fabric
-   * @param name the name for the fabric.
    */
-  public static void init(final Context context, final String name)
+  public static void init(final Context context)
   {
     Fabric.context = context;
-    Fabric.name = name;
+  }
+
+  public static void setPersistenceStrategy(final FabricPersistenceStrategy persistenceStrategy)
+  {
+    Fabric.persistenceStrategy = persistenceStrategy;
+  }
+
+  public static void setPersistenceStore(final FabricPersistenceStore persistenceStore)
+  {
+    Fabric.persistenceStore = persistenceStore;
   }
 
   public static Fabric getInstance()
@@ -100,21 +89,31 @@ public class Fabric
     {
       synchronized (Fabric.class)
       {
-        if (context == null)
-        {
-          throw new IllegalStateException("Fabric has not been initialised; call Fabric.init() before first obtaining fabric");
-        }
         if (instance == null)
         {
-          final SharedPreferences prefs = context.getSharedPreferences("fabric-" + name, Context.MODE_PRIVATE);
-          try
+          if (context == null)
           {
-            instance = WealdMapper.getServerMapper().readValue(prefs.getString("fabric", "{}"), Fabric.class);
-            LOG.error("Fabric is {}", WealdMapper.getServerMapper().writeValueAsString(instance));
+            throw new IllegalStateException("Fabric has not been initialised; call Fabric.init() before first obtaining fabric");
           }
-          catch (IOException e)
+          if (persistenceStore == null)
           {
-            LOG.error("Failed to instantiate fabric: ", e);
+            persistenceStore = new PrefsPersistenceStore(context);
+          }
+          if (persistenceStrategy == null)
+          {
+            persistenceStrategy = new SafePersistenceStrategy(persistenceStore);
+          }
+          instance = persistenceStore.load();
+          if (LOG.isTraceEnabled())
+          {
+            try
+            {
+              LOG.trace("Fabric is {}", WealdMapper.getServerMapper().writeValueAsString(instance));
+            }
+            catch (Exception e)
+            {
+              LOG.error("Failed to instantiate fabric: ", e);
+            }
           }
         }
       }
@@ -140,19 +139,8 @@ public class Fabric
    */
   public <T> void set(final String key, final T value)
   {
-//    final SharedPreferences.Editor editor = prefs.edit();
-//    try
-//    {
-//      editor.putString(key, WealdMapper.getMapper().writeValueAsString(value));
-//    }
-//    catch (final JsonProcessingException e)
-//    {
-//      LOG.error("Failed to set value {}: ", value, e);
-//      throw new IllegalArgumentException("Failed to set value");
-//    }
-//    editor.commit();
     globalScope.put(key, value);
-    saveState();
+    persistenceStrategy.markDirty();
   }
 
   /**
@@ -161,11 +149,8 @@ public class Fabric
    */
   public void clear(final String key)
   {
-//    final SharedPreferences.Editor editor = prefs.edit();
-//    editor.remove(key);
-//    editor.commit();
     globalScope.remove(key);
-    saveState();
+    persistenceStrategy.markDirty();
   }
 
   /**
@@ -212,20 +197,11 @@ public class Fabric
       scope = Maps.newConcurrentMap();
       activityScope.put(activity.getLocalClassName(), scope);
     }
+    scope.put(key, value);
     if (activityPersists.containsKey(activity.getLocalClassName()))
     {
-      saveState();
-//      try
-//      {
-//        WealdMapper.getServerMapper().writeValueAsString(value);
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//        LOG.error("Failed to write value {}: ", value, e);
-//        throw new IllegalArgumentException("Failed to set value");
-//      }
+      persistenceStrategy.markDirty();
     }
-    scope.put(key, value);
   }
 
   /**
@@ -241,7 +217,7 @@ public class Fabric
       scope.remove(key);
       if (activityPersists.containsKey(activity.getLocalClassName()))
       {
-        saveState();
+        persistenceStrategy.markDirty();
       }
     }
   }
@@ -366,23 +342,9 @@ public class Fabric
       if (value != null)
       {
         // Re-set it as we just removed it from persistent and local storage
-        set(activity, key, get(activity, key));
+        set(activity, key, value);
       }
+      persistenceStrategy.markDirty();
     }
-  }
-
-  private void saveState()
-  {
-    final SharedPreferences.Editor editor = prefs.edit();
-    try
-    {
-      editor.putString("fabric", WealdMapper.getMapper().writeValueAsString(this));
-    }
-    catch (final JsonProcessingException e)
-    {
-      LOG.error("Failed to save state: ", e);
-      throw new IllegalArgumentException("Failed to save state");
-    }
-    editor.commit();
   }
 }

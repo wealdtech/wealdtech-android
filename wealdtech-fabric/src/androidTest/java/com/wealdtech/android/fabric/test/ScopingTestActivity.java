@@ -12,6 +12,6 @@ public class ScopingTestActivity extends Activity
   public void onCreate(final Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-    Fabric.init(getApplicationContext(), "scopingtest");
+    Fabric.init(getApplicationContext());
   }
 }

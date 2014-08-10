@@ -12,6 +12,6 @@ public class ComponentScopeTestActivity extends Activity
   public void onCreate(final Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-    Fabric.init(getApplicationContext(), "componentscopetest");
+    Fabric.init(getApplicationContext());
   }
 }
