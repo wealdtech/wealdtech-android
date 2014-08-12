@@ -15,8 +15,5 @@ public class FabricApplication extends Application
     Fabric.init(getBaseContext());
   }
 
-  public Fabric fabric()
-  {
-    return Fabric.getInstance();
-  }
+  protected Fabric fabric(){return Fabric.getInstance();}
 }

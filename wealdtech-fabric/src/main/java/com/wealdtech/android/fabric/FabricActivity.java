@@ -7,8 +7,5 @@ import android.app.Activity;
  */
 public class FabricActivity extends Activity
 {
-  public Fabric fabric()
-  {
-    return Fabric.getInstance();
-  }
+  protected Fabric fabric(){return Fabric.getInstance();}
 }
