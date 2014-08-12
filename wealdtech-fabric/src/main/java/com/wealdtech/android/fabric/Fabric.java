@@ -2,6 +2,7 @@ package com.wealdtech.android.fabric;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.View;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.wealdtech.TwoTuple;
@@ -10,6 +11,7 @@ import com.wealdtech.android.fabric.persistence.FabricPersistenceStrategy;
 import com.wealdtech.android.fabric.persistence.PrefsPersistenceStore;
 import com.wealdtech.android.fabric.persistence.SafePersistenceStrategy;
 import com.wealdtech.jackson.WealdMapper;
+import org.hamcrest.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -500,4 +502,11 @@ public class Fabric
       persistenceStrategy.markDirty(activity.getLocalClassName(), component, key);
     }
   }
+
+
+  public static ViewInteraction onView(final Matcher<View> viewMatcher) {
+    return espressoGraph().plus(new ViewInteractionModule(viewMatcher)).get(ViewInteraction.class);
+  }
+
 }
+
