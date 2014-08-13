@@ -6,12 +6,13 @@ import android.view.View;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.wealdtech.TwoTuple;
+import com.wealdtech.android.fabric.definition.FabricDataDefinition;
+import com.wealdtech.android.fabric.definition.ViewDefinition;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStore;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStrategy;
 import com.wealdtech.android.fabric.persistence.PrefsPersistenceStore;
 import com.wealdtech.android.fabric.persistence.SafePersistenceStrategy;
 import com.wealdtech.jackson.WealdMapper;
-import org.hamcrest.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -503,10 +504,11 @@ public class Fabric
     }
   }
 
-
-  public static ViewInteraction onView(final Matcher<View> viewMatcher) {
-    return espressoGraph().plus(new ViewInteractionModule(viewMatcher)).get(ViewInteraction.class);
+  public static ViewDefinition when(final View view)
+  {
+    return new ViewDefinition(view);
   }
 
+  public static FabricDataDefinition when(final FabricData fabricData) { return new FabricDataDefinition(fabricData); }
 }
 

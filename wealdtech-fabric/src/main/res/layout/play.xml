@@ -52,4 +52,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/play_edit_text_1" android:layout_below="@+id/play_button_3" android:layout_centerHorizontal="true"/>
+    <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/play_edit_text_2" android:layout_below="@+id/play_edit_text_1" android:layout_centerHorizontal="true"/>
 </RelativeLayout>

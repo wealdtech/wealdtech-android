@@ -12,6 +12,16 @@ import ch.qos.logback.classic.android.BasicLogcatConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static com.wealdtech.android.fabric.Fabric.when;
+import static com.wealdtech.android.fabric.FabricData.fabricData;
+import static com.wealdtech.android.fabric.action.AlertViewAction.alert;
+import static com.wealdtech.android.fabric.action.ValidateViewAction.validate;
+import static com.wealdtech.android.fabric.condition.ChangeFabricDataCondition.change;
+import static com.wealdtech.android.fabric.condition.ClickViewCondition.click;
+import static com.wealdtech.android.fabric.condition.FocusChangeViewCondition.focusChange;
+import static com.wealdtech.android.fabric.condition.LongClickViewCondition.longClick;
+import static com.wealdtech.android.fabric.validator.EmailValidator.emailValidator;
+
 /**
  */
 public class PlayActivity extends Activity
@@ -35,6 +45,7 @@ public class PlayActivity extends Activity
     public Button button2;
     public Button button3;
     public EditText editText1;
+    public EditText editText2;
   }
   private ViewHolder holder = new ViewHolder();
 
@@ -89,6 +100,7 @@ public class PlayActivity extends Activity
     });
 
     holder.editText1 = (EditText)findViewById(R.id.play_edit_text_1);
+    holder.editText2 = (EditText)findViewById(R.id.play_edit_text_2);
 
     Fabric.init(getApplicationContext());
 
@@ -103,6 +115,10 @@ public class PlayActivity extends Activity
     }
     holder.textView2.setText("Button has been pressed " + pressCount + " times");
 
-    when(R.id.play_edit_text_1)
+//    when(holder.editText1).encounters(focusChanged()).then(alert("validating..."), validate(emailValidator(), alert("Valid"), alert("Invalid")), alert("...validated"));
+    when(holder.editText1).encounters(focusChange()).then(validate(emailValidator(), alert("Valid"), alert("Invalid")));
+    when(holder.button2).encounters(click()).then(alert("Hello"));
+    when(holder.button2).encounters(longClick()).then(alert("Ouch!"));
+    when(fabricData(this, R.id.play_button_1, "count")).encounters(change()).then(alert("Changed!"));
   }
 }
