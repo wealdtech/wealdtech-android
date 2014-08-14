@@ -6,5 +6,6 @@ import android.view.View;
  */
 public interface FocusChangeHandler
 {
-  View.OnFocusChangeListener getFocusChangeListener(View view);
+  View.OnFocusChangeListener getFocusChangeListener();
+  void setChainedFocusChangeListener(View.OnFocusChangeListener listener);
 }

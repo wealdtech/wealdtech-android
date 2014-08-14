@@ -1,6 +1,7 @@
 package com.wealdtech.android.fabric;
 
 import android.app.Application;
+import com.wealdtech.android.fabric.persistence.PrefsPersistenceStore;
 
 /**
  * An application which uses the fabric framework.
@@ -12,7 +13,7 @@ public class FabricApplication extends Application
   public void onCreate()
   {
     super.onCreate();
-    Fabric.init(getBaseContext());
+    Fabric.init(new PrefsPersistenceStore(getBaseContext()));
   }
 
   protected Fabric fabric(){return Fabric.getInstance();}

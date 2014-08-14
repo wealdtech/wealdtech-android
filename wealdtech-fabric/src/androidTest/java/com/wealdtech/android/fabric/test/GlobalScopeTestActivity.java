@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import ch.qos.logback.classic.android.BasicLogcatConfigurator;
 import com.wealdtech.android.fabric.Fabric;
+import com.wealdtech.android.fabric.persistence.PrefsPersistenceStore;
 
 /**
  */
@@ -19,6 +20,6 @@ public class GlobalScopeTestActivity extends Activity
   public void onCreate(final Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-    Fabric.init(getApplicationContext());
+    Fabric.init(new PrefsPersistenceStore(getApplicationContext()));
   }
 }

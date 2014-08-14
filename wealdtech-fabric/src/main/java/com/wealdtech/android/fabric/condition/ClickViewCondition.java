@@ -1,5 +1,7 @@
 package com.wealdtech.android.fabric.condition;
 
+import com.wealdtech.android.fabric.definition.ViewDefinition;
+
 /**
  */
 public class ClickViewCondition extends ViewCondition
@@ -7,9 +9,12 @@ public class ClickViewCondition extends ViewCondition
   @Override
   void setUp()
   {
-    if (action instanceof ClickHandler)
+    if (action instanceof ClickHandler && definition instanceof ViewDefinition)
     {
-      definition.view.setOnClickListener(((ClickHandler)action).getClickListener(definition.view));
+      final ViewDefinition definition = (ViewDefinition)this.definition;
+      final ClickHandler action = (ClickHandler)this.action;
+
+      definition.view.setOnClickListener(action.getClickListener(definition.view));
     }
   }
 
