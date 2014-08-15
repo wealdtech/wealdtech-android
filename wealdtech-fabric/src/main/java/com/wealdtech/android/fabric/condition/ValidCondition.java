@@ -28,4 +28,12 @@ public class ValidCondition extends ViewCondition
   {
     return new ValidCondition(view, validator);
   }
+
+  /**
+   * Run a validator immediately
+   */
+  public static boolean isValid(final View view, final Validator validator)
+  {
+    return new ValidCondition(view, validator).isMet();
+  }
 }
