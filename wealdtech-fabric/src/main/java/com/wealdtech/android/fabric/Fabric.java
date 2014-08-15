@@ -2,15 +2,12 @@ package com.wealdtech.android.fabric;
 
 import android.app.Activity;
 import android.util.Log;
-import android.view.View;
 import com.google.common.base.Objects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.wealdtech.TwoTuple;
-import com.wealdtech.android.fabric.definition.FabricDataDefinition;
-import com.wealdtech.android.fabric.definition.ViewDefinition;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStore;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStrategy;
 import com.wealdtech.android.fabric.persistence.SafePersistenceStrategy;
@@ -22,6 +19,11 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
+ * Fabric is an infrastructure component with two goals.  First it acts as a store of information which is globally accessible and
+ * can, on a per-item basis, e either transient or persistent.  Second it provides a rules-based way of triggering actions based on
+ * conditions occurring within an application.  Provided conditions work against both view status and fabric data, but the conditions
+ * and actions can be expanded if required.
+ * <p/>
  * A fabric has three scopes of storage: <ul> <li>Global</li> <li>Activity</li> <li>Component</li> </ul> Data can be stored at any
  * of these scopes.  Global scope is persisted through instances of the application, activity scope is persisted through the
  * lifetime of the application and component scope is persisted through the lifetime of the component.  Data in activity or
@@ -31,6 +33,10 @@ import java.util.Map;
  * Note that there is no visibility from one scope to another, so a named variable in global scope will not be returned if that name
  * is asked for in activity scope.  Activity and component scope are purely used for partitioning rather than implying any sort of
  * hierarchy.
+ * <p/>
+ * The fabric rule system allows the definition of reactive actions.  A reactive action occurs based on a condition of current
+ * state.  Common examples of this might be showing an introduction overlay for an activity the first time it is visited, validating
+ * user input, or suggesting changes to user input based on multiple criteria.
  */
 public class Fabric
 {
@@ -667,18 +673,5 @@ public class Fabric
     }
     listeners.put(key, listener);
   }
-
-  public static ViewDefinition when(final View view)
-  {
-    return new ViewDefinition(view);
-  }
-
-  public static View onView(final View view)
-  {
-    return view;
-  }
-
-  public static FabricDataDefinition when(final FabricData fabricData) { return new FabricDataDefinition(fabricData); }
-
 }
 

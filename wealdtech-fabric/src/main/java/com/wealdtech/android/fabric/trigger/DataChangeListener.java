@@ -1,4 +1,4 @@
-package com.wealdtech.android.fabric.condition;
+package com.wealdtech.android.fabric.trigger;
 
 /**
  */
