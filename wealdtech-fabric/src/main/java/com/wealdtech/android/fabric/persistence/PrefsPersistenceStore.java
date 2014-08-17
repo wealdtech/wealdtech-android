@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A fabric persistence store which uses Jackson and the shared preferences system to store information
@@ -26,12 +27,14 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
 
   private final ObjectMapper mapper;
 
+  // Single reference to the type of maps we are deserializing
+  private static final TypeReference<ConcurrentHashMap<String, Object>> SCOPEREF = new TypeReference<ConcurrentHashMap<String, Object>>(){};
+
   public PrefsPersistenceStore(final Context context)
   {
     this.prefs = context.getSharedPreferences("fabric", Context.MODE_PRIVATE);
     // Create a custom object mapper which saves type information, allowing complex objects to be stored in prefs
-    this.mapper = WealdMapper.getServerMapper().copy();
-    this.mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+    this.mapper = WealdMapper.getServerMapper().copy().enableDefaultTyping();
   }
 
   @Override
@@ -48,7 +51,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
       else
       {
-        globalScope = mapper.readValue(globalScopeStr, new TypeReference<Map<String, Object>>(){});
+        globalScope = mapper.readValue(globalScopeStr, SCOPEREF);
       }
 
       final String activityScopeStr = prefs.getString("activity", null);
@@ -60,7 +63,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
       else
       {
-        activityScope = mapper.readValue(activityScopeStr, new TypeReference<Map<String, Map<String, Object>>>() {});
+        activityScope = mapper.readValue(activityScopeStr, SCOPEREF);
       }
 
       final String componentScopeStr = prefs.getString("component", null);
@@ -73,8 +76,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       else
       {
 
-        componentScope = mapper.readValue(componentScopeStr,
-                                               new TypeReference<Map<String, Map<String, Map<String, Object>>>>() {});
+        componentScope = mapper.readValue(componentScopeStr, SCOPEREF);
       }
       return new Fabric(globalScope, getActivityScopeForFabric(activityScope),
                         getComponentScopeForFabric(componentScope));
@@ -122,22 +124,6 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       throw new IllegalArgumentException("Failed to save fabric", e);
     }
   }
-
-//   /**
-//     * Convert our local format global scope data to that suitable for feeding to fabric
-//     *
-//     * @return
-//     */
-//    @JsonIgnore
-//    private Map<String, Object> getGlobalScopeForFabric()
-//    {
-//      Map<String, Object> fabricGlobalScope = Maps.newHashMap();
-//      for (final Map.Entry<String, Object> entry : globalScope.entrySet())
-//      {
-//        fabricGlobalScope.put(entry.getKey(), entry.getValue());
-//      }
-//      return fabricGlobalScope;
-//    }
 
     /**
      * Convert our local format activity scope data to that suitable for feeding to fabric

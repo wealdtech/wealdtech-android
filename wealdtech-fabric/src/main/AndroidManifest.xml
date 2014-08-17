@@ -10,6 +10,7 @@
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher">
 
+<!--
         <activity
             android:name=".PlayActivity"
             android:label="@string/app_name" >
@@ -18,10 +19,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+-->
 
         <activity android:name="com.wealdtech.android.fabric.test.GlobalScopeTestActivity" />
         <activity android:name="com.wealdtech.android.fabric.test.ActivityScopeTestActivity" />
         <activity android:name="com.wealdtech.android.fabric.test.ComponentScopeTestActivity" />
         <activity android:name="com.wealdtech.android.fabric.test.ScopingTestActivity" />
+        <activity android:name="com.wealdtech.android.fabric.test.PersistenceTestActivity" />
     </application>
 </manifest>
