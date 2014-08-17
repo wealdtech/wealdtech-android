@@ -43,7 +43,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
     try
     {
       final String globalScopeStr = prefs.getString("global", null);
-      LOG.error("Global scope is {}", globalScopeStr);
+      LOG.trace("Global scope is {}", globalScopeStr);
       final Map<String, Object> globalScope;
       if (globalScopeStr == null)
       {
@@ -55,7 +55,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
 
       final String activityScopeStr = prefs.getString("activity", null);
-      LOG.error("Activity scope is {}", activityScopeStr);
+      LOG.trace("Activity scope is {}", activityScopeStr);
       final Map<String, Map<String, Object>> activityScope;
       if (activityScopeStr == null)
       {
@@ -67,7 +67,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
 
       final String componentScopeStr = prefs.getString("component", null);
-      LOG.error("Component scope is {}", componentScopeStr);
+      LOG.trace("Component scope is {}", componentScopeStr);
       final Map<String, Map<String, Map<String, Object>>> componentScope;
       if (componentScopeStr == null)
       {
@@ -100,21 +100,21 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
         final Map<String, Object> globalScope = setGlobalScopeForFabricData(fabric.getGlobalScope());
         final String globalScopeStr = mapper.writeValueAsString(globalScope);
         editor.putString("global", globalScopeStr);
-        LOG.error("Global scope is now {}", globalScopeStr);
+        LOG.trace("Global scope is now {}", globalScopeStr);
       }
       else if (component == null)
       {
         final Map<String, Map<String, Object>> activityScope = setActivityScopeForFabricData(fabric.getActivityScope());
         final String activityScopeStr = mapper.writeValueAsString(activityScope);
         editor.putString("activity", activityScopeStr);
-        LOG.error("Activity scope is now {}", activityScopeStr);
+        LOG.trace("Activity scope is now {}", activityScopeStr);
       }
       else
       {
         final Map<String, Map<String, Map<String, Object>>> componentScope = setComponentScopeForFabricData(fabric.getComponentScope());
         final String componentScopeStr = mapper.writeValueAsString(componentScope);
         editor.putString("component", componentScopeStr);
-        LOG.error("Component scope is now {}", componentScopeStr);
+        LOG.trace("Component scope is now {}", componentScopeStr);
       }
       editor.commit();
     }
