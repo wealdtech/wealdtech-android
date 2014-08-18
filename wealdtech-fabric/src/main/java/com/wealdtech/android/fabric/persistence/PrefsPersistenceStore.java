@@ -84,7 +84,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
     catch (IOException e)
     {
       LOG.error("Failed to instantiate fabric: ", e);
-      throw new IllegalStateException("Could not load fabric", e);
+      return reset();
     }
   }
 
@@ -123,6 +123,15 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       LOG.error("Failed to save fabric: ", e);
       throw new IllegalArgumentException("Failed to save fabric", e);
     }
+  }
+
+  @Override
+  public Fabric reset()
+  {
+    final SharedPreferences.Editor editor = prefs.edit();
+    editor.clear();
+    editor.commit();
+    return new Fabric(null, null, null);
   }
 
     /**
