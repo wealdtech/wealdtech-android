@@ -1,0 +1,88 @@
+/*
+ * Copyright 2012 - 2014 Weald Technology Trading Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
+ */
+
+apply plugin: 'android-library'
+
+android {
+  compileSdkVersion 19
+  buildToolsVersion "20.0.0"
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_7
+    targetCompatibility JavaVersion.VERSION_1_7
+  }
+
+  defaultConfig {
+    minSdkVersion 11
+    targetSdkVersion 19
+
+    packagingOptions {
+      exclude 'LICENSE.txt'
+      exclude 'META-INF/LICENSE'
+      exclude 'META-INF/LICENSE.txt'
+      exclude 'META-INF/NOTICE'
+      exclude 'META-INF/NOTICE.txt'
+      exclude 'META-INF/jersey-module-version'
+    }
+
+    testInstrumentationRunner "com.google.android.apps.common.testing.testrunner.GoogleInstrumentationTestRunner"
+  }
+
+  buildTypes {
+    debug {
+      runProguard false
+      signingConfig signingConfigs.debug
+    }
+    release {
+      runProguard false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+    }
+  }
+
+  signingConfigs {
+    debug {
+      storeFile file("../security/debug.keystore")
+    }
+  }
+}
+
+dependencies {
+  compile fileTree(dir: 'libs', include: ['*.jar'])
+  compile 'com.android.support:gridlayout-v7:19.1.+'
+  compile 'com.android.support:appcompat-v7:19.1.+'
+  compile 'com.wealdtech:wealdtech-jackson:2.0.0'
+
+  // @NonNull etc. annotations
+  compile 'com.google.code.findbugs:jsr305:1.3.9'
+
+  // Dependency injection
+  //compile 'com.squareup.dagger:dagger:1.2.2'
+  //provided 'com.squareup.dagger:dagger-compiler:1.2.2'
+  // Used with matchers/actions etc
+  //compile 'com.google.guava:guava:17.0'
+  //compile 'org.hamcrest:hamcrest-all:1.3'
+  //compile 'javax.annotation:javax.annotation-api:1.2'
+
+  // Logging
+  compile 'org.slf4j:slf4j-api:1.7.6'
+  compile 'com.github.tony19:logback-android-classic:1.1.1-2'
+
+  // Testing
+  androidTestCompile 'com.squareup:fest-android:1.+'
+  androidTestCompile('com.jakewharton.espresso:espresso:1.1-r3') {
+//    exclude group: 'com.google.guava'
+//    exclude group: 'com.google.code.findbugs'
+  }
+//  androidTestCompile('com.jakewharton.espresso:espresso-support-v4:1.1-r3') {
+//    exclude group: 'com.android.support'
+//    exclude group: 'com.google.guava'
+//    exclude group: 'com.google.code.findbugs'
+//  }
+}
