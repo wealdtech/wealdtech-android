@@ -10,31 +10,13 @@
 
 package com.wealdtech.android.fabric.action;
 
-import android.view.View;
-import android.widget.TextView;
-import com.wealdtech.android.fabric.Rule;
-
-import static com.wealdtech.Preconditions.checkState;
-
 /**
- * An action to clear text on a {@link TextView} descendant
+ * An action which acts on Fabric data
  */
-public class ClearTextViewAction extends ViewAction
+public abstract class FabricAction extends Action
 {
-  private ClearTextViewAction(final View view)
+  public FabricAction()
   {
-    super(view);
-    checkState(view instanceof TextView, "Cannot run clearText() action against a non-textview");
-  }
-
-  public static ClearTextViewAction clearText(final View view)
-  {
-    return new ClearTextViewAction(view);
-  }
-
-  @Override
-  public void act(final Rule rule)
-  {
-    ((TextView)view).setText(null);
+    super();
   }
 }

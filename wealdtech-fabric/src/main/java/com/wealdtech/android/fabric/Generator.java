@@ -8,29 +8,11 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.wealdtech.android.fabric.action;
-
-import android.view.View;
-import com.wealdtech.android.fabric.Rule;
+package com.wealdtech.android.fabric;
 
 /**
- * An action to disable an Android view
  */
-public class DisableViewAction extends ViewAction
+public interface Generator<T>
 {
-  private DisableViewAction(final View view)
-  {
-    super(view);
-  }
-
-  public static DisableViewAction disable(final View view)
-  {
-    return new DisableViewAction(view);
-  }
-
-  @Override
-  public void act(final Rule rule)
-  {
-    view.setEnabled(false);
-  }
+  T generate();
 }

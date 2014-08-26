@@ -1,3 +1,13 @@
+/*
+ * Copyright 2012 - 2014 Weald Technology Trading Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.wealdtech.android.fabric;
 
 import android.app.Activity;
@@ -21,8 +31,8 @@ import java.util.Map;
 /**
  * Fabric is an infrastructure component with two goals.  First it acts as a store of information which is globally accessible and
  * can, on a per-item basis, e either transient or persistent.  Second it provides a rules-based way of triggering actions based on
- * conditions occurring within an application.  Provided conditions work against both view status and fabric data, but the conditions
- * and actions can be expanded if required.
+ * conditions occurring within an application.  Provided conditions work against both view status and fabric data, but the
+ * conditions and actions can be expanded if required.
  * <p/>
  * A fabric has three scopes of storage: <ul> <li>Global</li> <li>Activity</li> <li>Component</li> </ul> Data can be stored at any
  * of these scopes.  Global scope is persisted through instances of the application, activity scope is persisted through the
@@ -34,9 +44,9 @@ import java.util.Map;
  * is asked for in activity scope.  Activity and component scope are purely used for partitioning rather than implying any sort of
  * hierarchy.
  * <p/>
- * The fabric rule system allows the definition of reactive actions.  A reactive action occurs based on a condition of current
- * state.  Common examples of this might be showing an introduction overlay for an activity the first time it is visited, validating
- * user input, or suggesting changes to user input based on multiple criteria.
+ * The second goal of Fabric is to provide a rule system which allows the definition of reactive actions.  A reactive action occurs
+ * based on a condition of current state.  Common examples of this might be showing an introduction overlay for an activity the
+ * first time it is visited, validating user input, providing context-sensitive help, or diverting a user to a suggesting changes to user input based on multiple criteria.
  */
 public class Fabric
 {
@@ -147,12 +157,13 @@ public class Fabric
    * Fetch an item from global scope
    *
    * @param key the key of the item
+   *
    * @return the value of the item
    */
   @SuppressWarnings("unchecked")
   public <T> T get(final String key)
   {
-    return (T) globalScope.get(key);
+    return (T)globalScope.get(key);
   }
 
   /**
@@ -163,7 +174,7 @@ public class Fabric
    */
   public <T> void set(final String key, final T value)
   {
-    final T oldValue = (T) globalScope.put(key, value);
+    final T oldValue = (T)globalScope.put(key, value);
     persistenceStrategy.markDirty(key);
     if (!equalTo(oldValue, value))
     {
@@ -198,7 +209,7 @@ public class Fabric
    */
   public <T> void clear(final String key)
   {
-    final T oldValue = (T) globalScope.remove(key);
+    final T oldValue = (T)globalScope.remove(key);
     persistenceStrategy.markDirty(key);
     if (oldValue != null)
     {
@@ -215,6 +226,7 @@ public class Fabric
    *
    * @param activity the activity for scoping
    * @param key the key of the item
+   *
    * @return the value of the item
    */
   @SuppressWarnings("unchecked")
@@ -230,7 +242,7 @@ public class Fabric
     }
     else
     {
-      final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>) scope.get(key);
+      final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>)scope.get(key);
       if (activityResult == null)
       {
         result = null;
@@ -269,7 +281,7 @@ public class Fabric
       scope.put(key, new TwoTuple<Object, Boolean>(value, true));
       persistenceStrategy.markDirty(activity.getLocalClassName(), key);
     }
-    final T oldValue = oldEntry == null ? null : (T) oldEntry.getS();
+    final T oldValue = oldEntry == null ? null : (T)oldEntry.getS();
     if (!equalTo(oldValue, value))
     {
       final Multimap<String, FabricDataListener> activityListeners = this.activityListeners.get(activity.getLocalClassName());
@@ -301,7 +313,7 @@ public class Fabric
         // This was persisted, so we need to mark as dirty
         persistenceStrategy.markDirty(activity.getLocalClassName(), key);
       }
-      final T oldValue = oldEntry == null ? null : (T) oldEntry.getS();
+      final T oldValue = oldEntry == null ? null : (T)oldEntry.getS();
       if (oldValue != null)
       {
         final Multimap<String, FabricDataListener> activityListeners = this.activityListeners.get(activity.getLocalClassName());
@@ -376,6 +388,7 @@ public class Fabric
    * @param activity the activity for scoping
    * @param component the component for scoping
    * @param key the key of the item
+   *
    * @return the value of the item
    */
   public <T> T get(final Activity activity, final Integer component, final String key)
@@ -389,6 +402,7 @@ public class Fabric
    * @param activity the activity for scoping
    * @param component the component for scoping
    * @param key the key of the item
+   *
    * @return the value of the item
    */
   @SuppressWarnings("unchecked")
@@ -411,7 +425,7 @@ public class Fabric
       }
       else
       {
-        final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>) scope.get(key);
+        final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>)scope.get(key);
         if (activityResult == null)
         {
           result = null;
@@ -465,7 +479,7 @@ public class Fabric
     final TwoTuple<Object, Boolean> oldEntry = scope.put(key, new TwoTuple<Object, Boolean>(value, false));
     // FIXME persistence
 
-    final T oldValue = oldEntry == null ? null : (T) oldEntry.getS();
+    final T oldValue = oldEntry == null ? null : (T)oldEntry.getS();
     if (!equalTo(oldValue, value))
     {
       final Map<String, Multimap<String, FabricDataListener>> activityListeners = this.componentListeners.get(activity.getLocalClassName());
@@ -514,7 +528,7 @@ public class Fabric
       {
         final TwoTuple<Object, Boolean> oldEntry = scope.remove(key);
         // FIXME persistence
-        final T oldValue = oldEntry == null ? null : (T) oldEntry.getS();
+        final T oldValue = oldEntry == null ? null : (T)oldEntry.getS();
         if (oldValue != null)
         {
           final Map<String, Multimap<String, FabricDataListener>> activityListeners = this.componentListeners.get(activity.getLocalClassName());
@@ -636,6 +650,7 @@ public class Fabric
   {
     addListener(activity.getLocalClassName(), key, listener);
   }
+
   public <T> void addListener(final String activity, final String key, final FabricDataListener<T> listener)
   {
     // Obtain current List of listeners
@@ -652,10 +667,15 @@ public class Fabric
   {
     addListener(activity.getLocalClassName(), Integer.toString(component), key, listener);
   }
-  public <T> void addListener(final Activity activity, final String component, final String key, final FabricDataListener<T> listener)
+
+  public <T> void addListener(final Activity activity,
+                              final String component,
+                              final String key,
+                              final FabricDataListener<T> listener)
   {
     addListener(activity.getLocalClassName(), component, key, listener);
   }
+
   public <T> void addListener(final String activity, final String component, final String key, final FabricDataListener<T> listener)
   {
     // Obtain current List of listeners
