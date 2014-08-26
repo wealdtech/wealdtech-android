@@ -1,0 +1,40 @@
+Fabric data:
+  - add getObfuscated() and setObfuscated(), which obfuscates both key and value in the data store
+    - use Jam class already present in code to achieve this
+  - add increment(val) to provide cleaner incrementing of existing values
+    - useful for counters
+
+Fabric view:
+  - use fabric to (non-persistently) store view information on destory/create (e.g. on rotation)
+
+Fabric activity:
+  - configure counters which record visits, using well-known names with '__' prefix
+
+PersistenceStore:
+  - build a more intelligent persistence store which saves user information immediately but system stats (such as counters)
+    only periodically.  Use '__' prefix to work out which are which
+
+Fabric rules:
+  - add triggers for other common android situations
+    - focus gained, focus lost, list item(s) selected, spinner selected etc.
+
+Fabric actions:
+  - create walkthrough action; introductory help the first time a user visits an activity/clicks an item/etc
+  - create divert action; provide a modal dialogue which either stays on the current activity or starts another activity
+    depending on user selection
+
+Fabric notifications:
+  - additional module for managing notifications
+    - notifications can be:
+      - momentary: only around for a few seconds
+        - e.g. 'Item has been created'
+      - transient: around for the lifetime of the app
+        - e.g. 'Please rate this app'
+      - persistent: around until actioned
+        - e.g. 'Do you want to accept this friend request?'
+      all of which are just conditions of some sort or another
+    - notifications can either be informational or have options and actions associated with them
+    - display of notifications should be abstracted in the notification system
+      - sample implementations should include an android-like handler (momentary -> Toast, transient and persistent -> dialogue)
+        as well as a listview-like implementation where items can be handled when the user wishes (with the view popping up
+        when the user activates it from e.g. navigation drawer or action bar)

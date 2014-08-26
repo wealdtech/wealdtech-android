@@ -24,6 +24,7 @@ public class FabricActivity extends Activity
   public void onCreate(final Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
+    // TODO this is not a good idea as a new persistence store is created each time an activity is created.  This should be in FabricApplication
     Fabric.init(new PrefsPersistenceStore(getApplicationContext()));
  }
 
