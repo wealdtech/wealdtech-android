@@ -2,6 +2,7 @@ package com.wealdtech.android.fabric;
 
 import android.app.Activity;
 import android.util.Log;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -69,10 +70,10 @@ public class Fabric
                 final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope,
                 final Map<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>> componentScope)
   {
-    this.globalScope = Objects.firstNonNull(globalScope, Maps.<String, Object>newConcurrentMap());
-    this.activityScope = Objects.firstNonNull(activityScope,
+    this.globalScope = MoreObjects.firstNonNull(globalScope, Maps.<String, Object>newConcurrentMap());
+    this.activityScope = MoreObjects.firstNonNull(activityScope,
                                               Maps.<String, Map<String, TwoTuple<Object, Boolean>>>newConcurrentMap());
-    this.componentScope = Objects.firstNonNull(componentScope,
+    this.componentScope = MoreObjects.firstNonNull(componentScope,
                                                Maps.<String, Map<String, Map<String, TwoTuple<Object, Boolean>>>>newConcurrentMap());
     this.globalListeners = ArrayListMultimap.create();
     this.activityListeners = Maps.newConcurrentMap();
@@ -202,7 +203,7 @@ public class Fabric
     persistenceStrategy.markDirty(key);
     if (oldValue != null)
     {
-      for (final FabricDataListener<T> listener : Objects.firstNonNull(globalListeners.get(key),
+      for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(globalListeners.get(key),
                                                                        ImmutableSet.<FabricDataListener>of()))
       {
         listener.onDataChanged(oldValue, null);
@@ -275,7 +276,7 @@ public class Fabric
       final Multimap<String, FabricDataListener> activityListeners = this.activityListeners.get(activity.getLocalClassName());
       if (activityListeners != null)
       {
-        for (final FabricDataListener<T> listener : Objects.firstNonNull(activityListeners.get(key),
+        for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(activityListeners.get(key),
                                                                          ImmutableSet.<FabricDataListener>of()))
         {
           listener.onDataChanged(oldValue, value);
@@ -307,7 +308,7 @@ public class Fabric
         final Multimap<String, FabricDataListener> activityListeners = this.activityListeners.get(activity.getLocalClassName());
         if (activityListeners != null)
         {
-          for (final FabricDataListener<T> listener : Objects.firstNonNull(activityListeners.get(key),
+          for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(activityListeners.get(key),
                                                                            ImmutableSet.<FabricDataListener>of()))
           {
             listener.onDataChanged(oldValue, null);
@@ -474,7 +475,7 @@ public class Fabric
         final Multimap<String, FabricDataListener> componentListeners = activityListeners.get(component);
         if (componentListeners != null)
         {
-          for (final FabricDataListener<T> listener : Objects.firstNonNull(componentListeners.get(key),
+          for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(componentListeners.get(key),
                                                                            ImmutableSet.<FabricDataListener>of()))
           {
             listener.onDataChanged(oldValue, value);
@@ -523,7 +524,7 @@ public class Fabric
             final Multimap<String, FabricDataListener> componentListeners = activityListeners.get(component);
             if (componentListeners != null)
             {
-              for (final FabricDataListener<T> listener : Objects.firstNonNull(componentListeners.get(key),
+              for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(componentListeners.get(key),
                                                                                ImmutableSet.<FabricDataListener>of()))
               {
                 listener.onDataChanged(oldValue, null);
