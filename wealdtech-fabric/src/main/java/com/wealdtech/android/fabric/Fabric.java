@@ -162,6 +162,7 @@ public class Fabric
    * @return the value of the item
    */
   @SuppressWarnings("unchecked")
+  @Nullable
   public <T> T get(final String key)
   {
     return (T)globalScope.get(key);
@@ -392,6 +393,7 @@ public class Fabric
    *
    * @return the value of the item
    */
+  @Nullable
   public <T> T get(final Activity activity, final Integer component, final String key)
   {
     return get(activity, Integer.toString(component), key);
