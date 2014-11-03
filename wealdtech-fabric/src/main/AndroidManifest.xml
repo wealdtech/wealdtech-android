@@ -20,17 +20,6 @@
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher">
 
-        <!--
-        <activity
-            android:name=".examples.SampleActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-        -->
-
         <activity android:name="com.wealdtech.android.fabric.test.GlobalScopeTestActivity" />
         <activity android:name="com.wealdtech.android.fabric.test.ActivityScopeTestActivity" />
         <activity android:name="com.wealdtech.android.fabric.test.ComponentScopeTestActivity" />
