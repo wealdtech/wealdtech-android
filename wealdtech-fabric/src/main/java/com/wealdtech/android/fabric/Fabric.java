@@ -224,6 +224,21 @@ public class Fabric
   }
 
   /**
+   * Clear multiple items in global scope
+   * @param key the key; any items which start with this key will be cleared
+   */
+  public void clearAll(final String key)
+  {
+    for (final String entryKey : globalScope.keySet())
+    {
+      if (entryKey.startsWith(key))
+      {
+        clear(entryKey);
+      }
+    }
+  }
+
+  /**
    * Fetch an item from activity scope
    *
    * @param activity the activity for scoping
