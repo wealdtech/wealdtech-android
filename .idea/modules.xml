@@ -4,8 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/wealdtech-android.iml" filepath="$PROJECT_DIR$/wealdtech-android.iml" />
       <module fileurl="file://$PROJECT_DIR$/wealdtech-fabric/wealdtech-fabric.iml" filepath="$PROJECT_DIR$/wealdtech-fabric/wealdtech-fabric.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wealdtech-roberto/wealdtech-roberto.iml" filepath="$PROJECT_DIR$/wealdtech-roberto/wealdtech-roberto.iml" />
       <module fileurl="file://$PROJECT_DIR$/wealdtech-tiles/wealdtech-tiles.iml" filepath="$PROJECT_DIR$/wealdtech-tiles/wealdtech-tiles.iml" />
     </modules>
   </component>
 </project>
-

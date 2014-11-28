@@ -8,4 +8,26 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
  */
 
-include ':wealdtech-fabric', ':wealdtech-tiles', ':wealdtech-roberto'
+package com.wealdtech.android.roberto;
+
+/**
+ */
+public class Roberto
+{
+
+  public static Roberto getInstance()
+  {
+    return new Roberto();
+  }
+
+  /**
+   * Carry out a check to see if the service is available.
+   * This carries out a full end-to-end test of the service at the time it is called, however this provides no guarantee that the
+   * service will continue to be available in the future
+   * @return {@code true} if the service is available, otherwise {@code false}
+   */
+  public boolean isServiceAvailable()
+  {
+    return true;
+  }
+}

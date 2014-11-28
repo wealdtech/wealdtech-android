@@ -9,6 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/wealdtech-fabric" />
+            <option value="$PROJECT_DIR$/wealdtech-roberto" />
             <option value="$PROJECT_DIR$/wealdtech-tiles" />
           </set>
         </option>
@@ -16,4 +17,3 @@
     </option>
   </component>
 </project>
-
