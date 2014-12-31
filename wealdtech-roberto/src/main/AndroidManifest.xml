@@ -14,13 +14,14 @@
           android:versionName="1.0.0.1">
 
     <application android:allowBackup="true"
-                 android:label="@string/app_name"
-                 android:icon="@drawable/ic_launcher">
+                 android:label="Roberto">
 
+<!--
         <activity android:name="com.wealdtech.android.test.VisibilityTestActivity"/>
         <activity android:name="com.wealdtech.android.test.PeriodicUpdateTestActivity"/>
         <activity android:name="com.wealdtech.android.test.ProviderInteractionTestActivity"/>
         <activity android:name="com.wealdtech.android.test.DynamicLayoutTestActivity"/>
         <activity android:name="com.wealdtech.android.test.TileLayoutTestActivity"/>
+-->
     </application>
 </manifest>
