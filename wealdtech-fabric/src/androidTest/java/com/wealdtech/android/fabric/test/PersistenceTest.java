@@ -11,6 +11,7 @@
 package com.wealdtech.android.fabric.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Maps;
 import com.wealdtech.WID;
 import com.wealdtech.android.fabric.Fabric;
@@ -47,7 +48,7 @@ public class PersistenceTest extends ActivityInstrumentationTestCase2<Persistenc
       final WID<Date> testWid = WID.generate();
 
       Fabric.getInstance().set("test wid", testWid);
-      assertThat(Fabric.getInstance().<WID<Date>>get("test wid").equals(testWid));
+      assertEquals(Fabric.getInstance().get("test wid", new TypeReference<WID<Date>>() {}), testWid);
 
       activity.finish();
     }
@@ -68,7 +69,7 @@ public class PersistenceTest extends ActivityInstrumentationTestCase2<Persistenc
       testMap.put("test 2", WID.<Date>generate());
 
       Fabric.getInstance().set("test wid map", testMap);
-      assertThat(Fabric.getInstance().<Map<String, WID<Date>>>get("test wid map").equals(testMap));
+      assertEquals(Fabric.getInstance().get("test wid map", new TypeReference<Map<String, WID<Date>>>() {}), testMap);
 
       activity.finish();
     }
@@ -87,8 +88,8 @@ public class PersistenceTest extends ActivityInstrumentationTestCase2<Persistenc
       Fabric.getInstance().set("test date", new Date());
       Fabric.getInstance().set("test inet", new InetSocketAddress(10));
 
-      assertThat(Fabric.getInstance().get("test date") instanceof Date);
-      assertThat(Fabric.getInstance().get("test inet") instanceof InetSocketAddress);
+      assertThat(Fabric.getInstance().get("test date", Date.class) instanceof Date);
+      assertThat(Fabric.getInstance().get("test inet", InetSocketAddress.class) instanceof InetSocketAddress);
 
       activity.finish();
     }

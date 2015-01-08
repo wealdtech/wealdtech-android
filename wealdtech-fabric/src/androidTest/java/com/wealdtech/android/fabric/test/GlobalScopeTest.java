@@ -11,14 +11,13 @@
 package com.wealdtech.android.fabric.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.wealdtech.android.fabric.Fabric;
 
 import java.util.Date;
 import java.util.Map;
-
-import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Test global scope functionality of Fabric
@@ -43,11 +42,11 @@ public class GlobalScopeTest extends ActivityInstrumentationTestCase2<GlobalScop
 
     final Integer testInt = 1;
     Fabric.getInstance().set("test integer", testInt);
-    assertThat(Fabric.getInstance().<Integer>get("test integer").equals(testInt));
+    assertEquals(Fabric.getInstance().<Integer>get("test integer", Integer.class), testInt);
 
     final ImmutableSet<Integer> testSet = ImmutableSet.of(1, 2, 3);
     Fabric.getInstance().set("test set", testSet);
-    assertThat(Fabric.getInstance().get("test set").equals(testSet));
+    assertEquals(Fabric.getInstance().get("test set", new TypeReference<ImmutableSet<Integer>>() {}), testSet);
 
     activity.finish();
   }
@@ -61,7 +60,7 @@ public class GlobalScopeTest extends ActivityInstrumentationTestCase2<GlobalScop
     testMap.put("test 2", new Date(2000000000000L));
 
     Fabric.getInstance().set("test map", testMap);
-    assertThat(Fabric.getInstance().<Map<String, Date>>get("test map").equals(testMap));
+    assertEquals(Fabric.getInstance().get("test map", new TypeReference<Map<String, Date>>() {}), testMap);
 
     activity.finish();
   }

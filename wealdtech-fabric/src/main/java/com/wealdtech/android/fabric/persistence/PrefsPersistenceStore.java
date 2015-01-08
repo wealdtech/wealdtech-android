@@ -44,7 +44,8 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
   {
     this.prefs = context.getSharedPreferences("fabric", Context.MODE_PRIVATE);
     // Create a custom object mapper which saves type information, allowing complex objects to be stored in prefs
-    this.mapper = WealdMapper.getServerMapper().copy().enableDefaultTyping();
+//    this.mapper = WealdMapper.getServerMapper().copy().enableDefaultTyping();
+    this.mapper = WealdMapper.getServerMapper();
   }
 
   @Override
@@ -53,7 +54,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
     try
     {
       final String globalScopeStr = prefs.getString("global", null);
-      LOG.trace("Global scope is {}", globalScopeStr);
+      LOG.debug("Global scope is {}", globalScopeStr);
       final Map<String, Object> globalScope;
       if (globalScopeStr == null)
       {
@@ -65,7 +66,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
 
       final String activityScopeStr = prefs.getString("activity", null);
-      LOG.trace("Activity scope is {}", activityScopeStr);
+      LOG.debug("Activity scope is {}", activityScopeStr);
       final Map<String, Map<String, Object>> activityScope;
       if (activityScopeStr == null)
       {
@@ -77,7 +78,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
 
       final String componentScopeStr = prefs.getString("component", null);
-      LOG.trace("Component scope is {}", componentScopeStr);
+      LOG.debug("Component scope is {}", componentScopeStr);
       final Map<String, Map<String, Map<String, Object>>> componentScope;
       if (componentScopeStr == null)
       {

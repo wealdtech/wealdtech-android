@@ -48,9 +48,9 @@ public class ComponentScopeTest extends ActivityInstrumentationTestCase2<Compone
     final Integer testScopeInt = 3;
     Fabric.getInstance().set(activity, "test component", "test integer", testScopeInt);
 
-    assertThat(Fabric.getInstance().get("test integer").equals(testGlobalInt));
-    assertThat(Fabric.getInstance().get(activity, "test integer").equals(testActivityInt));
-    assertThat(Fabric.getInstance().get(activity, "test component", "test integer").equals(testScopeInt));
+    assertEquals(Fabric.getInstance().get("test integer", Integer.class), testGlobalInt);
+    assertEquals(Fabric.getInstance().get(activity, "test integer", Integer.class), testActivityInt);
+    assertEquals(Fabric.getInstance().get(activity, "test component", "test integer", Integer.class), testScopeInt);
 
     activity.finish();
   }
@@ -61,11 +61,11 @@ public class ComponentScopeTest extends ActivityInstrumentationTestCase2<Compone
     final Integer testInt = 623;
     Fabric.getInstance().set(activity, "test component", "test persisting integer", testInt);
     Fabric.getInstance().persist(activity, "test component", "test persisting integer");
-    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test component", "test persisting integer")));
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test component", "test persisting integer", Integer.class)));
     activity.finish();
 
     final ComponentScopeTestActivity activity2 = getActivity();
-    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity2, "test component", "test persisting integer")));
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity2, "test component", "test persisting integer", Integer.class)));
     activity2.finish();
   }
 }

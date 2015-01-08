@@ -44,8 +44,8 @@ public class ActivityScopeTest extends ActivityInstrumentationTestCase2<Activity
     final Integer testActivityInt = 2;
     Fabric.getInstance().set(activity, "test integer", testActivityInt);
 
-    assertThat(Fabric.getInstance().get("test integer").equals(testGlobalInt));
-    assertThat(Fabric.getInstance().get(activity, "test integer").equals(testActivityInt));
+    assertEquals(Fabric.getInstance().get("test integer", Integer.class), testGlobalInt);
+    assertEquals(Fabric.getInstance().get(activity, "test integer", Integer.class), testActivityInt);
 
     activity.finish();
   }
@@ -56,11 +56,11 @@ public class ActivityScopeTest extends ActivityInstrumentationTestCase2<Activity
     final Integer testInt = 53;
     Fabric.getInstance().set(activity, "test persisting integer", testInt);
     Fabric.getInstance().persist(activity, "test persisting integer");
-    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test persisting integer")));
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test persisting integer", Integer.class)));
     activity.finish();
 
     final ActivityScopeTestActivity activity2 = getActivity();
-    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test persisting integer")));
+    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test persisting integer", Integer.class)));
     activity2.finish();
   }
 }

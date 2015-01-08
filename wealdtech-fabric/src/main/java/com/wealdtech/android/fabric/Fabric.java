@@ -12,6 +12,7 @@ package com.wealdtech.android.fabric;
 
 import android.app.Activity;
 import android.util.Log;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ArrayListMultimap;
@@ -27,11 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Map;
 
 /**
  * Fabric is an infrastructure component with two goals.  First it acts as a store of information which is globally accessible and
- * can, on a per-item basis, e either transient or persistent.  Second it provides a rules-based way of triggering actions based on
+ * can, on a per-item basis, be either transient or persistent.  Second it provides a rules-based way of triggering actions based on
  * conditions occurring within an application.  Provided conditions work against both view status and fabric data, but the
  * conditions and actions can be expanded if required.
  * <p/>
@@ -154,6 +159,91 @@ public class Fabric
     return instance;
   }
 
+  private String stringify(final Object val, final boolean isCollection)
+  {
+    String valStr;
+    if (val instanceof String)
+    {
+      valStr = (String)val;
+    }
+    else
+    {
+      try
+      {
+        valStr = WealdMapper.getMapper().writeValueAsString(val);
+      }
+      catch (final IOException ioe)
+      {
+        LOG.error("Failed to encode value: ", ioe);
+        return null;
+      }
+    }
+
+    if (val instanceof Enum<?>)
+    {
+      return valStr;
+    }
+
+    // TODO need to escape " in the string (but only if in the string - already done?)
+    if (!valStr.startsWith("{") && !isCollection && !valStr.startsWith("\""))
+    {
+      valStr = "\"" + valStr + "\"";
+    }
+    return valStr;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Nullable
+  private <T> T get(@Nullable final Object obj, final TypeReference<T>typeRef)
+  {
+    if (obj == null)
+    {
+      return null;
+    }
+
+    // Obtain the type we are after through reflection to find out if it is a collection
+    final Type type = typeRef.getType() instanceof ParameterizedType ? ((ParameterizedType)typeRef.getType()).getRawType() : typeRef.getType();
+    boolean isCollection;
+    try
+    {
+      isCollection = Collection.class.isAssignableFrom(Class.forName(type.toString().replace("class ", "")));
+    }
+    catch (final ClassNotFoundException cnfe)
+    {
+      isCollection = false;
+    }
+
+    final String valStr = stringify(obj, isCollection);
+    try
+    {
+      return (T)WealdMapper.getMapper().readValue(valStr, typeRef);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to parse value \"{}\": ", obj, ioe);
+      return null;
+    }
+  }
+
+  @Nullable
+  private <T> T get(@Nullable final Object obj, final Class<T> klazz)
+  {
+    if (obj == null)
+    {
+      return null;
+    }
+    final String valStr = stringify(obj, false);
+    try
+    {
+      return WealdMapper.getMapper().readValue(valStr, klazz);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to parse value \"{}\": ", obj, ioe);
+      return null;
+    }
+  }
+
   /**
    * Fetch an item from global scope
    *
@@ -161,11 +251,23 @@ public class Fabric
    *
    * @return the value of the item
    */
-  @SuppressWarnings("unchecked")
   @Nullable
-  public <T> T get(final String key)
+  public <T> T get(final String key, final Class<T> klazz)
   {
-    return (T)globalScope.get(key);
+    return get(globalScope.get(key), klazz);
+  }
+
+  /**
+   * Fetch an item from global scope
+   *
+   * @param key the key of the item
+   *
+   * @return the value of the item
+   */
+  @Nullable
+  public <T> T get(final String key, final TypeReference<T> typeRef)
+  {
+    return get(globalScope.get(key), typeRef);
   }
 
   /**
@@ -176,32 +278,17 @@ public class Fabric
    */
   public <T> void set(final String key, final T value)
   {
-    final T oldValue = (T)globalScope.put(key, value);
+    final T oldValue = (T)get(key, value.getClass());
+    globalScope.put(key, value);
     persistenceStrategy.markDirty(key);
-    if (!equalTo(oldValue, value))
+    if (!Objects.equal(oldValue, value))
     {
-      for (final FabricDataListener<T> listener : Objects.firstNonNull(globalListeners.get(key),
-                                                                       ImmutableSet.<FabricDataListener>of()))
+      for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(globalListeners.get(key),
+                                                                           ImmutableSet.<FabricDataListener<T>>of()))
       {
         listener.onDataChanged(oldValue, value);
       }
     }
-  }
-
-  /**
-   * Null-aware equals()
-   */
-  private <T> boolean equalTo(T left, T right)
-  {
-    if (left == null && right == null)
-    {
-      return true;
-    }
-    if (left == null || right == null)
-    {
-      return false;
-    }
-    return left.equals(right);
   }
 
   /**
@@ -211,12 +298,12 @@ public class Fabric
    */
   public <T> void clear(final String key)
   {
-    final T oldValue = (T)globalScope.remove(key);
+    final T oldValue = (T)get(key, Object.class);
     persistenceStrategy.markDirty(key);
     if (oldValue != null)
     {
       for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(globalListeners.get(key),
-                                                                       ImmutableSet.<FabricDataListener>of()))
+                                                                       ImmutableSet.<FabricDataListener<T>>of()))
       {
         listener.onDataChanged(oldValue, null);
       }
@@ -238,20 +325,9 @@ public class Fabric
     }
   }
 
-  /**
-   * Fetch an item from activity scope
-   *
-   * @param activity the activity for scoping
-   * @param key the key of the item
-   *
-   * @return the value of the item
-   */
-  @SuppressWarnings("unchecked")
-  @Nullable
-  public <T> T get(final Activity activity, final String key)
+  private Object getActivityVal(final Activity activity, final String key)
   {
-    final T result;
-
+    final Object result;
     final Map<String, TwoTuple<Object, Boolean>> scope = activityScope.get(activity.getLocalClassName());
     if (scope == null)
     {
@@ -259,7 +335,7 @@ public class Fabric
     }
     else
     {
-      final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>)scope.get(key);
+      final TwoTuple<Object, Boolean> activityResult = scope.get(key);
       if (activityResult == null)
       {
         result = null;
@@ -271,6 +347,34 @@ public class Fabric
     }
 
     return result;
+  }
+
+  /**
+   * Fetch an item from activity scope
+   *
+   * @param activity the activity for scoping
+   * @param key the key of the item
+   *
+   * @return the value of the item
+   */
+  @Nullable
+  public <T> T get(final Activity activity, final String key, final Class<T> klazz)
+  {
+    return get(getActivityVal(activity, key), klazz);
+  }
+
+  /**
+   * Fetch an item from activity scope
+   *
+   * @param activity the activity for scoping
+   * @param key the key of the item
+   *
+   * @return the value of the item
+   */
+  @Nullable
+  public <T> T get(final Activity activity, final String key, final TypeReference<T> typeRef)
+  {
+    return get(getActivityVal(activity, key), typeRef);
   }
 
   /**
@@ -299,13 +403,13 @@ public class Fabric
       persistenceStrategy.markDirty(activity.getLocalClassName(), key);
     }
     final T oldValue = oldEntry == null ? null : (T)oldEntry.getS();
-    if (!equalTo(oldValue, value))
+    if (!Objects.equal(oldValue, value))
     {
       final Multimap<String, FabricDataListener> activityListeners = this.activityListeners.get(activity.getLocalClassName());
       if (activityListeners != null)
       {
         for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(activityListeners.get(key),
-                                                                         ImmutableSet.<FabricDataListener>of()))
+                                                                         ImmutableSet.<FabricDataListener<T>>of()))
         {
           listener.onDataChanged(oldValue, value);
         }
@@ -337,7 +441,7 @@ public class Fabric
         if (activityListeners != null)
         {
           for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(activityListeners.get(key),
-                                                                           ImmutableSet.<FabricDataListener>of()))
+                                                                           ImmutableSet.<FabricDataListener<T>>of()))
           {
             listener.onDataChanged(oldValue, null);
           }
@@ -409,9 +513,24 @@ public class Fabric
    * @return the value of the item
    */
   @Nullable
-  public <T> T get(final Activity activity, final Integer component, final String key)
+  public <T> T get(final Activity activity, final Integer component, final String key, final Class<T> klazz)
   {
-    return get(activity, Integer.toString(component), key);
+    return get(activity, Integer.toString(component), key, klazz);
+  }
+
+  /**
+   * Fetch an item from component scope
+   *
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   *
+   * @return the value of the item
+   */
+  @Nullable
+  public <T> T get(final Activity activity, final Integer component, final String key, final TypeReference<T> typeRef)
+  {
+    return get(activity, Integer.toString(component), key, typeRef);
   }
 
   /**
@@ -425,9 +544,30 @@ public class Fabric
    */
   @SuppressWarnings("unchecked")
   @Nullable
-  public <T> T get(final Activity activity, final String component, final String key)
+  public <T> T get(final Activity activity, final String component, final String key, final Class<T> klazz)
   {
-    final T result;
+    return get(getComponentVal(activity, component, key), klazz);
+  }
+
+  /**
+   * Fetch an item from component scope
+   *
+   * @param activity the activity for scoping
+   * @param component the component for scoping
+   * @param key the key of the item
+   *
+   * @return the value of the item
+   */
+  @SuppressWarnings("unchecked")
+  @Nullable
+  public <T> T get(final Activity activity, final String component, final String key, final TypeReference<T> typeRef)
+  {
+    return get(getComponentVal(activity, component, key), typeRef);
+  }
+
+  public Object getComponentVal(final Activity activity, final String component, final String key)
+  {
+    final Object result;
 
     final Map<String, Map<String, TwoTuple<Object, Boolean>>> activityScope = componentScope.get(activity.getLocalClassName());
     if (activityScope == null)
@@ -443,7 +583,7 @@ public class Fabric
       }
       else
       {
-        final TwoTuple<T, Boolean> activityResult = (TwoTuple<T, Boolean>)scope.get(key);
+        final TwoTuple<Object, Boolean> activityResult = scope.get(key);
         if (activityResult == null)
         {
           result = null;
@@ -498,7 +638,7 @@ public class Fabric
     // FIXME persistence
 
     final T oldValue = oldEntry == null ? null : (T)oldEntry.getS();
-    if (!equalTo(oldValue, value))
+    if (!Objects.equal(oldValue, value))
     {
       final Map<String, Multimap<String, FabricDataListener>> activityListeners = this.componentListeners.get(activity.getLocalClassName());
       if (activityListeners != null)
@@ -507,7 +647,7 @@ public class Fabric
         if (componentListeners != null)
         {
           for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(componentListeners.get(key),
-                                                                           ImmutableSet.<FabricDataListener>of()))
+                                                                           ImmutableSet.<FabricDataListener<T>>of()))
           {
             listener.onDataChanged(oldValue, value);
           }
@@ -556,7 +696,7 @@ public class Fabric
             if (componentListeners != null)
             {
               for (final FabricDataListener<T> listener : MoreObjects.firstNonNull(componentListeners.get(key),
-                                                                               ImmutableSet.<FabricDataListener>of()))
+                                                                               ImmutableSet.<FabricDataListener<T>>of()))
               {
                 listener.onDataChanged(oldValue, null);
               }

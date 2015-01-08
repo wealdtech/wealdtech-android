@@ -46,17 +46,17 @@ public class ScopingTest extends ActivityInstrumentationTestCase2<ActivityScopeT
     final Integer testComponentInt = 3;
     Fabric.getInstance().set(activity, "test component", "test integer", testComponentInt);
 
-    assertEquals(Fabric.getInstance().get(activity, "test component", "test integer"), testComponentInt);
+    assertEquals(Fabric.getInstance().get(activity, "test component", "test integer", Integer.class), testComponentInt);
     Fabric.getInstance().clear(activity, "test component", "test integer");
-    assertNull(Fabric.getInstance().get(activity, "test component", "test integer"));
+    assertNull(Fabric.getInstance().get(activity, "test component", "test integer", Integer.class));
 
-    assertEquals(Fabric.getInstance().get(activity, "test integer"), testActivityInt);
+    assertEquals(Fabric.getInstance().get(activity, "test integer", Integer.class), testActivityInt);
     Fabric.getInstance().clear(activity, "test integer");
-    assertNull(Fabric.getInstance().get(activity, "test integer"));
+    assertNull(Fabric.getInstance().get(activity, "test integer", Integer.class));
 
-    assertEquals(Fabric.getInstance().get("test integer"), testGlobalInt);
+    assertEquals(Fabric.getInstance().get("test integer", Integer.class), testGlobalInt);
     Fabric.getInstance().clear("test integer");
-    assertNull(Fabric.getInstance().get("test integer"));
+    assertNull(Fabric.getInstance().get("test integer", Integer.class));
 
     activity.finish();
   }

@@ -11,7 +11,7 @@
 apply plugin: 'android-library'
 
 android {
-  compileSdkVersion 19
+  compileSdkVersion 21
   buildToolsVersion "21.1.2"
 
   compileOptions {
@@ -21,7 +21,7 @@ android {
 
   defaultConfig {
     minSdkVersion 11
-    targetSdkVersion 19
+    targetSdkVersion 21
 
     packagingOptions {
       exclude 'LICENSE.txt'
@@ -58,6 +58,7 @@ dependencies {
   compile 'com.android.support:gridlayout-v7:19.1.+'
   compile 'com.android.support:appcompat-v7:19.1.+'
   compile 'com.wealdtech:wealdtech-jackson:2.1.0'
+  compile 'com.wealdtech:wealdtech-wobject:2.1.0'
 
   // @NonNull etc. annotations
   compile 'com.google.code.findbugs:jsr305:1.3.9'
