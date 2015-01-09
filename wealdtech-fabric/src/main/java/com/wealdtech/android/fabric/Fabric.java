@@ -194,7 +194,7 @@ public class Fabric
 
   @SuppressWarnings("unchecked")
   @Nullable
-  private <T> T get(@Nullable final Object obj, final TypeReference<T>typeRef)
+  private <T> T get(@Nullable final Object obj, final TypeReference<T>typeRef) throws IOException
   {
     if (obj == null)
     {
@@ -213,35 +213,18 @@ public class Fabric
       isCollection = false;
     }
 
-    final String valStr = stringify(obj, isCollection);
-    try
-    {
-      return (T)WealdMapper.getMapper().readValue(valStr, typeRef);
-    }
-    catch (final IOException ioe)
-    {
-      LOG.error("Failed to parse value \"{}\": ", obj, ioe);
-      return null;
-    }
+    return (T)WealdMapper.getMapper().readValue(stringify(obj, isCollection), typeRef);
   }
 
   @Nullable
-  private <T> T get(@Nullable final Object obj, final Class<T> klazz)
+  private <T> T get(@Nullable final Object obj, final Class<T> klazz) throws IOException
   {
     if (obj == null)
     {
       return null;
     }
-    final String valStr = stringify(obj, false);
-    try
-    {
-      return WealdMapper.getMapper().readValue(valStr, klazz);
-    }
-    catch (final IOException ioe)
-    {
-      LOG.error("Failed to parse value \"{}\": ", obj, ioe);
-      return null;
-    }
+
+    return WealdMapper.getMapper().readValue(stringify(obj, Collection.class.isAssignableFrom(klazz)), klazz);
   }
 
   /**
@@ -254,7 +237,18 @@ public class Fabric
   @Nullable
   public <T> T get(final String key, final Class<T> klazz)
   {
-    return get(globalScope.get(key), klazz);
+    final Object obj = globalScope.get(key);
+    try
+    {
+      return get(obj, klazz);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), klazz);
+      LOG.error("Data is {}", obj);
+      LOG.error("Error is ", ioe);
+      return null;
+    }
   }
 
   /**
@@ -267,7 +261,18 @@ public class Fabric
   @Nullable
   public <T> T get(final String key, final TypeReference<T> typeRef)
   {
-    return get(globalScope.get(key), typeRef);
+    final Object obj = globalScope.get(key);
+    try
+    {
+      return get(obj, typeRef);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), typeRef);
+      LOG.error("Data is {}", obj);
+      LOG.error("Error is ", ioe);
+      return null;
+    }
   }
 
   /**
@@ -360,7 +365,18 @@ public class Fabric
   @Nullable
   public <T> T get(final Activity activity, final String key, final Class<T> klazz)
   {
-    return get(getActivityVal(activity, key), klazz);
+    final Object obj = getActivityVal(activity, key);
+    try
+    {
+      return get(obj, klazz);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), klazz);
+      LOG.error("Data is {}", obj);
+      LOG.error("Error is ", ioe);
+      return null;
+    }
   }
 
   /**
@@ -374,7 +390,18 @@ public class Fabric
   @Nullable
   public <T> T get(final Activity activity, final String key, final TypeReference<T> typeRef)
   {
-    return get(getActivityVal(activity, key), typeRef);
+    final Object obj = getActivityVal(activity, key);
+    try
+    {
+      return get(obj, typeRef);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), typeRef);
+      LOG.error("Data is {}", obj);
+      LOG.error("Error is ", ioe);
+      return null;
+    }
   }
 
   /**
@@ -546,7 +573,18 @@ public class Fabric
   @Nullable
   public <T> T get(final Activity activity, final String component, final String key, final Class<T> klazz)
   {
-    return get(getComponentVal(activity, component, key), klazz);
+    final Object obj = getComponentVal(activity, component, key);
+    try
+    {
+      return get(obj, klazz);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), klazz);
+      LOG.error("Data is {}", obj);
+      LOG.error("Error is ", ioe);
+      return null;
+    }
   }
 
   /**
@@ -562,7 +600,18 @@ public class Fabric
   @Nullable
   public <T> T get(final Activity activity, final String component, final String key, final TypeReference<T> typeRef)
   {
-    return get(getComponentVal(activity, component, key), typeRef);
+    final Object obj = getComponentVal(activity, component, key);
+    try
+    {
+      return get(obj, typeRef);
+    }
+    catch (final IOException ioe)
+    {
+      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), typeRef);
+      LOG.error("Data is {}", obj);
+      LOG.error("Error is ", ioe);
+      return null;
+    }
   }
 
   public Object getComponentVal(final Activity activity, final String component, final String key)
