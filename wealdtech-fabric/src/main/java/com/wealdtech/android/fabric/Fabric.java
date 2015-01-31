@@ -303,7 +303,7 @@ public class Fabric
    */
   public <T> void clear(final String key)
   {
-    final T oldValue = (T)get(key, Object.class);
+    final T oldValue = (T)globalScope.remove(key);
     persistenceStrategy.markDirty(key);
     if (oldValue != null)
     {
