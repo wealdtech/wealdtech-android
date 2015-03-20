@@ -11,6 +11,7 @@
 package com.wealdtech.android.fabric;
 
 import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.MoreObjects;
@@ -22,10 +23,9 @@ import com.google.common.collect.Multimap;
 import com.wealdtech.TwoTuple;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStore;
 import com.wealdtech.android.fabric.persistence.FabricPersistenceStrategy;
+import com.wealdtech.android.fabric.persistence.PrefsPersistenceStore;
 import com.wealdtech.android.fabric.persistence.SafePersistenceStrategy;
 import com.wealdtech.jackson.WealdMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -56,7 +56,7 @@ import java.util.Map;
  */
 public class Fabric
 {
-  private static final Logger LOG = LoggerFactory.getLogger(Fabric.class);
+  private static final String TAG = Fabric.class.getCanonicalName();
 
   private static Fabric instance = null;
 
@@ -127,6 +127,11 @@ public class Fabric
 
   public static Fabric getInstance()
   {
+    return getInstance(null);
+  }
+
+  public static Fabric getInstance(@Nullable final Context context)
+  {
     if (instance == null)
     {
       synchronized (Fabric.class)
@@ -135,24 +140,20 @@ public class Fabric
         {
           if (persistenceStore == null)
           {
-            throw new IllegalStateException("Fabric has not been initialised; call Fabric.init() before first obtaining fabric");
+            if (context == null)
+            {
+              throw new IllegalStateException("Fabric has not been initialised; call Fabric.init() before first obtaining fabric");
+            }
+            else
+            {
+              persistenceStore = new PrefsPersistenceStore(context);
+            }
           }
           if (persistenceStrategy == null)
           {
             persistenceStrategy = new SafePersistenceStrategy(persistenceStore);
           }
           instance = persistenceStore.load();
-          if (LOG.isTraceEnabled())
-          {
-            try
-            {
-              LOG.trace("Fabric is {}", WealdMapper.getServerMapper().writeValueAsString(instance));
-            }
-            catch (Exception e)
-            {
-              LOG.error("Failed to instantiate fabric: ", e);
-            }
-          }
         }
       }
     }
@@ -174,7 +175,7 @@ public class Fabric
       }
       catch (final IOException ioe)
       {
-        LOG.error("Failed to encode value: ", ioe);
+        Log.e(TAG, "Failed to encode value: ", ioe);
         return null;
       }
     }
@@ -244,9 +245,9 @@ public class Fabric
     }
     catch (final IOException ioe)
     {
-      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), klazz);
-      LOG.error("Data is {}", obj);
-      LOG.error("Error is ", ioe);
+      Log.e(TAG, "Failed to obtain " + key + " (" + obj.getClass().getSimpleName() + " as " + klazz + ")");
+      Log.e(TAG, "Data is " + obj);
+      Log.e(TAG, "Error is ", ioe);
       return null;
     }
   }
@@ -268,9 +269,9 @@ public class Fabric
     }
     catch (final IOException ioe)
     {
-      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), typeRef);
-      LOG.error("Data is {}", obj);
-      LOG.error("Error is ", ioe);
+      Log.e(TAG, "Failed to obtain " + key + " (" + obj.getClass().getSimpleName() + " as " + typeRef + ")");
+      Log.e(TAG, "Data is " + obj);
+      Log.e(TAG, "Error is ", ioe);
       return null;
     }
   }
@@ -372,9 +373,9 @@ public class Fabric
     }
     catch (final IOException ioe)
     {
-      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), klazz);
-      LOG.error("Data is {}", obj);
-      LOG.error("Error is ", ioe);
+      Log.e(TAG, "Failed to obtain " + key + " (" + obj.getClass().getSimpleName() + " as " + klazz + ")");
+      Log.e(TAG, "Data is " + obj);
+      Log.e(TAG, "Error is ", ioe);
       return null;
     }
   }
@@ -397,9 +398,9 @@ public class Fabric
     }
     catch (final IOException ioe)
     {
-      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), typeRef);
-      LOG.error("Data is {}", obj);
-      LOG.error("Error is ", ioe);
+      Log.e(TAG, "Failed to obtain " + key + " (" + obj.getClass().getSimpleName() + " as " + typeRef + ")");
+      Log.e(TAG, "Data is " + obj);
+      Log.e(TAG, "Error is ", ioe);
       return null;
     }
   }
@@ -580,9 +581,9 @@ public class Fabric
     }
     catch (final IOException ioe)
     {
-      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), klazz);
-      LOG.error("Data is {}", obj);
-      LOG.error("Error is ", ioe);
+      Log.e(TAG, "Failed to obtain " + key + " (" + obj.getClass().getSimpleName() + " as " + klazz + ")");
+      Log.e(TAG, "Data is " + obj);
+      Log.e(TAG, "Error is ", ioe);
       return null;
     }
   }
@@ -607,9 +608,9 @@ public class Fabric
     }
     catch (final IOException ioe)
     {
-      LOG.error("Failed to obtain {} ({} as {})", key, obj.getClass().getSimpleName(), typeRef);
-      LOG.error("Data is {}", obj);
-      LOG.error("Error is ", ioe);
+      Log.e(TAG, "Failed to obtain " + key + " (" + obj.getClass().getSimpleName() + " as " + typeRef + ")");
+      Log.e(TAG, "Data is " + obj);
+      Log.e(TAG, "Error is ", ioe);
       return null;
     }
   }

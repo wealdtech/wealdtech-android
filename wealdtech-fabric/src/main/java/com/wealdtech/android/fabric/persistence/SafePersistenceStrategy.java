@@ -11,8 +11,6 @@
 package com.wealdtech.android.fabric.persistence;
 
 import com.wealdtech.android.fabric.Fabric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A persistence strategy which provides maximum safety by saving the
@@ -20,8 +18,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SafePersistenceStrategy implements FabricPersistenceStrategy
 {
-  private static final Logger LOG = LoggerFactory.getLogger(SafePersistenceStrategy.class);
-
   private final FabricPersistenceStore store;
 
   public SafePersistenceStrategy(final FabricPersistenceStore store)

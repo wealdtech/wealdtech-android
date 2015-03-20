@@ -12,6 +12,7 @@ package com.wealdtech.android.fabric.persistence;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,8 +20,6 @@ import com.google.common.collect.Maps;
 import com.wealdtech.TwoTuple;
 import com.wealdtech.android.fabric.Fabric;
 import com.wealdtech.jackson.WealdMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PrefsPersistenceStore implements FabricPersistenceStore
 {
-  private static final Logger LOG = LoggerFactory.getLogger(FabricPersistenceStore.class);
+  private static final String TAG = PrefsPersistenceStore.class.getCanonicalName();
 
   private final SharedPreferences prefs;
 
@@ -54,7 +53,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
     try
     {
       final String globalScopeStr = prefs.getString("global", null);
-      LOG.debug("Global scope is {}", globalScopeStr);
+      Log.d(TAG, "Global scope is " + globalScopeStr);
       final Map<String, Object> globalScope;
       if (globalScopeStr == null)
       {
@@ -66,7 +65,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
 
       final String activityScopeStr = prefs.getString("activity", null);
-      LOG.debug("Activity scope is {}", activityScopeStr);
+      Log.d(TAG, "Activity scope is " + activityScopeStr);
       final Map<String, Map<String, Object>> activityScope;
       if (activityScopeStr == null)
       {
@@ -78,7 +77,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
       }
 
       final String componentScopeStr = prefs.getString("component", null);
-      LOG.debug("Component scope is {}", componentScopeStr);
+      Log.d(TAG, "Component scope is " + componentScopeStr);
       final Map<String, Map<String, Map<String, Object>>> componentScope;
       if (componentScopeStr == null)
       {
@@ -94,7 +93,7 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
     }
     catch (IOException e)
     {
-      LOG.error("Failed to instantiate fabric: ", e);
+      Log.e(TAG, "Failed to instantiate fabric: ", e);
       return reset();
     }
   }
@@ -111,27 +110,27 @@ public class PrefsPersistenceStore implements FabricPersistenceStore
         final Map<String, Object> globalScope = setGlobalScopeForFabricData(fabric.getGlobalScope());
         final String globalScopeStr = mapper.writeValueAsString(globalScope);
         editor.putString("global", globalScopeStr);
-        LOG.trace("Global scope is now {}", globalScopeStr);
+        Log.d(TAG, "Global scope is now " + globalScopeStr);
       }
       else if (component == null)
       {
         final Map<String, Map<String, Object>> activityScope = setActivityScopeForFabricData(fabric.getActivityScope());
         final String activityScopeStr = mapper.writeValueAsString(activityScope);
         editor.putString("activity", activityScopeStr);
-        LOG.trace("Activity scope is now {}", activityScopeStr);
+        Log.d(TAG, "Activity scope is now " + activityScopeStr);
       }
       else
       {
         final Map<String, Map<String, Map<String, Object>>> componentScope = setComponentScopeForFabricData(fabric.getComponentScope());
         final String componentScopeStr = mapper.writeValueAsString(componentScope);
         editor.putString("component", componentScopeStr);
-        LOG.trace("Component scope is now {}", componentScopeStr);
+        Log.d(TAG, "Component scope is now " + componentScopeStr);
       }
       editor.commit();
     }
     catch (IOException e)
     {
-      LOG.error("Failed to save fabric: ", e);
+      Log.e(TAG, "Failed to save fabric", e);
       throw new IllegalArgumentException("Failed to save fabric", e);
     }
   }

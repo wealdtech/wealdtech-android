@@ -8,20 +8,48 @@
   ~ Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.wealdtech.android.alarms"
-          android:versionCode="1"
-          android:versionName="1.0.0.1">
+<manifest package="com.wealdtech.android.alarms"
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:versionCode="1"
+  android:versionName="1.0.0.1">
 
-    <application android:allowBackup="true"
-                 android:label="Alarms">
+  <receiver android:name="PollReceiver">
+    <intent-filter>
+      <action android:name="android.intent.action.BOOT_COMPLETED" />
+    </intent-filter>
+  </receiver>
 
-<!--
-        <activity android:name="com.wealdtech.android.test.VisibilityTestActivity"/>
-        <activity android:name="com.wealdtech.android.test.PeriodicUpdateTestActivity"/>
-        <activity android:name="com.wealdtech.android.test.ProviderInteractionTestActivity"/>
-        <activity android:name="com.wealdtech.android.test.DynamicLayoutTestActivity"/>
-        <activity android:name="com.wealdtech.android.test.TileLayoutTestActivity"/>
+  <!-- To reinstate alarms after reboot -->
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+  <application
+    android:allowBackup="true"
+    android:label="Alarms"
+    tools:replace="android:label">
+
+    <activity android:name="com.wealdtech.android.alarms.AlarmsTestActivity">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+
+    <service
+      android:name="com.wealdtech.android.alarms.AlarmService"
+      android:enabled="true" />
+
+    <receiver android:name="com.wealdtech.android.alarms.AlarmsBootReceiver">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+      </intent-filter>
+    </receiver>
+
+    <!--
+      <activity android:name="com.wealdtech.android.test.PeriodicUpdateTestActivity"/>
+      <activity android:name="com.wealdtech.android.test.ProviderInteractionTestActivity"/>
+      <activity android:name="com.wealdtech.android.test.DynamicLayoutTestActivity"/>
+      <activity android:name="com.wealdtech.android.test.TileLayoutTestActivity"/>
 -->
-    </application>
+  </application>
 </manifest>
