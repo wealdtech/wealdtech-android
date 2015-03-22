@@ -28,6 +28,7 @@
     android:label="Alarms"
     tools:replace="android:label">
 
+<!--
     <activity android:name="com.wealdtech.android.alarms.AlarmsTestActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -44,12 +45,7 @@
         <action android:name="android.intent.action.BOOT_COMPLETED" />
       </intent-filter>
     </receiver>
-
-    <!--
-      <activity android:name="com.wealdtech.android.test.PeriodicUpdateTestActivity"/>
-      <activity android:name="com.wealdtech.android.test.ProviderInteractionTestActivity"/>
-      <activity android:name="com.wealdtech.android.test.DynamicLayoutTestActivity"/>
-      <activity android:name="com.wealdtech.android.test.TileLayoutTestActivity"/>
 -->
+
   </application>
 </manifest>
