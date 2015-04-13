@@ -20,9 +20,7 @@ public class FocusChangeViewTrigger extends ViewTrigger
   private final boolean onGain;
   private final boolean onLoss;
 
-  public FocusChangeViewTrigger(final View view,
-                                final boolean onGain,
-                                final boolean onLoss)
+  public FocusChangeViewTrigger(final View view, final boolean onGain, final boolean onLoss)
   {
     super(view);
     this.onGain = onGain;
@@ -54,7 +52,7 @@ public class FocusChangeViewTrigger extends ViewTrigger
         }
       }
     });
- }
+  }
 
   void tearDown()
   {
