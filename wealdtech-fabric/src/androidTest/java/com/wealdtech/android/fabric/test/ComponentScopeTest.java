@@ -11,13 +11,13 @@
 package com.wealdtech.android.fabric.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.SmallTest;
 import com.wealdtech.android.fabric.Fabric;
-
-import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Test component-level scope
  */
+@SmallTest
 public class ComponentScopeTest extends ActivityInstrumentationTestCase2<ComponentScopeTestActivity>
 {
   public ComponentScopeTest()
@@ -61,11 +61,13 @@ public class ComponentScopeTest extends ActivityInstrumentationTestCase2<Compone
     final Integer testInt = 623;
     Fabric.getInstance().set(activity, "test component", "test persisting integer", testInt);
     Fabric.getInstance().persist(activity, "test component", "test persisting integer");
-    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity, "test component", "test persisting integer", Integer.class)));
+    assertTrue(testInt.equals(Fabric.getInstance()
+                                    .<Integer>get(activity, "test component", "test persisting integer", Integer.class)));
     activity.finish();
 
     final ComponentScopeTestActivity activity2 = getActivity();
-    assertThat(testInt.equals(Fabric.getInstance().<Integer>get(activity2, "test component", "test persisting integer", Integer.class)));
+    assertTrue(testInt.equals(Fabric.getInstance()
+                                    .<Integer>get(activity2, "test component", "test persisting integer", Integer.class)));
     activity2.finish();
   }
 }

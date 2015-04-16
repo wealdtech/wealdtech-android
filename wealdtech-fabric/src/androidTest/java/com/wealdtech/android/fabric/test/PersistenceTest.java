@@ -11,6 +11,7 @@
 package com.wealdtech.android.fabric.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.SmallTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Maps;
 import com.wealdtech.WID;
@@ -20,11 +21,10 @@ import java.net.InetSocketAddress;
 import java.util.Date;
 import java.util.Map;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
 /**
  * Test persistence functionality of Fabric
  */
+@SmallTest
 public class PersistenceTest extends ActivityInstrumentationTestCase2<PersistenceTestActivity>
 {
   public PersistenceTest()
@@ -36,7 +36,6 @@ public class PersistenceTest extends ActivityInstrumentationTestCase2<Persistenc
   protected void setUp() throws Exception
   {
     super.setUp();
-    setActivityInitialTouchMode(false);
   }
 
   public void testWID()
@@ -88,8 +87,8 @@ public class PersistenceTest extends ActivityInstrumentationTestCase2<Persistenc
       Fabric.getInstance().set("test date", new Date());
       Fabric.getInstance().set("test inet", new InetSocketAddress(10));
 
-      assertThat(Fabric.getInstance().get("test date", Date.class) instanceof Date);
-      assertThat(Fabric.getInstance().get("test inet", InetSocketAddress.class) instanceof InetSocketAddress);
+      assertTrue(Fabric.getInstance().get("test date", Date.class) instanceof Date);
+      assertTrue(Fabric.getInstance().get("test inet", InetSocketAddress.class) instanceof InetSocketAddress);
 
       activity.finish();
     }

@@ -11,11 +11,13 @@
 package com.wealdtech.android.fabric.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.SmallTest;
 import com.wealdtech.android.fabric.Fabric;
 
 /**
  * Test scoping from component up to global
  */
+@SmallTest
 public class ScopingTest extends ActivityInstrumentationTestCase2<ActivityScopeTestActivity>
 {
   public ScopingTest()

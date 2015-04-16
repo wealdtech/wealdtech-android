@@ -11,6 +11,7 @@
 package com.wealdtech.android.fabric.test;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.SmallTest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
@@ -22,6 +23,7 @@ import java.util.Map;
 /**
  * Test global scope functionality of Fabric
  */
+@SmallTest
 public class GlobalScopeTest extends ActivityInstrumentationTestCase2<GlobalScopeTestActivity>
 {
   public GlobalScopeTest()

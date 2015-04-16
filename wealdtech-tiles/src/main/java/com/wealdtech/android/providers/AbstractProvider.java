@@ -187,7 +187,11 @@ public abstract class AbstractProvider<T> implements Provider<T>
     providerState = ProviderState.NOT_PROVIDING;
     if (pollingTask != null)
     {
-      pollingTask.cancel(true);
+      final boolean cancelled = pollingTask.cancel(true);
+      if (!cancelled)
+      {
+        throw new RuntimeException("Failed to cancel task");
+      }
       pollingTask = null;
     }
   }

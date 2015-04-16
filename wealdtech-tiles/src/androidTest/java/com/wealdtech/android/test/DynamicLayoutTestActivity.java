@@ -13,7 +13,6 @@ package com.wealdtech.android.test;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
-import ch.qos.logback.classic.android.BasicLogcatConfigurator;
 import com.wealdtech.android.providers.Provider;
 import com.wealdtech.android.test.providers.PresetTextProvider;
 import com.wealdtech.android.test.tiles.TextTile;
