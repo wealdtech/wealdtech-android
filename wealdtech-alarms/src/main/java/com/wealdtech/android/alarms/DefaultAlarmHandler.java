@@ -26,7 +26,7 @@ public class DefaultAlarmHandler extends AbstractAlarmHandler
   {
     NotificationCompat.Builder mBuilder =
         new NotificationCompat.Builder(context)
-            .setSmallIcon(R.drawable.ic_launcher)
+//            .setSmallIcon(R.drawable.ic_launcher)
             .setContentTitle("My notification")
             .setContentText("ID is " + alarm.getId().toString());
 //    Intent resultIntent = new Intent(context, StatusOfChild.class);
