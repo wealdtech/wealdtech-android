@@ -105,9 +105,9 @@ public class Alarm extends WObject<Alarm> implements Comparable<Alarm>
       return self();
     }
 
-    public P requestCode(final int requestCode)
+    public P group(final int group)
     {
-      data(GROUP, requestCode);
+      data(GROUP, group);
       return self();
     }
 

@@ -14,12 +14,6 @@
   android:versionCode="1"
   android:versionName="1.0.0.1">
 
-  <receiver android:name="PollReceiver">
-    <intent-filter>
-      <action android:name="android.intent.action.BOOT_COMPLETED" />
-    </intent-filter>
-  </receiver>
-
   <!-- To reinstate alarms after reboot -->
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -28,6 +22,11 @@
     android:label="Alarms"
     tools:replace="android:label">
 
+  <receiver android:name="PollReceiver">
+    <intent-filter>
+      <action android:name="android.intent.action.BOOT_COMPLETED" />
+    </intent-filter>
+  </receiver>
 <!--
     <activity android:name="com.wealdtech.android.alarms.AlarmsTestActivity">
       <intent-filter>

@@ -15,15 +15,19 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 /**
- * The default alarm handler.  This creates a notification
+ * The default alarm handler.  This creates a notification that redirects to the handler when clicks
  */
 public class DefaultAlarmHandler extends AbstractAlarmHandler
 {
+  private static final String TAG = DefaultAlarmHandler.class.getCanonicalName();
+
   @Override
   public void onAlarm(final Context context, final Alarm alarm)
   {
+    Log.d(TAG, "Alarm triggered: " + alarm);
     NotificationCompat.Builder mBuilder =
         new NotificationCompat.Builder(context)
 //            .setSmallIcon(R.drawable.ic_launcher)

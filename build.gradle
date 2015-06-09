@@ -19,11 +19,15 @@ buildscript {
 }
 
 subprojects {
+  apply plugin: 'maven'
+  apply plugin: 'com.android.library'
+
   repositories {
     mavenCentral()
     mavenLocal()
   }
 
   group = 'com.wealdtech.android'
-  version = '1.0.0'
+  version = '1.1.0'
+
 }

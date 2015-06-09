@@ -12,6 +12,7 @@ package com.wealdtech.android.alarms;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
@@ -25,6 +26,8 @@ import java.util.Map;
  */
 public class AlarmService extends IntentService
 {
+  private static final String TAG = AlarmService.class.getCanonicalName();
+
   public AlarmService()
   {
     super("Alarms");
@@ -34,14 +37,22 @@ public class AlarmService extends IntentService
   protected void onHandleIntent(final Intent intent)
   {
     final Integer requestCode = intent.getExtras().getInt(Alarms.REQUEST_CODE);
+    Log.d(TAG, "requestCode is " + requestCode);
+    Log.d(TAG, "Application context is " + getApplicationContext().getApplicationInfo().className);
     final Map<Integer, Alarm> alarms = MoreObjects.firstNonNull(Fabric.getInstance(getApplicationContext())
                                                                       .get(Alarms.ALARMS_FABRIC_KEY,
                                                                            new TypeReference<HashMap<Integer, Alarm>>() {}),
                                                                 Maps.<Integer, Alarm>newHashMap());
+    Log.d(TAG, "Alarms are " + alarms);
     final Alarm alarm = alarms.get(requestCode);
-    // We remove the alarm before processing it so that the handler can call setAlarm() if it desires
-    Alarms.cancelAlarm(getApplicationContext(), alarm);
-
-    alarm.getHandler().onAlarm(getApplicationContext(), alarm);
+    // It is possible for the alarm to be NULL.  This can happen if multiple alarms were set with the same request code and the
+    // original triggered before it was cancelled
+    if (alarm != null)
+    {
+      Log.d(TAG, "Alarm is " + alarm);
+      // We remove the alarm before processing it so that the handler can call setAlarm() if it desires
+      Alarms.cancelAlarm(getApplicationContext(), alarm);
+      alarm.getHandler().onAlarm(getApplicationContext(), alarm);
+    }
   }
 }
