@@ -10,9 +10,11 @@
 
 package com.wealdtech.android.notifications;
 
+import android.app.Activity;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Optional;
+import com.wealdtech.GenericWObject;
 import com.wealdtech.WID;
 import com.wealdtech.WObject;
 import org.slf4j.Logger;
@@ -34,7 +36,8 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
   private static final String TITLE = "title";
   private static final String SUMMARY = "summary";
   private static final String CONTENT = "content";
-//  private static final String HANDLER = "handler";
+  private static final String INTENT_TARGET = "intenttarget";
+  private static final String INTENT_DATA = "intentdata";
 
   @JsonCreator
   public NotificationInfo(final Map<String, Object> data){super(data);}
@@ -53,8 +56,8 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
   {
     checkState(exists(ID), "Notification info failed validation: must contain ID (" + getAllData() + ")");
     checkState(exists(GROUP), "Notification info failed validation: must contain group (" + getAllData() + ")");
-//    checkState(exists(HANDLER), "Notification info failed validation: must contain handler (" + getAllData() + ")");
-//    checkState(getHandler() != null, "Notification info failed validation: handler is invalid (" + getAllData() + ")");
+    checkState(exists(INTENT_TARGET), "Notification info failed validation: must contain intent target (" + getAllData() + ")");
+    checkState(getIntentTarget() != null, "Notification info failed validation: intent target is invalid (" + getAllData() + ")");
   }
 
   // We override getId() to make it non-null as we confirm ID's existence in validate()
@@ -75,25 +78,23 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
   @JsonIgnore
   public String getGroup(){ return get(GROUP, String.class).get(); }
 
-//  @JsonIgnore
-//  public NotificationHandler getHandler()
-//  {
-//    final String handlerName = get(HANDLER, String.class).get();
-//    try
-//    {
-//      return (NotificationHandler)Class.forName(handlerName).newInstance();
-//    }
-//    catch (final ClassNotFoundException cnfe)
-//    {
-//      LOG.error("Unknown alarm handler class {} ", handlerName, cnfe);
-//      return null;
-//    }
-//    catch (final InstantiationException | IllegalAccessException e)
-//    {
-//      LOG.error("Unable to instantiate alarm handler class {} ", handlerName, e);
-//      return null;
-//    }
-//  }
+  @JsonIgnore
+  public Class<? extends Activity> getIntentTarget()
+  {
+    final String intentTargetName = get(INTENT_TARGET, String.class).get();
+    try
+    {
+      return (Class<? extends Activity>)Class.forName(intentTargetName);
+    }
+    catch (final ClassNotFoundException cnfe)
+    {
+      LOG.error("Unknown activity class {} ", intentTargetName, cnfe);
+      return null;
+    }
+  }
+
+  @JsonIgnore
+  public Optional<GenericWObject> getIntentData(){return get(INTENT_DATA, GenericWObject.class); }
 
   // Builder boilerplate
   public static class Builder<P extends Builder<P>> extends WObject.Builder<NotificationInfo, P>
@@ -132,11 +133,17 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
       return self();
     }
 
-//    public P handler(final Class<? extends NotificationHandler> handler)
-//    {
-//      data(HANDLER, handler.getCanonicalName());
-//      return self();
-//    }
+    public P intentTarget(final Class<? extends Activity> activity)
+    {
+      data(INTENT_TARGET, activity.getCanonicalName());
+      return self();
+    }
+
+    public P intentData(final GenericWObject data)
+    {
+      data(INTENT_DATA, data);
+      return self();
+    }
 
     public NotificationInfo build()
     {

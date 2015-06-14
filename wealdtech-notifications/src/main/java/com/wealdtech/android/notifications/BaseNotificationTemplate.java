@@ -10,12 +10,18 @@
 
 package com.wealdtech.android.notifications;
 
+import android.app.Activity;
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.google.common.base.Optional;
+import com.wealdtech.GenericWObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +94,23 @@ public class BaseNotificationTemplate extends AbstractNotificationTemplate
     {
       builder.setContentInfo(info.getContent().get());
     }
+
+    final Class<? extends Activity> intentTarget = info.getIntentTarget();
+    final Intent resultIntent = new Intent(context, intentTarget);
+    final Optional<GenericWObject> intentData = info.getIntentData();
+    if (intentData.isPresent())
+    {
+      for (final String key : intentData.get().getData().keySet())
+      {
+        resultIntent.putExtra(key, intentData.get().get(key, String.class).orNull());
+      }
+    }
+    final TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+    stackBuilder.addParentStack(intentTarget);
+    stackBuilder.addNextIntent(resultIntent);
+    PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+    builder.setContentIntent(resultPendingIntent);
+
 
     return builder.build();
   }
