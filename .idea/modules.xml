@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/wealdtech-alarms/wealdtech-alarms.iml" filepath="$PROJECT_DIR$/wealdtech-alarms/wealdtech-alarms.iml" />
       <module fileurl="file://$PROJECT_DIR$/wealdtech-android.iml" filepath="$PROJECT_DIR$/wealdtech-android.iml" />
       <module fileurl="file://$PROJECT_DIR$/wealdtech-fabric/wealdtech-fabric.iml" filepath="$PROJECT_DIR$/wealdtech-fabric/wealdtech-fabric.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wealdtech-notifications/wealdtech-notifications.iml" filepath="$PROJECT_DIR$/wealdtech-notifications/wealdtech-notifications.iml" />
       <module fileurl="file://$PROJECT_DIR$/wealdtech-tiles/wealdtech-tiles.iml" filepath="$PROJECT_DIR$/wealdtech-tiles/wealdtech-tiles.iml" />
     </modules>
   </component>

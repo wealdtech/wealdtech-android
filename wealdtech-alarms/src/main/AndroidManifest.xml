@@ -22,7 +22,7 @@
     android:label="Alarms"
     tools:replace="android:label">
 
-  <receiver android:name="PollReceiver">
+  <receiver android:name="AlarmsBootReceiver">
     <intent-filter>
       <action android:name="android.intent.action.BOOT_COMPLETED" />
     </intent-filter>

@@ -14,7 +14,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
@@ -45,7 +44,6 @@ public class Alarms
   {
     // Always use the application context
     final Context appContext = context.getApplicationContext();
-    Log.d(TAG, "setAlarm: Application context is " + appContext.getApplicationInfo().className);
     final AlarmManager mgr = (AlarmManager)appContext.getSystemService(Context.ALARM_SERVICE);
     final Intent intent = new Intent(appContext, AlarmService.class);
     intent.putExtra(REQUEST_CODE, alarm.getGroup());
@@ -55,11 +53,8 @@ public class Alarms
     final Map<Integer, Alarm> alarms =
         MoreObjects.firstNonNull(Fabric.getInstance(appContext).get(ALARMS_FABRIC_KEY, new TypeReference<HashMap<Integer, Alarm>>() {}),
                                  Maps.<Integer, Alarm>newHashMap());
-    Log.d(TAG, "setAlarm: Alarms were " + alarms);
     final Alarm priorAlarm = alarms.put(alarm.getGroup(), alarm);
     Fabric.getInstance(appContext).set(ALARMS_FABRIC_KEY, alarms);
-    Log.d(TAG, "setAlarm: Alarms are now " +
-               Fabric.getInstance(appContext).get(ALARMS_FABRIC_KEY, new TypeReference<HashMap<Integer, Alarm>>() {}));
 
     // Kick off the alarm
     mgr.set(AlarmManager.RTC_WAKEUP, alarm.getTimestamp(), pendingIntent);
@@ -77,16 +72,13 @@ public class Alarms
   {
     // Always use the application context
     final Context appContext = context.getApplicationContext();
-    Log.d(TAG, "cancelAlarm: Application context is " + appContext.getApplicationInfo().className);
 
     // Remove the alarm from our persistent store
     final Map<Integer, Alarm> alarms =
         MoreObjects.firstNonNull(Fabric.getInstance(appContext).get(ALARMS_FABRIC_KEY, new TypeReference<HashMap<Integer, Alarm>>() {}),
                                  Maps.<Integer, Alarm>newHashMap());
-    Log.d(TAG, "cancelAlarm: Alarms were " + alarms);
     final Alarm priorAlarm = alarms.remove(alarm.getGroup());
     Fabric.getInstance(appContext).set(ALARMS_FABRIC_KEY, alarms);
-    Log.d(TAG, "cancelAlarm: Alarms are now " + Fabric.getInstance(appContext).get(ALARMS_FABRIC_KEY, new TypeReference<HashMap<Integer, Alarm>>() {}));
 
     return priorAlarm != null;
   }

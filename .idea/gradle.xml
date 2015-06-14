@@ -10,6 +10,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/wealdtech-alarms" />
             <option value="$PROJECT_DIR$/wealdtech-fabric" />
+            <option value="$PROJECT_DIR$/wealdtech-notifications" />
             <option value="$PROJECT_DIR$/wealdtech-tiles" />
           </set>
         </option>
