@@ -14,15 +14,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.util.Log;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.MoreObjects;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wealdtech.WID;
 import com.wealdtech.android.fabric.Fabric;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -136,5 +132,19 @@ public class Notifications
     {
       Fabric.getInstance(appContext).set(NOTIFICATIONS_FABRIC_ENABLED, true);
     }
+  }
+
+  /**
+   * Remove all notifications
+   * @param context
+   */
+  public static void removeNotifications(final Context context)
+  {
+    // Ensure we use the application context
+    final Context appContext = context.getApplicationContext();
+
+    final NotificationManager notificationManager = (NotificationManager)appContext.getSystemService(Context.NOTIFICATION_SERVICE);
+    // FIXME need group-specific value.  Store with Fabric
+    notificationManager.cancel(1);
   }
 }

@@ -34,7 +34,7 @@ public abstract class AbstractNotificationTemplate extends WObject<AbstractNotif
   private static final String SMALL_ICON_RES_ID = "smalliconresid";
   private static final String LARGE_ICON_RES_ID = "largeiconresid";
   private static final String SOUND_RES_ID = "soundresid";
-  private static final String FOLLOW_ON_ACTION = "followownaction";
+  private static final String FOLLOW_ON_ACTION = "followonaction";
 
   @JsonCreator
   public AbstractNotificationTemplate(final Map<String, Object> data){super(data);}
