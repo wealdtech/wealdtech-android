@@ -16,11 +16,13 @@ import android.content.Context;
 import android.util.Log;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.wealdtech.WID;
 import com.wealdtech.android.fabric.Fabric;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,22 +55,32 @@ public class Notifications
     final Context appContext = context.getApplicationContext();
 
     final Boolean enabled = MoreObjects.firstNonNull(Fabric.getInstance(appContext).get(NOTIFICATIONS_FABRIC_ENABLED, Boolean.class), true);
-
-    final Map<String, NotificationInfo> notifications =
-        MoreObjects.firstNonNull(Fabric.getInstance(appContext).get(NOTIFICATIONS_FABRIC_KEY, new TypeReference<HashMap<String, NotificationInfo>>() {}),
-                                 Maps.<String, NotificationInfo>newHashMap());
-
-    // Obtain the template for the notification
-    final NotificationTemplate template = MoreObjects.firstNonNull(TEMPLATES.get(notificationInfo.getGroup()), null);
-    Log.e(TAG, "Using template " + template);
-    final Notification notification = template.generate(context, notificationInfo);
-
-
-    if (notification != null)
+    if (enabled)
     {
-      final NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-      // FIXME need group-specific value.  Store with Fabric
-      notificationManager.notify(1, notification);
+//      // Find our existing notifications for this group
+//      final LinkedListMultimap<String, NotificationInfo> notifications;
+//      notifications = MoreObjects.firstNonNull(Fabric.getInstance(appContext)
+//                                                     .get(NOTIFICATIONS_FABRIC_KEY,
+//                                                          new TypeReference<LinkedListMultimap<String, NotificationInfo>>() {}),
+//                                               LinkedListMultimap.<String, NotificationInfo>create());
+//      final List<NotificationInfo> current = MoreObjects.firstNonNull(notifications.get(notificationInfo.getGroup()),
+//                                                                      Lists.<NotificationInfo>newArrayList());
+      // Obtain the template for the notification
+      final NotificationTemplate template = MoreObjects.firstNonNull(TEMPLATES.get(notificationInfo.getGroup()), null);
+      Log.e(TAG, "Using template " + template);
+      final Notification notification = template.generate(appContext, notificationInfo);
+
+//      // Current will be updated so save it
+//      notifications.removeAll(notificationInfo.getGroup());
+//      notifications.putAll(notificationInfo.getGroup(), current);
+//      Fabric.getInstance(appContext).set(NOTIFICATIONS_FABRIC_KEY, notifications);
+
+      if (notification != null)
+      {
+        final NotificationManager notificationManager = (NotificationManager)appContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        // FIXME need group-specific value.  Store with Fabric
+        notificationManager.notify(1, notification);
+      }
     }
   }
 

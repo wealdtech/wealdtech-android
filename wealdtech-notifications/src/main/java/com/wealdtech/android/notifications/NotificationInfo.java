@@ -17,6 +17,7 @@ import com.google.common.base.Optional;
 import com.wealdtech.GenericWObject;
 import com.wealdtech.WID;
 import com.wealdtech.WObject;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,10 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
   private static final String CONTENT = "content";
   private static final String INTENT_TARGET = "intenttarget";
   private static final String INTENT_DATA = "intentdata";
+  private static final String PERSISTENT = "persistent";
+
+  // Timestamp is used internally
+  private static final String TIMESTAMP = "timestamp";
 
   @JsonCreator
   public NotificationInfo(final Map<String, Object> data){super(data);}
@@ -47,6 +52,8 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
   {
     if (!data.containsKey(ID)) { data.put(ID, WID.generate()); }
     if (!data.containsKey(GROUP)) { data.put(GROUP, "default"); }
+    if (!data.containsKey(TIMESTAMP)) { data.put(TIMESTAMP, new DateTime()); }
+    if (!data.containsKey(PERSISTENT)) { data.put(PERSISTENT, Boolean.TRUE); }
 
     return data;
   }
@@ -96,6 +103,12 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
   @JsonIgnore
   public Optional<GenericWObject> getIntentData(){return get(INTENT_DATA, GenericWObject.class); }
 
+  @JsonIgnore
+  public DateTime getTimestamp() { return get(TIMESTAMP, DateTime.class).get(); }
+
+  @JsonIgnore
+  public Boolean isPersistent() { return get(PERSISTENT, Boolean.class).get(); }
+
   // Builder boilerplate
   public static class Builder<P extends Builder<P>> extends WObject.Builder<NotificationInfo, P>
   {
@@ -142,6 +155,12 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
     public P intentData(final GenericWObject data)
     {
       data(INTENT_DATA, data);
+      return self();
+    }
+
+    public P persistent(final Boolean persistent)
+    {
+      data(PERSISTENT, persistent);
       return self();
     }
 

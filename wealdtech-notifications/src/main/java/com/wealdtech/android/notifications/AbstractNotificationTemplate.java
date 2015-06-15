@@ -34,6 +34,7 @@ public abstract class AbstractNotificationTemplate extends WObject<AbstractNotif
   private static final String SMALL_ICON_RES_ID = "smalliconresid";
   private static final String LARGE_ICON_RES_ID = "largeiconresid";
   private static final String SOUND_RES_ID = "soundresid";
+  private static final String FOLLOW_ON_ACTION = "followownaction";
 
   @JsonCreator
   public AbstractNotificationTemplate(final Map<String, Object> data){super(data);}
@@ -42,6 +43,7 @@ public abstract class AbstractNotificationTemplate extends WObject<AbstractNotif
   protected Map<String, Object> preCreate(final Map<String, Object> data)
   {
     if (!data.containsKey(ID)) { data.put(ID, WID.generate()); }
+    if (!data.containsKey(FOLLOW_ON_ACTION)) { data.put(FOLLOW_ON_ACTION, FollowOnAction.UPDATE); }
 
     return data;
   }
@@ -66,6 +68,9 @@ public abstract class AbstractNotificationTemplate extends WObject<AbstractNotif
 
   @JsonIgnore
   public Optional<Integer> getSoundResId() { return get(SOUND_RES_ID, Integer.class); }
+
+  @JsonIgnore
+  public FollowOnAction getFollowOnAction() { return get(FOLLOW_ON_ACTION, FollowOnAction.class).get(); }
 
   // Builder boilerplate
   public static class Builder<P extends Builder<P>> extends WObject.Builder<AbstractNotificationTemplate, P>
@@ -95,6 +100,12 @@ public abstract class AbstractNotificationTemplate extends WObject<AbstractNotif
     public P soundResId(final Integer soundResId)
     {
       data(SOUND_RES_ID, soundResId);
+      return self();
+    }
+
+    public P followOnAction(final FollowOnAction followOnAction)
+    {
+      data(FOLLOW_ON_ACTION, followOnAction);
       return self();
     }
   }

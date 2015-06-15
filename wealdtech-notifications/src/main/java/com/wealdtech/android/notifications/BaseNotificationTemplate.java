@@ -16,7 +16,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -69,6 +68,12 @@ public class BaseNotificationTemplate extends AbstractNotificationTemplate
   @Override
   public Notification generate(final Context context, final NotificationInfo info)
   {
+//    if (getFollowOnAction() == FollowOnAction.IGNORE && !current.isEmpty())
+//    {
+//      // We have been told to ignore follow-ons, so ignore it
+//      return null;
+//    }
+
     final NotificationCompat.Builder builder = new NotificationCompat.Builder(context).setAutoCancel(true);
 
     if (getLargeIconResId().isPresent())
@@ -79,11 +84,15 @@ public class BaseNotificationTemplate extends AbstractNotificationTemplate
     {
       builder.setSmallIcon(getSmallIconResId().get());
     }
-    if (getSoundResId().isPresent())
-    {
-      final Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/");
-      builder.setSound(soundUri);
-    }
+//    // We only make another noise if it's within an acceptable time of the last one (currently 5s)
+//    if (Seconds.secondsBetween(current.get(current.size()).getTimestamp(), new DateTime()).getSeconds() > 5)
+//    {
+//      if (getSoundResId().isPresent())
+//      {
+//        final Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/");
+//        builder.setSound(soundUri);
+//      }
+//    }
 
     builder.setGroup(info.getGroup());
     if (info.getTitle().isPresent())
@@ -111,7 +120,12 @@ public class BaseNotificationTemplate extends AbstractNotificationTemplate
     PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
     builder.setContentIntent(resultPendingIntent);
 
+//    // Add this notification to the list of current notifications
+//    current.add(info);
 
-    return builder.build();
+    final Notification notification = builder.build();
+    notification.flags |= Notification.FLAG_ONLY_ALERT_ONCE;
+
+    return notification;
   }
 }
