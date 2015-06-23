@@ -75,11 +75,11 @@ dependencies {
     exclude group: 'junit'
     exclude group: 'org.hamcrest'
   }
-  androidTestCompile('com.android.support.test.espresso:espresso-core:2.0') {
+  androidTestCompile('com.android.support.test.espresso:espresso-core:2.1') {
     exclude group: 'junit'
     exclude group: 'javax.inject'
   }
-  androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.0') {
+  androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.1') {
     exclude group: 'junit'
   }
 }
