@@ -34,6 +34,7 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
   private static final Logger LOG = LoggerFactory.getLogger(NotificationInfo.class);
 
   private static final String GROUP = "group";
+  private static final String KEY = "key";
   private static final String TITLE = "title";
   private static final String SUMMARY = "summary";
   private static final String CONTENT = "content";
@@ -84,6 +85,9 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
 
   @JsonIgnore
   public String getGroup(){ return get(GROUP, String.class).get(); }
+
+  @JsonIgnore
+  public Optional<String> getKey(){ return get(KEY, String.class); }
 
   @JsonIgnore
   public Class<? extends Activity> getIntentTarget()
@@ -137,6 +141,12 @@ public class NotificationInfo extends WObject<NotificationInfo> implements Compa
     public P content(final String content)
     {
       data(CONTENT, content);
+      return self();
+    }
+
+    public P key(final String key)
+    {
+      data(KEY, key);
       return self();
     }
 

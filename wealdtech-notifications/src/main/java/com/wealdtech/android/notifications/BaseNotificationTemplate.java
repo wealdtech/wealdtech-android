@@ -85,17 +85,13 @@ public class BaseNotificationTemplate extends AbstractNotificationTemplate
     {
       builder.setSmallIcon(getSmallIconResId().get());
     }
-//    // We only make another noise if it's within an acceptable time of the last one (currently 5s)
-//    if (Seconds.secondsBetween(current.get(current.size()).getTimestamp(), new DateTime()).getSeconds() > 5)
-//    {
       if (getSoundResId().isPresent())
       {
         final Uri soundUri = Uri.parse("android.resource://" + context.getPackageName() + "/" + Long.valueOf(getSoundResId().get()));
         builder.setSound(soundUri);
       }
-//    }
 
-    builder.setGroup(info.getGroup());
+    builder.setGroup(info.getKey().isPresent() ? info.getGroup() + ":" + info.getKey().get() : info.getGroup());
     if (info.getTitle().isPresent())
     {
       builder.setContentTitle(info.getTitle().get());

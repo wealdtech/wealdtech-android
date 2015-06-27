@@ -34,6 +34,10 @@ public class Notifications
 
   private static final Map<String,NotificationTemplate> TEMPLATES = Maps.newHashMap();
 
+  private static final NotificationTemplate DEFAULT_TEMPLATE = BaseNotificationTemplate.builder()
+                                                                                       .largeIconResId(android.R.drawable.ic_dialog_alert)
+                                                                                       .smallIconResId(android.R.drawable.ic_dialog_alert)
+                                                                                       .build();
   /**
    * Register a template
    */
@@ -62,7 +66,7 @@ public class Notifications
 //      final List<NotificationInfo> current = MoreObjects.firstNonNull(notifications.get(notificationInfo.getGroup()),
 //                                                                      Lists.<NotificationInfo>newArrayList());
       // Obtain the template for the notification
-      final NotificationTemplate template = MoreObjects.firstNonNull(TEMPLATES.get(notificationInfo.getGroup()), null);
+      final NotificationTemplate template = MoreObjects.firstNonNull(TEMPLATES.get(notificationInfo.getGroup()), DEFAULT_TEMPLATE);
       Log.e(TAG, "Using template " + template);
       final Notification notification = template.generate(appContext, notificationInfo);
 
