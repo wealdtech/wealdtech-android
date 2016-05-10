@@ -8,13 +8,18 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the License for the specific language governing permissions and limitations under the License.
  */
 
+// Provide check for latest version of dependencies
+apply plugin: 'com.github.ben-manes.versions'
+
 buildscript {
   repositories {
     mavenCentral()
     mavenLocal()
+    jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:1.2.2'
+    classpath 'com.android.tools.build:gradle:2.1.0'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
   }
 }
 
@@ -30,4 +35,101 @@ subprojects {
   group = 'com.wealdtech.android'
   version = '1.1.0'
 
+  configurations.all {
+    // We don't want junit-dep anywhere as we include junit itself
+    exclude group: 'junit', module: 'junit-dep'
+  }
+
+  dependencies {
+//    compile 'com.android.support:multidex:'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile('com.wealdtech:wealdtech-jackson:3.0.0') {
+      exclude group: 'com.google.guava'
+    }
+    compile 'com.wealdtech:wealdtech-wobject:3.0.0'
+
+    // @NonNull etc. annotations
+    compile 'com.google.code.findbugs:jsr305:3.0.1'
+
+    // Logging
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    androidTestCompile 'com.github.tony19:logback-android-classic:1.1.1-5'
+
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2') {
+      exclude group: 'junit'
+      exclude group: 'javax.inject'
+    }
+
+    androidTestCompile 'com.android.support.test:runner:0.5'
+//    // Testing
+//    androidTestCompile('junit:junit:4.12') {
+//      exclude group: 'org.hamcrest'
+//    }
+//    androidTestCompile('com.android.support.test:testing-support-lib:0.1') {
+//      exclude group: 'junit'
+//      exclude group: 'org.hamcrest'
+//    }
+//    androidTestCompile('com.android.support.test.espresso:espresso-core:2.1') {
+//      exclude group: 'junit'
+//      exclude group: 'javax.inject'
+//    }
+//    androidTestCompile('com.android.support.test.espresso:espresso-contrib:2.1') {
+//      exclude group: 'junit'
+//    }
+  }
+
+
+  android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    compileOptions {
+      sourceCompatibility JavaVersion.VERSION_1_7
+      targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    dexOptions { 
+     incremental true 
+     javaMaxHeapSize "4g" 
+    }
+
+    defaultConfig {
+      minSdkVersion 11
+      targetSdkVersion 23
+
+      multiDexEnabled true
+
+      packagingOptions {
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/jersey-module-version'
+        // espresso-core embeds these, see https://code.google.com/p/android/issues/detail?id=195331
+        exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
+	exclude 'META-INF/maven/com.google.guava/guava/pom.xml'
+      }
+
+      testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+      debug {
+        minifyEnabled false
+        signingConfig signingConfigs.debug
+      }
+      release {
+        minifyEnabled false
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+      }
+    }
+
+    signingConfigs {
+      debug {
+        storeFile rootProject.file("security/debug.keystore")
+      }
+    }
+  }
 }
