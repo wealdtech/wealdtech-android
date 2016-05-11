@@ -10,8 +10,12 @@
 
 package com.wealdtech.services;
 
-import android.content.Context;
+import android.app.Service;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 import edu.cmu.pocketsphinx.*;
 
@@ -23,7 +27,7 @@ import static android.widget.Toast.makeText;
 /**
  *
  */
-public class EarsServicePocketSphinxImpl extends AbstractEarsService implements RecognitionListener
+public class EarsServicePocketSphinxImpl extends Service implements RecognitionListener
 {
   /* Named searches allow to quickly reconfigure the decoder */
   private static final String KWS_SEARCH = "wakeup";
@@ -37,37 +41,9 @@ public class EarsServicePocketSphinxImpl extends AbstractEarsService implements 
 
   private SpeechRecognizer recognizer;
 
-  private final Context context;
-
-  public EarsServicePocketSphinxImpl(final Context context)
+  public EarsServicePocketSphinxImpl()
   {
     super();
-    this.context = context;
-    new AsyncTask<Void, Void, Exception>() {
-        @Override
-        protected Exception doInBackground(Void... params) {
-            try {
-                Assets assets = new Assets(context);
-                File assetDir = assets.syncAssets();
-                setupRecognizer(assetDir);
-            } catch (IOException e) {
-                return e;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Exception result) {
-            if (result != null) {
-              makeText(context, "Failed to init recognizer " + result, Toast.LENGTH_SHORT).show();
-//                ((TextView) findViewById(R.id.caption_text))
-//                        .setText("Failed to init recognizer " + result);
-            } else {
-                switchSearch(KWS_SEARCH);
-            }
-        }
-    }.execute();
-
   }
 
   @Override
@@ -99,7 +75,7 @@ public class EarsServicePocketSphinxImpl extends AbstractEarsService implements 
     else if (text.equals(FORECAST_SEARCH))
         switchSearch(FORECAST_SEARCH);
     else
-      makeText(context, text, Toast.LENGTH_SHORT).show();
+      makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
   }
 
   private void switchSearch(String searchName) {
@@ -123,7 +99,7 @@ public class EarsServicePocketSphinxImpl extends AbstractEarsService implements 
 //      ((TextView) findViewById(R.id.result_text)).setText("");
       if (hypothesis != null) {
           String text = hypothesis.getHypstr();
-          makeText(context, text, Toast.LENGTH_SHORT).show();
+          makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
       }
   }
 
@@ -172,7 +148,7 @@ public class EarsServicePocketSphinxImpl extends AbstractEarsService implements 
 
   @Override
   public void onError(Exception error) {
-    makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+    makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
   }
 
   @Override
@@ -180,15 +156,69 @@ public class EarsServicePocketSphinxImpl extends AbstractEarsService implements 
       switchSearch(KWS_SEARCH);
   }
 
+//  @Override
+//  public void startListening(final String prompt)
+//  {
+//    super.startListening(prompt);
+//  }
+//
+//  @Override
+//  public void stopListening()
+//  {
+//    super.stopListening();
+//  }
+
+  @Nullable
   @Override
-  public void startListening(final String prompt)
+  public IBinder onBind(final Intent intent)
   {
-    super.startListening(prompt);
+    return null;
   }
 
   @Override
-  public void stopListening()
+  public void onCreate()
   {
-    super.stopListening();
+    super.onCreate();
+
+    Log.e("weald", "onCreate()");
+
+    new AsyncTask<Void, Void, Exception>() {
+      @Override
+      protected Exception doInBackground(Void... params) {
+        try {
+          Assets assets = new Assets(getApplicationContext());
+          File assetDir = assets.syncAssets();
+          setupRecognizer(assetDir);
+        } catch (IOException e) {
+          return e;
+        }
+        return null;
+      }
+
+      @Override
+      protected void onPostExecute(Exception result) {
+        if (result != null) {
+          makeText(getApplicationContext(), "Failed to init recognizer " + result, Toast.LENGTH_SHORT).show();
+          //                ((TextView) findViewById(R.id.caption_text))
+          //                        .setText("Failed to init recognizer " + result);
+        } else {
+          switchSearch(KWS_SEARCH);
+        }
+      }
+    }.execute();
+  }
+
+  @Override
+  public void onDestroy()
+  {
+    Log.e("weald", "onDestroy");
+    super.onDestroy();
+  }
+
+  @Override
+  public int onStartCommand(final Intent intent, final int flags, final int startId)
+  {
+    Log.e("weald", "onStartCommand");
+    return START_STICKY;
   }
 }

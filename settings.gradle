@@ -16,4 +16,5 @@ include 'wealdtech-alarms',
         'wealdtech-fabric',
         'wealdtech-notifications',
         'wealdtech-roberto',
+        'wealdtech-test',
         'wealdtech-tiles'

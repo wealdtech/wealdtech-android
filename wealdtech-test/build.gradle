@@ -1,0 +1,10 @@
+
+apply plugin: 'com.android.application'
+
+dependencies {
+    compile project(':wealdtech-ears:services')
+    compile project(':wealdtech-ears:services:pocketsphinx')
+}
+
+android {
+}

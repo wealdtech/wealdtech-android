@@ -12,6 +12,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/wealdtech-fabric/wealdtech-fabric.iml" filepath="$PROJECT_DIR$/.idea/modules/wealdtech-fabric/wealdtech-fabric.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/wealdtech-notifications/wealdtech-notifications.iml" filepath="$PROJECT_DIR$/.idea/modules/wealdtech-notifications/wealdtech-notifications.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/wealdtech-roberto/wealdtech-roberto.iml" filepath="$PROJECT_DIR$/.idea/modules/wealdtech-roberto/wealdtech-roberto.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/wealdtech-test/wealdtech-test.iml" filepath="$PROJECT_DIR$/.idea/modules/wealdtech-test/wealdtech-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/wealdtech-tiles/wealdtech-tiles.iml" filepath="$PROJECT_DIR$/.idea/modules/wealdtech-tiles/wealdtech-tiles.iml" />
     </modules>
   </component>
