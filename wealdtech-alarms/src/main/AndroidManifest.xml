@@ -16,35 +16,4 @@
 
   <!-- To reinstate alarms after reboot -->
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-  <application
-    android:allowBackup="true"
-    android:label="Alarms"
-    tools:replace="android:label">
-
-  <receiver android:name="AlarmsBootReceiver">
-    <intent-filter>
-      <action android:name="android.intent.action.BOOT_COMPLETED" />
-    </intent-filter>
-  </receiver>
-<!--
-    <activity android:name="com.wealdtech.android.alarms.AlarmsTestActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
-
-    <service
-      android:name="com.wealdtech.android.alarms.AlarmService"
-      android:enabled="true" />
-
-    <receiver android:name="com.wealdtech.android.alarms.AlarmsBootReceiver">
-      <intent-filter>
-        <action android:name="android.intent.action.BOOT_COMPLETED" />
-      </intent-filter>
-    </receiver>
--->
-
-  </application>
 </manifest>
