@@ -17,7 +17,6 @@ import com.wealdtech.roberto.DataProviderState;
 import com.wealdtech.roberto.dataprovider.AbstractDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import retrofit.RetrofitError;
 
 import javax.annotation.Nullable;
 
@@ -62,28 +61,7 @@ public abstract class AbstractNetworkDataProvider<T> extends AbstractDataProvide
         catch (final Exception e)
         {
           LOG.warn("Failed to obtain data from network: {}", e);
-          if (e instanceof RetrofitError)
-          {
-            final RetrofitError re = (RetrofitError)e;
-            LOG.error("Error kind is {}", re.getKind());
-            switch(re.getKind())
-            {
-              case NETWORK:
-                notifyFailure(DataProviderFailure.TRANSPORT);
-                break;
-              case HTTP:
-                notifyFailure(DataProviderFailure.SERVICE);
-                break;
-              default:
-                notifyFailure(DataProviderFailure.FAILED);
-                break;
-            }
-          }
-          else
-          {
-            LOG.error("Exception is {}", e.getClass());
-            notifyFailure(DataProviderFailure.FAILED);
-          }
+          notifyFailure(DataProviderFailure.FAILED);
           return null;
         }
       }
