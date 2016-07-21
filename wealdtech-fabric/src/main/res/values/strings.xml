@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="weald_fragment_default_progress_text">Loading...</string>
+  <string name="weald_fragment_default_empty_text">No information to display</string>
+  <string name="weald_fragment_default_error_text">An error occurred</string>
+</resources>

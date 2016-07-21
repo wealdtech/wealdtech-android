@@ -86,7 +86,7 @@
       <excludeFolder url="file://$MODULE_DIR$/../../../wealdtech-fabric/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/../../../wealdtech-fabric/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
+    <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="wealdtech-core-3.0.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="runner-0.5" level="project" />

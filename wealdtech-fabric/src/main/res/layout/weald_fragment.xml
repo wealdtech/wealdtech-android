@@ -26,29 +26,32 @@
   <FrameLayout
     android:id="@+id/content_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent"
+    android:visibility="gone" />
 
-  <RelativeLayout
+  <LinearLayout
     android:id="@+id/empty_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:visibility="gone">
 
     <TextView
       android:id="@+id/empty_text"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:gravity="center"/>
-  </RelativeLayout>
+      android:layout_height="wrap_content" />
+  </LinearLayout>
 
-  <RelativeLayout
+  <LinearLayout
     android:id="@+id/error_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:visibility="gone">
 
     <TextView
       android:id="@+id/error_text"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:gravity="center"/>
-  </RelativeLayout>
+      android:layout_height="wrap_content" />
+  </LinearLayout>
 </FrameLayout>

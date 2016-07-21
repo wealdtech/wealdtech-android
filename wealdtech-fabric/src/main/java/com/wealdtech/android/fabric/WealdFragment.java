@@ -48,6 +48,10 @@ public abstract class WealdFragment extends Fragment
   private TextView emptyText;
 
   // Temporary stores in case the user has attempted to set up texts before the views have been inflated
+  private View progressViewTmp = null;
+  private View contentViewTmp = null;
+  private View errorViewTmp = null;
+  private View emptyViewTmp = null;
   private String progressTextTmp = null;
   private String errorTextTmp = null;
   private String emptyTextTmp = null;
@@ -59,45 +63,19 @@ public abstract class WealdFragment extends Fragment
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
   {
     final ViewGroup view = (ViewGroup)inflater.inflate(R.layout.weald_fragment, container, false);
+
+    // Obtain our top-level containers
     progressContainer = findById(view, R.id.progress_container);
-    if (progressView == null)
-    {
-      progressView = findById(view, R.id.progress_text);
-    }
-    else
-    {
-      progressContainer.removeAllViews();
-      progressContainer.addView(progressView);
-    }
     contentContainer = findById(view, R.id.content_container);
-    if (contentView != null)
-    {
-      contentContainer.removeAllViews();
-      contentContainer.addView(contentView);
-    }
     emptyContainer = findById(view, R.id.empty_container);
-    if (emptyView == null)
-    {
-      emptyView = findById(view, R.id.empty_text);
-    }
-    else
-    {
-      emptyContainer.removeAllViews();
-      emptyContainer.addView(emptyView);
-    }
     errorContainer = findById(view, R.id.error_container);
-    if (errorView == null)
-    {
-      errorView = findById(view, R.id.error_text);
-    }
-    else
-    {
-      errorContainer.removeAllViews();
-      errorContainer.addView(errorView);
-    }
 
     // Set defaults for our status pages
     progressText = findById(progressContainer, R.id.progress_text);
+    errorText = findById(errorContainer, R.id.error_text);
+    emptyText = findById(emptyContainer, R.id.empty_text);
+
+    // Override the default setup if
     if (progressTextTmp != null)
     {
       progressText.setText(progressTextTmp);
@@ -105,9 +83,8 @@ public abstract class WealdFragment extends Fragment
     }
     else
     {
-      progressText.setText("Loading...");
+      progressText.setText(getResources().getString(R.string.weald_fragment_default_progress_text));
     }
-    errorText = findById(errorContainer, R.id.error_text);
     if (errorTextTmp != null)
     {
       errorText.setText(errorTextTmp);
@@ -115,9 +92,8 @@ public abstract class WealdFragment extends Fragment
     }
     else
     {
-      errorText.setText("Something bad happened :(");
+      errorText.setText(getResources().getString(R.string.weald_fragment_default_error_text));
     }
-    emptyText = findById(emptyContainer, R.id.empty_text);
     if (emptyTextTmp != null)
     {
       emptyText.setText(emptyTextTmp);
@@ -125,11 +101,33 @@ public abstract class WealdFragment extends Fragment
     }
     else
     {
-      emptyText.setText("This page intentionally left blank");
+      emptyText.setText(getResources().getString(R.string.weald_fragment_default_empty_text));
+    }
+
+
+    if (progressViewTmp != null)
+    {
+      setProgressView(progressViewTmp);
+      progressViewTmp = null;
+    }
+    if (contentViewTmp != null)
+    {
+      setContentView(contentViewTmp);
+      contentViewTmp = null;
+    }
+    if (emptyViewTmp != null)
+    {
+      setEmptyView(emptyViewTmp);
+      emptyViewTmp = null;
+    }
+    if (errorViewTmp != null)
+    {
+      setErrorView(errorViewTmp);
+      errorViewTmp = null;
     }
 
     // Display the correct container
-    progressContainer.setVisibility(shown == PROGRESS ? GONE : VISIBLE);
+    progressContainer.setVisibility(shown == PROGRESS ? VISIBLE : GONE);
     contentContainer.setVisibility(shown == CONTENT ? VISIBLE : GONE);
     emptyContainer.setVisibility(shown == EMPTY ? VISIBLE : GONE);
     errorContainer.setVisibility(shown == ERROR ? VISIBLE : GONE);
@@ -143,7 +141,9 @@ public abstract class WealdFragment extends Fragment
     progressText = null;
     contentContainer = null;
     emptyContainer = null;
+    emptyText = null;
     errorContainer = null;
+    errorText = null;
     super.onDestroyView();
   }
 
@@ -219,8 +219,8 @@ public abstract class WealdFragment extends Fragment
   @SuppressWarnings("unchecked")
   public <T extends View> T setProgressView(final int layoutResId)
   {
-    LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    T progressView = (T)layoutInflater.inflate(layoutResId, null);
+    final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+    final T progressView = (T)layoutInflater.inflate(layoutResId, null);
     setProgressView(progressView);
     return progressView;
   }
@@ -230,7 +230,11 @@ public abstract class WealdFragment extends Fragment
     checkState(view != null, "Cannot set progress to NULL");
     checkState(view instanceof ViewGroup, "Cannot use non-container for progress");
 
-    if (progressContainer != null)
+    if (progressContainer == null)
+    {
+      progressViewTmp = view;
+    }
+    else
     {
       if (progressView == null)
       {
@@ -243,15 +247,15 @@ public abstract class WealdFragment extends Fragment
         progressContainer.removeView(progressView);
         progressContainer.addView(view, index);
       }
+      progressView = view;
     }
-    progressView = view;
   }
 
   @SuppressWarnings("unchecked")
   public <T extends View> T setContentView(final int layoutResId)
   {
-    LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    T contentView = (T)layoutInflater.inflate(layoutResId, null);
+    final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+    final T contentView = (T)layoutInflater.inflate(layoutResId, null);
     setContentView(contentView);
     return contentView;
   }
@@ -261,7 +265,11 @@ public abstract class WealdFragment extends Fragment
     checkState(view != null, "Cannot set content to NULL");
     checkState(view instanceof ViewGroup, "Cannot use non-container for content");
 
-    if (contentContainer != null)
+    if (contentContainer == null)
+    {
+      contentViewTmp = view;
+    }
+    else
     {
       if (contentView == null)
       {
@@ -274,15 +282,15 @@ public abstract class WealdFragment extends Fragment
         contentContainer.removeView(contentView);
         contentContainer.addView(view, index);
       }
+      contentView = view;
     }
-    contentView = view;
   }
 
   @SuppressWarnings("unchecked")
   public <T extends View> T setErrorView(final int layoutResId)
   {
-    LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    T errorView = (T)layoutInflater.inflate(layoutResId, null);
+    final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+    final T errorView = (T)layoutInflater.inflate(layoutResId, null);
     setErrorView(errorView);
     return errorView;
   }
@@ -292,7 +300,11 @@ public abstract class WealdFragment extends Fragment
     checkState(view != null, "Cannot set error content to NULL");
     checkState(view instanceof ViewGroup, "Cannot use non-container for error content");
 
-    if (errorContainer != null)
+    if (errorContainer == null)
+    {
+      errorViewTmp = view;
+    }
+    else
     {
       if (errorView == null)
       {
@@ -305,15 +317,15 @@ public abstract class WealdFragment extends Fragment
         errorContainer.removeView(errorView);
         errorContainer.addView(view, index);
       }
+      errorView = view;
     }
-    errorView = view;
   }
 
   @SuppressWarnings("unchecked")
   public <T extends View> T setEmptyView(final int layoutResId)
   {
-    LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    T emptyView = (T)layoutInflater.inflate(layoutResId, null);
+    final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+    final T emptyView = (T)layoutInflater.inflate(layoutResId, null);
     setEmptyView(emptyView);
     return emptyView;
   }
@@ -323,7 +335,11 @@ public abstract class WealdFragment extends Fragment
     checkState(view != null, "Cannot set empty content to NULL");
     checkState(view instanceof ViewGroup, "Cannot use non-container for empty content");
 
-    if (emptyContainer != null)
+    if (emptyContainer == null)
+    {
+      emptyViewTmp = view;
+    }
+    else
     {
       if (emptyView == null)
       {
@@ -332,12 +348,11 @@ public abstract class WealdFragment extends Fragment
       else
       {
         final int index = emptyContainer.indexOfChild(emptyView);
-        // replace existing view
         emptyContainer.removeView(emptyView);
         emptyContainer.addView(view, index);
       }
+      emptyView = view;
     }
-    emptyView = view;
   }
 
   public boolean isContentShown(){ return shown == CONTENT; }
