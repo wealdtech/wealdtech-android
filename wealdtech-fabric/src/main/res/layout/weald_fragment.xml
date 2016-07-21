@@ -28,4 +28,14 @@
     android:id="@+id/content_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent" />
+
+  <FrameLayout
+    android:id="@+id/empty_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+  <FrameLayout
+    android:id="@+id/error_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
 </FrameLayout>
