@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.wealdtech.ServerError;
 import org.slf4j.Logger;
@@ -28,20 +27,31 @@ public abstract class WealdFragment extends Fragment
 {
   private static final Logger LOG = LoggerFactory.getLogger(WealdFragment.class);
 
-  public static final int PROGRESS = 1;
-  public static final int CONTENT = 2;
-  public static final int EMPTY = 3;
-  public static final int ERROR = 4;
+  private static final int PROGRESS = 1;
+  private static final int CONTENT = 2;
+  private static final int EMPTY = 3;
+  private static final int ERROR = 4;
 
-  private LinearLayout progressContainer;
-  private String pendingText = null;
-  private TextView progressText;
+  private ViewGroup progressContainer;
   private ViewGroup contentContainer;
   private ViewGroup emptyContainer;
   private ViewGroup errorContainer;
+
+  private View progressView;
   private View contentView;
   private View errorView;
   private View emptyView;
+
+  // Direct access to the textviews in our default layouts
+  private TextView progressText;
+  private TextView errorText;
+  private TextView emptyText;
+
+  // Temporary stores in case the user has attempted to set up texts before the views have been inflated
+  private String progressTextTmp = null;
+  private String errorTextTmp = null;
+  private String emptyTextTmp = null;
+  
   // The current shown content
   private int shown;
 
@@ -50,15 +60,72 @@ public abstract class WealdFragment extends Fragment
   {
     final ViewGroup view = (ViewGroup)inflater.inflate(R.layout.weald_fragment, container, false);
     progressContainer = findById(view, R.id.progress_container);
-    contentContainer = findById(view, R.id.content_container);
-    emptyContainer = findById(view, R.id.empty_container);
-    errorContainer = findById(view, R.id.error_container);
-
-    progressText = findById(progressContainer, R.id.progress_text);
-    if (pendingText != null)
+    if (progressView == null)
     {
-      progressText.setText(pendingText);
-      pendingText = null;
+      progressView = findById(view, R.id.progress_text);
+    }
+    else
+    {
+      progressContainer.removeAllViews();
+      progressContainer.addView(progressView);
+    }
+    contentContainer = findById(view, R.id.content_container);
+    if (contentView != null)
+    {
+      contentContainer.removeAllViews();
+      contentContainer.addView(contentView);
+    }
+    emptyContainer = findById(view, R.id.empty_container);
+    if (emptyView == null)
+    {
+      emptyView = findById(view, R.id.empty_text);
+    }
+    else
+    {
+      emptyContainer.removeAllViews();
+      emptyContainer.addView(emptyView);
+    }
+    errorContainer = findById(view, R.id.error_container);
+    if (errorView == null)
+    {
+      errorView = findById(view, R.id.error_text);
+    }
+    else
+    {
+      errorContainer.removeAllViews();
+      errorContainer.addView(errorView);
+    }
+
+    // Set defaults for our status pages
+    progressText = findById(progressContainer, R.id.progress_text);
+    if (progressTextTmp != null)
+    {
+      progressText.setText(progressTextTmp);
+      progressTextTmp = null;
+    }
+    else
+    {
+      progressText.setText("Loading...");
+    }
+    errorText = findById(errorContainer, R.id.error_text);
+    if (errorTextTmp != null)
+    {
+      errorText.setText(errorTextTmp);
+      errorTextTmp = null;
+    }
+    else
+    {
+      errorText.setText("Something bad happened :(");
+    }
+    emptyText = findById(emptyContainer, R.id.empty_text);
+    if (emptyTextTmp != null)
+    {
+      emptyText.setText(emptyTextTmp);
+      emptyTextTmp = null;
+    }
+    else
+    {
+      emptyText.setText("This page intentionally left blank");
     }
 
     // Display the correct container
@@ -149,7 +216,36 @@ public abstract class WealdFragment extends Fragment
     return res;
   }
 
-  // Methods to handle setting content view for the fragment, and displaying the wait state
+  @SuppressWarnings("unchecked")
+  public <T extends View> T setProgressView(final int layoutResId)
+  {
+    LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+    T progressView = (T)layoutInflater.inflate(layoutResId, null);
+    setProgressView(progressView);
+    return progressView;
+  }
+
+  public void setProgressView(final View view)
+  {
+    checkState(view != null, "Cannot set progress to NULL");
+    checkState(view instanceof ViewGroup, "Cannot use non-container for progress");
+
+    if (progressContainer != null)
+    {
+      if (progressView == null)
+      {
+        progressContainer.addView(view);
+      }
+      else
+      {
+        final int index = progressContainer.indexOfChild(progressView);
+        // replace progress view
+        progressContainer.removeView(progressView);
+        progressContainer.addView(view, index);
+      }
+    }
+    progressView = view;
+  }
 
   @SuppressWarnings("unchecked")
   public <T extends View> T setContentView(final int layoutResId)
@@ -165,16 +261,19 @@ public abstract class WealdFragment extends Fragment
     checkState(view != null, "Cannot set content to NULL");
     checkState(view instanceof ViewGroup, "Cannot use non-container for content");
 
-    if (contentView == null)
+    if (contentContainer != null)
     {
-      contentContainer.addView(view);
-    }
-    else
-    {
-      final int index = contentContainer.indexOfChild(contentView);
-      // replace content view
-      contentContainer.removeView(contentView);
-      contentContainer.addView(view, index);
+      if (contentView == null)
+      {
+        contentContainer.addView(view);
+      }
+      else
+      {
+        final int index = contentContainer.indexOfChild(contentView);
+        // replace content view
+        contentContainer.removeView(contentView);
+        contentContainer.addView(view, index);
+      }
     }
     contentView = view;
   }
@@ -193,16 +292,19 @@ public abstract class WealdFragment extends Fragment
     checkState(view != null, "Cannot set error content to NULL");
     checkState(view instanceof ViewGroup, "Cannot use non-container for error content");
 
-    if (errorView == null)
+    if (errorContainer != null)
     {
-      errorContainer.addView(view);
-    }
-    else
-    {
-      final int index = errorContainer.indexOfChild(errorView);
-      // replace existing view
-      errorContainer.removeView(errorView);
-      errorContainer.addView(view, index);
+      if (errorView == null)
+      {
+        errorContainer.addView(view);
+      }
+      else
+      {
+        final int index = errorContainer.indexOfChild(errorView);
+        // replace existing view
+        errorContainer.removeView(errorView);
+        errorContainer.addView(view, index);
+      }
     }
     errorView = view;
   }
@@ -221,16 +323,19 @@ public abstract class WealdFragment extends Fragment
     checkState(view != null, "Cannot set empty content to NULL");
     checkState(view instanceof ViewGroup, "Cannot use non-container for empty content");
 
-    if (emptyView == null)
+    if (emptyContainer != null)
     {
-      emptyContainer.addView(view);
-    }
-    else
-    {
-      final int index = emptyContainer.indexOfChild(emptyView);
-      // replace existing view
-      emptyContainer.removeView(emptyView);
-      emptyContainer.addView(view, index);
+      if (emptyView == null)
+      {
+        emptyContainer.addView(view);
+      }
+      else
+      {
+        final int index = emptyContainer.indexOfChild(emptyView);
+        // replace existing view
+        emptyContainer.removeView(emptyView);
+        emptyContainer.addView(view, index);
+      }
     }
     emptyView = view;
   }
@@ -262,8 +367,7 @@ public abstract class WealdFragment extends Fragment
     if ((toShow == PROGRESS && progressContainer == null) || (toShow == CONTENT && contentContainer == null) ||
         (toShow == ERROR && errorContainer == null) || (toShow == EMPTY && emptyContainer == null))
     {
-      // It is possible that we have been called prior to the views being inflated.  This is fine; we leave a note as
-      // to which view is to be shown and it will be handled in onCreateView()
+      // We are here before onCreateView() has been called.  This is fine; remember the text and let onCreateView() handle it
       shown = toShow;
       return;
     }
@@ -368,14 +472,17 @@ public abstract class WealdFragment extends Fragment
     shown = toShow;
   }
 
-  public void setWaitingText(final String text)
+  public void setProgressText(final int resId)
   {
-    // Because setWaitingText() is commonly called in loaders, which are commonly set up in onCreate(), there
-    // is no guarantee that our view is set up yet.  Our onCreateView() handles this situation by setting the
-    // text if present
+    setProgressText(getResources().getString(resId));
+  }
+
+  public void setProgressText(final String text)
+  {
     if (progressText == null)
     {
-      pendingText = text;
+      // We are here before onCreateView() has been called.  This is fine; remember the text and let onCreateView() handle it
+      progressTextTmp = text;
     }
     else
     {
@@ -383,8 +490,39 @@ public abstract class WealdFragment extends Fragment
     }
   }
 
-  public void setWaitingText(final int resId)
+  public void setErrorText(final String text)
   {
-    setWaitingText(getResources().getString(resId));
+    if (errorText == null)
+    {
+      // We are here before onCreateView() has been called.  This is fine; remember the text and let onCreateView() handle it
+      errorTextTmp = text;
+    }
+    else
+    {
+      errorText.setText(text);
+    }
+  }
+
+  public void setErrorText(final int resId)
+  {
+    setErrorText(getResources().getString(resId));
+  }
+
+  public void setEmptyText(final String text)
+  {
+    if (emptyText == null)
+    {
+      // We are here before onCreateView() has been called.  This is fine; remember the text and let onCreateView() handle it
+      emptyTextTmp = text;
+    }
+    else
+    {
+      emptyText.setText(text);
+    }
+  }
+
+  public void setEmptyText(final int resId)
+  {
+    setEmptyText(getResources().getString(resId));
   }
 }
