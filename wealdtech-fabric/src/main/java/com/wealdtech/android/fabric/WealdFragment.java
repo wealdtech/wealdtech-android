@@ -1,6 +1,8 @@
 package com.wealdtech.android.fabric;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,7 @@ import static com.wealdtech.Preconditions.checkState;
  * A fragment with additional features:
  * <ul>
  *   <li>Separate content views for progress, display, error and no data (empty)</li>
+ *   <li>Floating action button</li>
  * </ul>
  */
 public abstract class WealdFragment extends Fragment
@@ -41,6 +44,9 @@ public abstract class WealdFragment extends Fragment
   private View contentView;
   private View errorView;
   private View emptyView;
+
+  private FloatingActionButton contentFAB;
+  private FloatingActionButton emptyFAB;
 
   // Direct access to the textviews in our default layouts
   private TextView progressText;
@@ -69,6 +75,10 @@ public abstract class WealdFragment extends Fragment
     contentContainer = findById(view, R.id.content_container);
     emptyContainer = findById(view, R.id.empty_container);
     errorContainer = findById(view, R.id.error_container);
+
+    // obtain our FABs
+    contentFAB = findById(view, R.id.content_fab);
+    emptyFAB = findById(view, R.id.empty_fab);
 
     // Set defaults for our status pages
     progressText = findById(progressContainer, R.id.progress_text);
@@ -145,6 +155,46 @@ public abstract class WealdFragment extends Fragment
     errorContainer = null;
     errorText = null;
     super.onDestroyView();
+  }
+
+  /**
+   * Set the visibilty of the floating action button for both empty and content views
+   * @param visibility the visibility
+   */
+  public void setFABVisibility(final int visibility)
+  {
+    contentFAB.setVisibility(visibility);
+    emptyFAB.setVisibility(visibility);
+  }
+
+  /**
+   * Set the icon of the floating action button for both empty and content views
+   * @param resId the resource ID of the icon
+   */
+  public void setFABIcon(final int resId)
+  {
+    contentFAB.setImageResource(resId);
+    emptyFAB.setImageResource(resId);
+  }
+
+  /**
+   * Set the icon of the floating action button for both empty and content views
+   * @param drawable the drawable
+   */
+  public void setFABIcon(final Drawable drawable)
+  {
+    contentFAB.setImageDrawable(drawable);
+    emptyFAB.setImageDrawable(drawable);
+  }
+
+  /**
+   * Set the onClick listener of the floating action button for both empty and content views
+   * @param listener the listener
+   */
+  public void setFABOnClickListener(final View.OnClickListener listener)
+  {
+    contentFAB.setOnClickListener(listener);
+    emptyFAB.setOnClickListener(listener);
   }
 
   @SuppressWarnings("unchecked")
