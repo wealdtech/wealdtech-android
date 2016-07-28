@@ -266,13 +266,15 @@ public abstract class WealdFragment extends Fragment
     return res;
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends View> T setProgressView(final int layoutResId)
+  public void setProgressView(final int layoutResId)
   {
     final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    final T progressView = (T)layoutInflater.inflate(layoutResId, null);
-    setProgressView(progressView);
-    return progressView;
+    if (progressView != null)
+    {
+      progressContainer.removeView(progressView);
+    }
+    layoutInflater.inflate(layoutResId, progressContainer);
+    progressView = progressContainer.findViewById(layoutResId);
   }
 
   public void setProgressView(final View view)
@@ -301,13 +303,15 @@ public abstract class WealdFragment extends Fragment
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends View> T setContentView(final int layoutResId)
+  public void setContentView(final int layoutResId)
   {
     final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    final T contentView = (T)layoutInflater.inflate(layoutResId, null);
-    setContentView(contentView);
-    return contentView;
+    if (contentView != null)
+    {
+      contentContainer.removeView(contentView);
+    }
+    layoutInflater.inflate(layoutResId, contentContainer);
+    contentView = contentContainer.findViewById(layoutResId);
   }
 
   public void setContentView(final View view)
@@ -336,13 +340,15 @@ public abstract class WealdFragment extends Fragment
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends View> T setErrorView(final int layoutResId)
+  public void setErrorView(final int layoutResId)
   {
     final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    final T errorView = (T)layoutInflater.inflate(layoutResId, null);
-    setErrorView(errorView);
-    return errorView;
+    if (errorView != null)
+    {
+      errorContainer.removeView(errorView);
+    }
+    layoutInflater.inflate(layoutResId, errorContainer);
+    errorView = errorContainer.findViewById(layoutResId);
   }
 
   public void setErrorView(final View view)
@@ -371,13 +377,15 @@ public abstract class WealdFragment extends Fragment
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public <T extends View> T setEmptyView(final int layoutResId)
+  public void setEmptyView(final int layoutResId)
   {
     final LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-    final T emptyView = (T)layoutInflater.inflate(layoutResId, null);
-    setEmptyView(emptyView);
-    return emptyView;
+    if (emptyView != null)
+    {
+      emptyContainer.removeView(emptyView);
+    }
+    layoutInflater.inflate(layoutResId, emptyContainer);
+    emptyView = emptyContainer.findViewById(layoutResId);
   }
 
   public void setEmptyView(final View view)
