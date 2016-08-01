@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -69,6 +70,7 @@ public abstract class WealdFragment extends Fragment
   public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState)
   {
     final ViewGroup view = (ViewGroup)inflater.inflate(R.layout.weald_fragment, container, false);
+    checkState(view != null, "Failed to obtain view");
 
     // Obtain our top-level containers
     progressContainer = findById(view, R.id.progress_container);
