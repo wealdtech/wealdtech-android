@@ -18,7 +18,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.1.0'
+    classpath 'com.android.tools.build:gradle:2.1.2'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
     classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
   }
@@ -46,7 +46,7 @@ subprojects {
   afterEvaluate {
     dependencies {
       compile 'com.android.support:multidex:'
-      compile 'com.android.support:appcompat-v7:23.3.0'
+      compile 'com.android.support:appcompat-v7:24.1.1'
       compile('com.wealdtech:wealdtech-jackson:3.0.0') {
         exclude group: 'com.google.guava'
       }
@@ -62,7 +62,7 @@ subprojects {
       // Code includes JSR305 at level 3.0.1 but espresso-core includes it at level 2.0.1 so we need to include 3.0.1 here to avoid JAR clashes
       androidTestCompile 'com.google.code.findbugs:jsr305:3.0.1'
       // Ditto android support annotations
-      androidTestCompile 'com.android.support:support-annotations:23.3.0'
+      androidTestCompile 'com.android.support:support-annotations:24.1.1'
 
       androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2') {
         exclude group: 'junit'

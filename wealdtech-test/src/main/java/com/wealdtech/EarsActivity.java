@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.wealdtech.services.EarsServicePocketSphinxImpl;
 import com.wealdtech.services.SpeechRecognitionService;
+import com.wealdtech.android.test.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +23,9 @@ import java.util.Locale;
 
 /**
  */
-public class TestActivity extends Activity
+public class EarsActivity extends Activity
 {
-  private static final String TAG = "WealdTest";
+  private static final String TAG = "Ears";
 
   private ListView wordsList;
 
