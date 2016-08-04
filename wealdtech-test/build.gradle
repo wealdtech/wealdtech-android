@@ -5,6 +5,7 @@ dependencies {
     compile project(':wealdtech-ears:services')
     compile project(':wealdtech-ears:services:pocketsphinx')
     compile project(':wealdtech-pay')
+    compile project(':wealdtech-pay:manual')
 }
 
 android {

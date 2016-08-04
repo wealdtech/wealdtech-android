@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.BooleanResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -15,6 +16,7 @@ import com.google.android.gms.wallet.fragment.SupportWalletFragment;
 import com.google.android.gms.wallet.fragment.WalletFragmentInitParams;
 import com.google.common.base.Objects;
 import com.wealdtech.android.test.R;
+import com.wealdtech.pay.PayManualFragment;
 
 /**
  * A sample activity using wealdtech-pay
@@ -34,6 +36,7 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
   private GoogleApiClient googleApiClient;
 
   private SupportWalletFragment walletFragment;
+  private PayManualFragment manualFragment;
 
   public void onCreate(Bundle savedInstanceState)
   {
@@ -48,6 +51,10 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
                                                        .addApi(Wallet.API, walletOptions)
                                                        .build();
 
+    manualFragment = (PayManualFragment)getSupportFragmentManager().findFragmentById(R.id.manual_fragment);
+    walletFragment = (SupportWalletFragment)getSupportFragmentManager().findFragmentById(R.id.wallet_fragment);
+    setContentView(R.layout.pay_activity);
+
     Wallet.Payments.isReadyToPay(googleApiClient).setResultCallback(new ResultCallback<BooleanResult>()
     {
       @Override
@@ -61,6 +68,7 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
           }
           else
           {
+            hideAndroidPay();
             // Hide Android Pay buttons, show a message that Android Pay
             // cannot be used yet, and display a traditional checkout button
           }
@@ -75,12 +83,13 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
 
   }
 
+  private void hideAndroidPay()
+  {
+    findViewById(R.id.wallet_fragment).setVisibility(View.GONE);
+  }
+
   public void showAndroidPay()
   {
-    setContentView(R.layout.pay_activity);
-
-    walletFragment = (SupportWalletFragment)getSupportFragmentManager().findFragmentById(R.id.wallet_fragment);
-
     MaskedWalletRequest maskedWalletRequest;
     maskedWalletRequest = MaskedWalletRequest.newBuilder()
                                              // Request credit card tokenization with Stripe by specifying tokenization parameters:

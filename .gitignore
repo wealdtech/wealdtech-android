@@ -26,7 +26,7 @@ local.properties
 .idea/vcs.xml
 .idea/gradle.xml
 .idea/libraries
-.idea/modules
+.idea/modules/
 .idea/modules.xml
 
 # Gradle
