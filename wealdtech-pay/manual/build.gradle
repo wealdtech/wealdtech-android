@@ -9,6 +9,10 @@
  */
 apply plugin: 'com.android.library'
 
+repositories {
+  maven { url "https://jitpack.io" }
+}
+
 dependencies {
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.android.support:cardview-v7:24.1.1'
@@ -18,4 +22,7 @@ dependencies {
 
     // Card scanning
     compile 'io.card:android-sdk:5.4.0'
+
+    // Manual entry
+    compile 'com.github.dbachelder:CreditCardEntry:1.4.7'
 }

@@ -1,10 +1,12 @@
 package com.wealdtech;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
@@ -50,10 +52,18 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
                                                        .addOnConnectionFailedListener(this)
                                                        .addApi(Wallet.API, walletOptions)
                                                        .build();
+    setContentView(R.layout.pay_activity);
+  }
+
+  @Override
+  public View onCreateView(final View parent, final String name, final Context context, final AttributeSet attrs)
+  {
+    final View view = super.onCreateView(parent, name, context, attrs);
 
     manualFragment = (PayManualFragment)getSupportFragmentManager().findFragmentById(R.id.manual_fragment);
+    Log.e("Pay", "Manual fragment is " + manualFragment);
     walletFragment = (SupportWalletFragment)getSupportFragmentManager().findFragmentById(R.id.wallet_fragment);
-    setContentView(R.layout.pay_activity);
+    Log.e("Pay", "Wallet fragment is " + walletFragment);
 
     Wallet.Payments.isReadyToPay(googleApiClient).setResultCallback(new ResultCallback<BooleanResult>()
     {
@@ -81,6 +91,7 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
       }
     });
 
+    return view;
   }
 
   private void hideAndroidPay()
@@ -132,6 +143,7 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
   protected void onActivityResult(int requestCode, int resultCode, Intent data)
   {
     super.onActivityResult(requestCode, resultCode, data);
+    manualFragment.onActivityResult(requestCode, resultCode, data);
 
     if (requestCode == LOAD_MASKED_WALLET_REQUEST_CODE)
     { // Unique, identifying constant

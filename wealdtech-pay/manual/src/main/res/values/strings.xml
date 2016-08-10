@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="pay_manual_button_label">Enter card details</string>
+    <string name="pay_manual_scan_label">Scan card</string>
 </resources>

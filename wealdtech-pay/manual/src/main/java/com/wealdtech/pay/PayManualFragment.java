@@ -10,17 +10,24 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import com.wealdtech.android.pay.manual.R;
 import io.card.payment.CardIOActivity;
+import io.card.payment.CreditCard;
 
 /**
- * A fragment that provides a button for manually obtaining credit card information
+ * A fragment that provides a button for manually obtaining credit card information.
+ * To implement this fully it is required that the calling activity calls this fragment's
+ * onActivityResult() method.
  */
-public class PayManualFragment extends Fragment implements View.OnClickListener
+public class PayManualFragment extends Fragment
 {
-  public static final int PAY_CARD_DATA_RESULT = 1432;
+  private static final int PAY_CARD_DATA_RESULT = 1432;
 
-  private Button button;
+  private String cardNumber;
+  private String cardholderName;
+  private Integer expiryMonth;
+  private Integer expiryYear;
+  private String cvv;
 
-  public PayManualFragment() {}
+  public PayManualFragment(){}
 
   @Override
   public void onCreate(@Nullable final Bundle savedInstanceState)
@@ -35,8 +42,31 @@ public class PayManualFragment extends Fragment implements View.OnClickListener
                            @Nullable final Bundle savedInstanceState)
   {
     final View view = inflater.inflate(R.layout.pay_manual_fragment, container, false);
-    button = (Button)view.findViewById(R.id.pay_manual_button);
-    button.setOnClickListener(this);
+    final Button scanButton = (Button)view.findViewById(R.id.pay_manual_scan_button);
+    scanButton.setOnClickListener(new View.OnClickListener()
+    {
+      @Override
+      public void onClick(final View view)
+      {
+        Intent scanIntent = new Intent(getContext(), CardIOActivity.class);
+
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_EXPIRY, true);
+        scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_CVV, true);
+
+        startActivityForResult(scanIntent, PAY_CARD_DATA_RESULT);
+      }
+    });
+
+//    typeButton = (Button)view.findViewById(R.id.pay_manual_type_button);
+//    typeButton.setOnClickListener(new View.OnClickListener()
+//    {
+//      @Override
+//      public void onClick(final View view)
+//      {
+//        Log.e("PayManual", "Not implemented");
+//      }
+//    });
+
     return view;
   }
 
@@ -45,17 +75,52 @@ public class PayManualFragment extends Fragment implements View.OnClickListener
     return new PayManualFragment();
   }
 
-  @Override
-  public void onClick(final View view)
+  public void onActivityResult(final int requestCode, final int resultCode, final Intent data)
   {
-    Intent scanIntent = new Intent(getContext(), CardIOActivity.class);
+    boolean success = false;
+    if (requestCode == PAY_CARD_DATA_RESULT)
+    {
+      if (data != null && data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT))
+      {
+        final CreditCard scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT);
+        cardNumber = scanResult.cardNumber;
+        cardholderName = scanResult.cardholderName;
+        expiryMonth = scanResult.expiryMonth;
+        expiryYear = scanResult.expiryYear;
+        cvv = scanResult.cvv;
+        success = true;
+      }
+    }
+    if (!success)
+    {
+      // Wipe the last information
+      cardNumber = cardholderName = cvv = null;
+      expiryMonth = expiryYear = null;
+    }
+  }
 
-    // customize these values to suit your needs.
-    scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_EXPIRY, true); // default: false
-    scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_CVV, false); // default: false
-    scanIntent.putExtra(CardIOActivity.EXTRA_REQUIRE_POSTAL_CODE, false); // default: false
+  public String getCardNumber()
+  {
+    return cardNumber;
+  }
 
-    // MY_SCAN_REQUEST_CODE is arbitrary and is only used within this activity.
-    startActivityForResult(scanIntent, PAY_CARD_DATA_RESULT);
+  public String getCardholderName()
+  {
+    return cardholderName;
+  }
+
+  public String getCvv()
+  {
+    return cvv;
+  }
+
+  public Integer getExpiryMonth()
+  {
+    return expiryMonth;
+  }
+
+  public Integer getExpiryYear()
+  {
+    return expiryYear;
   }
 }
