@@ -19,20 +19,25 @@ buildscript {
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:2.1.2'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
     classpath 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
   }
 }
 
-subprojects {
+def javaProjects()
+{
+  return subprojects.findAll { new File(it.projectDir, "src").exists() }
+}
+
+configure(javaProjects()) {
   apply plugin: 'maven'
   apply plugin: 'me.tatarka.retrolambda'
+  apply plugin: 'com.github.ben-manes.versions'
 
   repositories {
     mavenCentral()
     mavenLocal()
     maven { url "https://jitpack.io" }
-
   }
 
   group = 'com.wealdtech.android'
@@ -47,7 +52,6 @@ subprojects {
   // until the submodule's build.gradle
   afterEvaluate {
     dependencies {
-      compile 'com.android.support:multidex:'
       compile 'com.android.support:appcompat-v7:24.1.1'
       compile('com.wealdtech:wealdtech-jackson:3.0.0') {
         exclude group: 'com.google.guava'
@@ -91,7 +95,7 @@ subprojects {
 
     android {
       compileSdkVersion 24
-      buildToolsVersion "24"
+      buildToolsVersion "24.0.1"
 
       compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7

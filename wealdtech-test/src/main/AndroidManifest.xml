@@ -9,7 +9,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/appname"
-        android:theme="@style/Theme.AppCompat">
+        android:theme="@style/Theme.AppCompat.Light">
 
         <activity
             android:name="com.wealdtech.PayActivity"

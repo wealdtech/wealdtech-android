@@ -11,5 +11,5 @@ apply plugin: 'com.android.library'
 
 dependencies {
   // For the floating action button
-  compile 'com.android.support:design:24.0.0'
+  compile 'com.android.support:design:24.1.1'
 }
