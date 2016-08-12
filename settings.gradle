@@ -9,6 +9,7 @@
  */
 
 include 'wealdtech-alarms',
+        'wealdtech-components',
         'wealdtech-ears:model',
         'wealdtech-ears:services',
         'wealdtech-ears:services:google',

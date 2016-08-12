@@ -7,10 +7,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.Spinner;
+import com.wealdtech.android.CountryAdapter;
+import com.wealdtech.android.NationalityAdapter;
 import com.wealdtech.android.pay.manual.R;
 import io.card.payment.CardIOActivity;
 import io.card.payment.CreditCard;
+
+import java.util.Locale;
 
 /**
  * A fragment that provides a button for manually obtaining credit card information.
@@ -57,7 +63,36 @@ public class PayManualFragment extends Fragment
       }
     });
 
-//    typeButton = (Button)view.findViewById(R.id.pay_manual_type_button);
+    final Spinner nationalitySpinner = (Spinner)view.findViewById(R.id.pay_manual_nationality);
+    final NationalityAdapter nationalityAdapter = new NationalityAdapter(getContext());
+    nationalitySpinner.setAdapter(nationalityAdapter);
+    nationalitySpinner.setSelection(nationalityAdapter.positionForCode(Locale.getDefault().getCountry()));
+    nationalitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
+      {
+      }
+
+      @Override
+      public void onNothingSelected(final AdapterView<?> adapterView){}
+    });
+
+
+    final Spinner residenceSpinner = (Spinner)view.findViewById(R.id.pay_manual_residence);
+    final CountryAdapter residenceAdapter = new CountryAdapter(getContext());
+    residenceSpinner.setAdapter(residenceAdapter);
+    residenceSpinner.setSelection(residenceAdapter.positionForCode(Locale.getDefault().getCountry()));
+    residenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
+      {
+      }
+
+      @Override
+      public void onNothingSelected(final AdapterView<?> adapterView){}
+    });
+
+    //    typeButton = (Button)view.findViewById(R.id.pay_manual_type_button);
 //    typeButton.setOnClickListener(new View.OnClickListener()
 //    {
 //      @Override
