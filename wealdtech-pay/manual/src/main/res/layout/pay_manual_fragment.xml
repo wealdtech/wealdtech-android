@@ -80,7 +80,7 @@
             android:layout_column="0"
             android:gravity="center_vertical" />
 
-        <Button
+        <com.wealdtech.android.DateView
             android:id="@+id/pay_manual_dob"
             android:layout_row="4"
             android:layout_column="1"
