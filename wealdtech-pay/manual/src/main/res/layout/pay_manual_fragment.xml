@@ -131,7 +131,7 @@
             android:layout_height="wrap_content" />
 
         <com.devmarvel.creditcardentry.library.CreditCardForm
-            android:id="@+id/credit_card_form"
+            android:id="@+id/pay_manual_card"
             android:layout_row="8"
             android:layout_column="0"
             android:layout_columnSpan="2"

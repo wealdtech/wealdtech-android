@@ -4,17 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatSpinner;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.Spinner;
+import android.widget.TextView;
+import com.devmarvel.creditcardentry.library.CreditCardForm;
 import com.wealdtech.android.CountryAdapter;
+import com.wealdtech.android.DateView;
 import com.wealdtech.android.NationalityAdapter;
 import com.wealdtech.android.pay.manual.R;
 import io.card.payment.CardIOActivity;
 import io.card.payment.CreditCard;
+import org.joda.time.LocalDate;
+import org.joda.time.YearMonth;
 
 import java.util.Locale;
 
@@ -27,11 +33,13 @@ public class PayManualFragment extends Fragment
 {
   private static final int PAY_CARD_DATA_RESULT = 1432;
 
-  private String cardNumber;
-  private String cardholderName;
-  private Integer expiryMonth;
-  private Integer expiryYear;
-  private String cvv;
+  private TextView firstName;
+  private TextView lastName;
+  private TextView email;
+  private DateView dob;
+  private AppCompatSpinner nationality;
+  private AppCompatSpinner residence;
+  private CreditCardForm card;
 
   public PayManualFragment(){}
 
@@ -48,6 +56,15 @@ public class PayManualFragment extends Fragment
                            @Nullable final Bundle savedInstanceState)
   {
     final View view = inflater.inflate(R.layout.pay_manual_fragment, container, false);
+
+    firstName = (TextView)view.findViewById(R.id.pay_manual_firstname);
+    lastName = (TextView)view.findViewById(R.id.pay_manual_lastname);
+    email = (TextView)view.findViewById(R.id.pay_manual_email);
+    dob = (DateView)view.findViewById(R.id.pay_manual_dob);
+    nationality = (AppCompatSpinner)view.findViewById(R.id.pay_manual_nationality);
+    residence = (AppCompatSpinner)view.findViewById(R.id.pay_manual_residence);
+    card = (CreditCardForm)view.findViewById(R.id.pay_manual_card);
+
     final Button scanButton = (Button)view.findViewById(R.id.pay_manual_scan_button);
     scanButton.setOnClickListener(new View.OnClickListener()
     {
@@ -63,14 +80,14 @@ public class PayManualFragment extends Fragment
       }
     });
 
-    final Spinner nationalitySpinner = (Spinner)view.findViewById(R.id.pay_manual_nationality);
     final NationalityAdapter nationalityAdapter = new NationalityAdapter(getContext());
-    nationalitySpinner.setAdapter(nationalityAdapter);
-    nationalitySpinner.setSelection(nationalityAdapter.positionForCode(Locale.getDefault().getCountry()));
-    nationalitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    nationality.setAdapter(nationalityAdapter);
+    nationality.setSelection(nationalityAdapter.positionForCode(Locale.getDefault().getCountry()));
+    nationality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
       {
+//        nationality = nationalityAdapter.getItem(i).getCode();
       }
 
       @Override
@@ -78,33 +95,27 @@ public class PayManualFragment extends Fragment
     });
 
 
-    final Spinner residenceSpinner = (Spinner)view.findViewById(R.id.pay_manual_residence);
     final CountryAdapter residenceAdapter = new CountryAdapter(getContext());
-    residenceSpinner.setAdapter(residenceAdapter);
-    residenceSpinner.setSelection(residenceAdapter.positionForCode(Locale.getDefault().getCountry()));
-    residenceSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    residence.setAdapter(residenceAdapter);
+    residence.setSelection(residenceAdapter.positionForCode(Locale.getDefault().getCountry()));
+    residence.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
       {
+//        residence = residenceAdapter.getItem(i).getCode();
       }
 
       @Override
       public void onNothingSelected(final AdapterView<?> adapterView){}
     });
-
-    //    typeButton = (Button)view.findViewById(R.id.pay_manual_type_button);
-//    typeButton.setOnClickListener(new View.OnClickListener()
-//    {
-//      @Override
-//      public void onClick(final View view)
-//      {
-//        Log.e("PayManual", "Not implemented");
-//      }
-//    });
 
     return view;
   }
 
+  /**
+   * Programmatic instantiation of the fragment.
+   * @return
+   */
   public static PayManualFragment newInstance()
   {
     return new PayManualFragment();
@@ -118,44 +129,147 @@ public class PayManualFragment extends Fragment
       if (data != null && data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT))
       {
         final CreditCard scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT);
-        cardNumber = scanResult.cardNumber;
-        cardholderName = scanResult.cardholderName;
-        expiryMonth = scanResult.expiryMonth;
-        expiryYear = scanResult.expiryYear;
-        cvv = scanResult.cvv;
+        card.setCardNumber(scanResult.cardNumber, true);
+//        cardholderName = scanResult.cardholderName;
+        card.setExpDate(scanResult.expiryMonth + "/" + scanResult.expiryYear, true);
+        card.setSecurityCode(scanResult.cvv, true);
         success = true;
       }
     }
     if (!success)
     {
-      // Wipe the last information
-      cardNumber = cardholderName = cvv = null;
-      expiryMonth = expiryYear = null;
+      // TODO Wipe the last information
+    }
+  }
+
+  public String getFirstName()
+  {
+    return getCleanText(firstName);
+  }
+
+  public void setFirstName(final String value)
+  {
+    firstName.setText(value);
+  }
+
+  public String getLastName()
+  {
+    return getCleanText(lastName);
+  }
+
+  public void setLastName(final String value)
+  {
+    lastName.setText(value);
+  }
+
+  public String getEmail()
+  {
+    return getCleanText(email);
+  }
+
+  public void setEmail(final String value)
+  {
+    email.setText(value);
+  }
+
+  public LocalDate getDob()
+  {
+    return dob.getDate();
+  }
+
+  public void setDob(final LocalDate date)
+  {
+    dob.setDate(date);
+  }
+
+  public String getNationality()
+  {
+    return ((NationalityAdapter.Nationality)nationality.getSelectedItem()).getCode();
+  }
+
+  public void setNationality(final String code)
+  {
+    final int pos = ((NationalityAdapter)nationality.getAdapter()).positionForCode(code);
+    if (pos == -1)
+    {
+      Log.w("paymanual", "Attempt to set unknown nationality " + code);
+    }
+    else
+    {
+      nationality.setSelection(pos);
+    }
+  }
+
+  public String getResidence()
+  {
+    return ((CountryAdapter.Country)residence.getSelectedItem()).getCode();
+  }
+
+  public void setResidence(final String code)
+  {
+    final int pos = ((CountryAdapter)residence.getAdapter()).positionForCode(code);
+    if (pos == -1)
+    {
+      Log.w("paymanual", "Attempt to set unknown country of residence " + code);
+    }
+    else
+    {
+      nationality.setSelection(pos);
     }
   }
 
   public String getCardNumber()
   {
-    return cardNumber;
+    return card.getCreditCard().getCardNumber();
   }
 
-  public String getCardholderName()
+  public void setCardNumber(final String cardNumber)
   {
-    return cardholderName;
+    card.setCardNumber(cardNumber, true);
   }
-
   public String getCvv()
   {
-    return cvv;
+    return card.getCreditCard().getSecurityCode();
   }
 
-  public Integer getExpiryMonth()
+  public YearMonth getExpiry() { return new YearMonth(card.getCreditCard().getExpYear() + 2000, card.getCreditCard().getExpMonth()); }
+
+  public void setExpiry(final YearMonth expiry)
   {
-    return expiryMonth;
+    card.setExpDate(expiry.getMonthOfYear() + "/" + (expiry.getYear() - 2000), true);
   }
 
-  public Integer getExpiryYear()
+  /**
+   * Obtain a sane version of a text view
+   *
+   * @param view the view
+   *
+   * @return a clean version of the contents of the text view; empty string will be {@code null} rather than ""
+   */
+  @Nullable
+  public static String getCleanText(final TextView view)
   {
-    return expiryYear;
+    return getCleanText(view.getText().toString());
+  }
+
+  /**
+   * Obtain a sane string given an input string
+   *
+   * @param val the input string
+   *
+   * @return a clean version of the contents of the string; empty string will be {@code null} rather than ""
+   */
+  @Nullable
+  public static String getCleanText(String val)
+  {
+    if (val != null)
+    {
+      val = val.trim();
+    }
+    if (val == null || val.equals(""))
+    {
+      return null;
+    }
+    return val;
   }
 }
