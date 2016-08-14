@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Make PNG icons from SVG sources
+
+SRCDIR=~/wealdtech-android/wealdtech-components/src/main/assets/_pre_production/graphics
+DSTDIR=~/wealdtech-android/wealdtech-components/src/main/res
+
+# Size of icon at mdpi
+BASEWIDTH=38
+BASEHEIGHT=24
+
+# Create the icons
+for SRCPATH in `ls ${SRCDIR}/*.svg`
+do
+  SRCNAME=`basename ${SRCPATH}`
+  DSTNAME=`echo ${SRCNAME} | sed -e 's/\.svg$/.png/'`
+  inkscape -z -e ${DSTDIR}/drawable-mdpi/${DSTNAME} -w $BASEWIDTH -h $BASEHEIGHT ${SRCPATH}
+  inkscape -z -e ${DSTDIR}/drawable-hdpi/${DSTNAME} -w $((BASEWIDTH*3/2)) -h $((BASEHEIGHT*3/2)) ${SRCPATH}
+  inkscape -z -e ${DSTDIR}/drawable-xhdpi/${DSTNAME} -w $((BASEWIDTH*2)) -h $((BASEHEIGHT*2)) ${SRCPATH}
+  inkscape -z -e ${DSTDIR}/drawable-xxhdpi/${DSTNAME} -w $((BASEWIDTH*3)) -h $((BASEHEIGHT*3)) ${SRCPATH}
+  inkscape -z -e ${DSTDIR}/drawable-xxxhdpi/${DSTNAME} -w $((BASEWIDTH*4)) -h $((BASEHEIGHT*4)) ${SRCPATH}
+done

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 38 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-miterlimit:1.41421;">
+    <g id="american_express_csc">
+        <g id="Group">
+            <path id="Card-BG" d="M38,4C38,1.792 36.208,0 34,0L4,0C1.792,0 0,1.792 0,4L0,20C0,22.208 1.792,24 4,24L34,24C36.208,24 38,22.208 38,20L38,4Z" style="fill:rgb(198,198,198);"/>
+            <g id="_---------------1234">
+                <g transform="matrix(1,0,0,1,5.93066,21)">
+                    <g id="text-3">
+                        <text x="0px" y="0px" style="font-family:'.SFNSDisplay-Regular', '.SF NS Display';font-size:3px;fill:white;">**** **** **** 1234</text>
+                    </g>
+                </g>
+                <g transform="matrix(1,0,0,1,5.93066,21)">
+                    <g id="text-31">
+                        <text x="0px" y="0px" style="font-family:'.SFNSDisplay-Regular', '.SF NS Display';font-size:3px;fill:white;">**** **** **** 1234</text>
+                    </g>
+                </g>
+            </g>
+            <g id="chip" transform="matrix(1,0,0,1,2,8)">
+                <clipPath id="_clip1">
+                    <rect x="-0.75" y="-0.932" width="7.5" height="6.264"/>
+                </clipPath>
+                <g clip-path="url(#_clip1)">
+                    <g opacity="0.5">
+                        <g id="Rectangle-41" transform="matrix(1.25,0,0,1.25,-0.75,-0.5)">
+                            <path d="M6,1.76C6,0.789 5.211,0 4.24,0L1.76,0C0.789,0 0,0.789 0,1.76L0,2.64C0,3.611 0.789,4.4 1.76,4.4L4.24,4.4C5.211,4.4 6,3.611 6,2.64L6,1.76Z" style="fill:url(#_Linear2);"/>
+                        </g>
+                        <path id="Rectangle-6" d="M4.133,1.933C4.133,1.308 3.626,0.8 3,0.8C2.374,0.8 1.867,1.308 1.867,1.933L1.867,2.467C1.867,3.092 2.374,3.6 3,3.6C3.626,3.6 4.133,3.092 4.133,2.467L4.133,1.933Z" style="fill:none;stroke-width:2px;stroke:rgb(49,49,49);"/>
+                        <g id="Rectangle-9" transform="matrix(1.35,8.57253e-17,8.57253e-17,1,-1.4,0)">
+                            <rect x="4" y="1.333" width="2" height="0.5" style="fill:rgb(49,49,49);"/>
+                        </g>
+                        <rect id="Rectangle-91" x="2.933" y="0" width="0.5" height="0.933" style="fill:rgb(49,49,49);"/>
+                        <rect id="Rectangle-92" x="2.933" y="3.467" width="0.5" height="0.933" style="fill:rgb(49,49,49);"/>
+                        <g id="Rectangle-93" transform="matrix(1.35,8.57253e-17,8.57253e-17,1,-1.4,-1.13044e-17)">
+                            <rect x="4" y="2.133" width="2" height="0.5" style="fill:rgb(49,49,49);"/>
+                        </g>
+                        <g id="Rectangle-94" transform="matrix(1.35,8.57253e-17,8.57253e-17,1,-1.4,-1.46938e-15)">
+                            <rect x="4" y="2.933" width="2" height="0.5" style="fill:rgb(49,49,49);"/>
+                        </g>
+                        <g id="Rectangle-95" transform="matrix(1.35,8.57253e-17,8.57253e-17,1,-0.7,0)">
+                            <rect x="0" y="1.333" width="2" height="0.5" style="fill:rgb(49,49,49);"/>
+                        </g>
+                        <g id="Rectangle-96" transform="matrix(1.35,8.57253e-17,8.57253e-17,1,-0.7,0)">
+                            <rect x="0" y="2.133" width="2" height="0.5" style="fill:rgb(49,49,49);"/>
+                        </g>
+                        <g id="Rectangle-97" transform="matrix(1.35,8.57253e-17,8.57253e-17,1,-0.7,-6.00077e-17)">
+                            <rect x="0" y="2.933" width="2" height="0.5" style="fill:rgb(49,49,49);"/>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+        <rect id="Rectangle" x="25" y="14" width="7" height="4" style="fill:none;stroke-width:1px;stroke:rgb(255,0,0);"/>
+    </g>
+    <defs>
+        <linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-1.75862,4.4,-4.4,-1.75862,4.13753,0)"><stop offset="0%" style="stop-color:rgb(255,236,200);stop-opacity:1"/><stop offset="100%" style="stop-color:rgb(209,185,120);stop-opacity:1"/></linearGradient>
+    </defs>
+</svg>

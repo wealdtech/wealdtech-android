@@ -87,6 +87,7 @@ public class PayManualFragment extends Fragment
     nationality = (AppCompatSpinner)view.findViewById(R.id.pay_manual_nationality);
     residenceLabel = (TextView)view.findViewById(R.id.pay_manual_residence_label);
     residence = (AppCompatSpinner)view.findViewById(R.id.pay_manual_residence);
+    cardLabel = (TextView)view.findViewById(R.id.pay_manual_card_label);
     card = (CreditCardView)view.findViewById(R.id.pay_manual_card);
     submit = (Button)view.findViewById(R.id.pay_manual_submit);
 
@@ -152,6 +153,7 @@ public class PayManualFragment extends Fragment
     just(textColor(dobLabel, invalidColor));
     just(textColor(nationalityLabel, invalidColor));
     just(textColor(residenceLabel, invalidColor));
+    just(textColor(cardLabel, invalidColor));
 
     // Set label validation colour
     when(happens(textChanges(firstName))).and(valid(firstName, presentValidator()))

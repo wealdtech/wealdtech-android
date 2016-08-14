@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="38px" height="24px" viewBox="0 0 38 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 39.1 (31720) - http://www.bohemiancoding.com/sketch -->
+    <title>mastercard</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="mastercard">
+            <g id="Group-2">
+                <g id="Group" transform="translate(0.300000, 0.000000)">
+                    <ellipse id="Oval" fill="#F99600" cx="25.2730679" cy="11.917917" rx="11.8932084" ry="11.917917"></ellipse>
+                    <ellipse id="Oval" fill="#EC000A" cx="11.8932084" cy="11.917917" rx="11.8932084" ry="11.917917"></ellipse>
+                    <path d="M18.5831382,2.06281236 C15.4421854,4.20800273 13.3798595,7.82161848 13.3798595,11.917917 C13.3798595,16.0142154 15.4421854,19.6278312 18.5831382,21.7730216 C21.724091,19.6278312 23.7864169,16.0142154 23.7864169,11.917917 C23.7864169,7.82161848 21.724091,4.20800273 18.5831382,2.06281236 Z" id="Combined-Shape" fill="#FF5300"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
