@@ -15,7 +15,7 @@ import com.wealdtech.android.fabric.condition.Condition;
 import com.wealdtech.android.fabric.condition.TrueCondition;
 import com.wealdtech.android.fabric.trigger.Trigger;
 
-import static com.wealdtech.Preconditions.checkState;
+import static com.wealdtech.Preconditions.checkNotNull;
 
 /**
  */
@@ -51,12 +51,12 @@ public class Rule
   public Rule then(Action action)
   {
     this.action = action;
-    checkState(trigger != null, "Cannot set up a rule without a trigger");
+    checkNotNull(trigger, "Cannot set up a rule without a trigger");
     if (condition == null)
     {
       condition = new TrueCondition();
     }
-    checkState(action != null, "Cannot set up a rule without an action");
+    checkNotNull(action, "Cannot set up a rule without an action");
     trigger.setUp(this);
     return this;
   }
@@ -70,5 +70,14 @@ public class Rule
   {
     this.condition = condition;
     return this;
+  }
+
+  public static void just(final Action action)
+  {
+    checkNotNull(action, "Cannot set up a rule without an action");
+    final Rule dta = new Rule();
+    dta.action = action;
+    dta.condition = new TrueCondition();
+    dta.act();
   }
 }

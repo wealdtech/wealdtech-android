@@ -9,3 +9,11 @@
  */
 
 apply plugin: 'com.android.library'
+
+dependencies {
+    // For rules
+    compile project(':wealdtech-fabric')
+    // For the credit card type
+    compile ('com.wealdtech:wealdtech-types:3.0.0')
+}
+

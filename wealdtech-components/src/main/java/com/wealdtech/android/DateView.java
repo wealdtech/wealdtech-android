@@ -10,9 +10,13 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import com.wealdtech.android.fabric.Rule;
+import com.wealdtech.android.fabric.trigger.ViewTrigger;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -20,8 +24,8 @@ import java.util.Locale;
  */
 public class DateView extends Button implements DatePickerDialog.OnDateSetListener
 {
-  // A listener for changes to the date
-  private OnDateChangedListener onDateChangedListener;
+  // Listeners for changes to the date
+  private List<OnDateChangedListener> listeners = new ArrayList<>();
 
   // Local storage for the date
   private LocalDate date;
@@ -52,12 +56,17 @@ public class DateView extends Button implements DatePickerDialog.OnDateSetListen
   }
 
   /**
-   * Set a listener for changes to the date
+   * Add a listener for changes to the date
    * @param listener the listener that will receive notification of changes to the date
    */
-  public void setOnDateChangedListener(final OnDateChangedListener listener)
+  public void addOnDateChangedListener(final OnDateChangedListener listener)
   {
-    this.onDateChangedListener = listener;
+    listeners.add(listener);
+  }
+
+  public void removeOnDateChangedListener(final OnDateChangedListener listener)
+  {
+    listeners.remove(listener);
   }
 
   private void init()
@@ -89,9 +98,9 @@ public class DateView extends Button implements DatePickerDialog.OnDateSetListen
   {
     this.date = date;
     setText(DateTimeFormat.longDate().withLocale(Locale.getDefault()).print(date));
-    if (onDateChangedListener != null)
+    for (final OnDateChangedListener listener : listeners)
     {
-      onDateChangedListener.onDateChanged(date);
+      listener.onDateChanged(date);
     }
   }
 
@@ -130,5 +139,43 @@ public class DateView extends Button implements DatePickerDialog.OnDateSetListen
       state = bundle.getParcelable("superState");
     }
     super.onRestoreInstanceState(state);
+  }
+
+  public static class DateChangeViewTrigger extends ViewTrigger
+  {
+    public DateChangeViewTrigger(final DateView view)
+    {
+      super(view);
+    }
+
+    private OnDateChangedListener listener = null;
+
+    @Override
+    public void setUp(final Rule dta)
+    {
+      listener = new OnDateChangedListener()
+      {
+        @Override
+        public void onDateChanged(final LocalDate date)
+        {
+          dta.act();
+        }
+      };
+
+      ((DateView)view).addOnDateChangedListener(listener);
+    }
+
+    void tearDown()
+    {
+      if (listener != null)
+      {
+        ((DateView)view).removeOnDateChangedListener(listener);
+      }
+    }
+
+    public static DateChangeViewTrigger dateChanges(final DateView view)
+    {
+      return new DateChangeViewTrigger(view);
+    }
   }
 }

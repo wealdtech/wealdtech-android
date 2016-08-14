@@ -4,18 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.BooleanResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wallet.*;
-import com.google.android.gms.wallet.fragment.SupportWalletFragment;
-import com.google.android.gms.wallet.fragment.WalletFragmentInitParams;
 import com.google.common.base.Objects;
 import com.wealdtech.android.test.R;
 import com.wealdtech.pay.PayManualFragment;
@@ -37,7 +32,7 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
 
   private GoogleApiClient googleApiClient;
 
-  private SupportWalletFragment walletFragment;
+//  private SupportWalletFragment walletFragment;
   private PayManualFragment manualFragment;
 
   public void onCreate(Bundle savedInstanceState)
@@ -60,72 +55,72 @@ public class PayActivity extends AppCompatActivity implements GoogleApiClient.Co
   {
     final View view = super.onCreateView(parent, name, context, attrs);
 
-    manualFragment = (PayManualFragment)getSupportFragmentManager().findFragmentById(R.id.manual_fragment);
-    Log.e("Pay", "Manual fragment is " + manualFragment);
-    walletFragment = (SupportWalletFragment)getSupportFragmentManager().findFragmentById(R.id.wallet_fragment);
-    Log.e("Pay", "Wallet fragment is " + walletFragment);
-
-    Wallet.Payments.isReadyToPay(googleApiClient).setResultCallback(new ResultCallback<BooleanResult>()
-    {
-      @Override
-      public void onResult(@NonNull BooleanResult booleanResult)
-      {
-        if (booleanResult.getStatus().isSuccess())
-        {
-          if (booleanResult.getValue())
-          {
-            showAndroidPay();
-          }
-          else
-          {
-            hideAndroidPay();
-            // Hide Android Pay buttons, show a message that Android Pay
-            // cannot be used yet, and display a traditional checkout button
-          }
-        }
-        else
-        {
-          // Error making isReadyToPay call
-          Log.e(TAG, "isReadyToPay:" + booleanResult.getStatus());
-        }
-      }
-    });
+//    manualFragment = (PayManualFragment)getSupportFragmentManager().findFragmentById(R.id.manual_fragment);
+//    Log.e("Pay", "Manual fragment is " + manualFragment);
+//    walletFragment = (SupportWalletFragment)getSupportFragmentManager().findFragmentById(R.id.wallet_fragment);
+//    Log.e("Pay", "Wallet fragment is " + walletFragment);
+//
+//    Wallet.Payments.isReadyToPay(googleApiClient).setResultCallback(new ResultCallback<BooleanResult>()
+//    {
+//      @Override
+//      public void onResult(@NonNull BooleanResult booleanResult)
+//      {
+//        if (booleanResult.getStatus().isSuccess())
+//        {
+//          if (booleanResult.getValue())
+//          {
+//            showAndroidPay();
+//          }
+//          else
+//          {
+//            hideAndroidPay();
+//            // Hide Android Pay buttons, show a message that Android Pay
+//            // cannot be used yet, and display a traditional checkout button
+//          }
+//        }
+//        else
+//        {
+//          // Error making isReadyToPay call
+//          Log.e(TAG, "isReadyToPay:" + booleanResult.getStatus());
+//        }
+//      }
+//    });
 
     return view;
   }
 
-  private void hideAndroidPay()
-  {
-    findViewById(R.id.wallet_fragment).setVisibility(View.GONE);
-  }
-
-  public void showAndroidPay()
-  {
-    MaskedWalletRequest maskedWalletRequest;
-    maskedWalletRequest = MaskedWalletRequest.newBuilder()
-                                             // Request credit card tokenization with Stripe by specifying tokenization parameters:
-                                             .setPaymentMethodTokenizationParameters(
-                                                 PaymentMethodTokenizationParameters.newBuilder()
-                                                                                    .setPaymentMethodTokenizationType(
-                                                                                        PaymentMethodTokenizationType.PAYMENT_GATEWAY)
-                                                                                    .addParameter("gateway", "stripe")
-                                                                                    .addParameter("stripe:publishableKey",
-                                                                                                  PUBLISHABLE_KEY)
-                                                                                    .addParameter("stripe:version",
-                                                                                                  com.stripe.Stripe.VERSION)
-                                                                                    .build()).setShippingAddressRequired(false)
-                                             // Price set as a decimal:
-                                             .setEstimatedTotalPrice("20.00").setCurrencyCode("GBP").build();
-
-    // Set the parameters:
-    WalletFragmentInitParams initParams = WalletFragmentInitParams.newBuilder()
-                                                                  .setMaskedWalletRequest(maskedWalletRequest)
-                                                                  .setMaskedWalletRequestCode(LOAD_MASKED_WALLET_REQUEST_CODE)
-                                                                  .build();
-
-    // Initialize the fragment:
-    walletFragment.initialize(initParams);
-  }
+//  private void hideAndroidPay()
+//  {
+//    findViewById(R.id.wallet_fragment).setVisibility(View.GONE);
+//  }
+//
+//  public void showAndroidPay()
+//  {
+//    MaskedWalletRequest maskedWalletRequest;
+//    maskedWalletRequest = MaskedWalletRequest.newBuilder()
+//                                             // Request credit card tokenization with Stripe by specifying tokenization parameters:
+//                                             .setPaymentMethodTokenizationParameters(
+//                                                 PaymentMethodTokenizationParameters.newBuilder()
+//                                                                                    .setPaymentMethodTokenizationType(
+//                                                                                        PaymentMethodTokenizationType.PAYMENT_GATEWAY)
+//                                                                                    .addParameter("gateway", "stripe")
+//                                                                                    .addParameter("stripe:publishableKey",
+//                                                                                                  PUBLISHABLE_KEY)
+//                                                                                    .addParameter("stripe:version",
+//                                                                                                  com.stripe.Stripe.VERSION)
+//                                                                                    .build()).setShippingAddressRequired(false)
+//                                             // Price set as a decimal:
+//                                             .setEstimatedTotalPrice("20.00").setCurrencyCode("GBP").build();
+//
+//    // Set the parameters:
+//    WalletFragmentInitParams initParams = WalletFragmentInitParams.newBuilder()
+//                                                                  .setMaskedWalletRequest(maskedWalletRequest)
+//                                                                  .setMaskedWalletRequestCode(LOAD_MASKED_WALLET_REQUEST_CODE)
+//                                                                  .build();
+//
+//    // Initialize the fragment:
+//    walletFragment.initialize(initParams);
+//  }
 
   public void onStart()
   {

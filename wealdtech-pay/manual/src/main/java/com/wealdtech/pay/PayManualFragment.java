@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatSpinner;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,18 +12,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
-import com.devmarvel.creditcardentry.library.CreditCardForm;
 import com.wealdtech.android.CountryAdapter;
+import com.wealdtech.android.CreditCardView;
 import com.wealdtech.android.DateView;
 import com.wealdtech.android.NationalityAdapter;
 import com.wealdtech.android.pay.manual.R;
 import io.card.payment.CardIOActivity;
-import io.card.payment.CreditCard;
 import org.joda.time.LocalDate;
-import org.joda.time.YearMonth;
 
 import java.util.Locale;
+
+import static com.wealdtech.android.DateView.DateChangeViewTrigger.dateChanges;
+import static com.wealdtech.android.fabric.Rule.just;
+import static com.wealdtech.android.fabric.Rule.when;
+import static com.wealdtech.android.fabric.action.TextColorAction.textColor;
+import static com.wealdtech.android.fabric.condition.ValidCondition.valid;
+import static com.wealdtech.android.fabric.trigger.TextChangeViewTrigger.textChanges;
+import static com.wealdtech.android.fabric.trigger.Trigger.happens;
+import static com.wealdtech.android.fabric.validator.EmailValidator.emailValidator;
+import static com.wealdtech.android.fabric.validator.PresentValidator.presentValidator;
 
 /**
  * A fragment that provides a button for manually obtaining credit card information.
@@ -33,13 +43,21 @@ public class PayManualFragment extends Fragment
 {
   private static final int PAY_CARD_DATA_RESULT = 1432;
 
-  private TextView firstName;
-  private TextView lastName;
-  private TextView email;
+  private TextView firstNameLabel;
+  private EditText firstName;
+  private TextView lastNameLabel;
+  private EditText lastName;
+  private TextView emailLabel;
+  private EditText email;
+  private TextView dobLabel;
   private DateView dob;
+  private TextView nationalityLabel;
   private AppCompatSpinner nationality;
+  private TextView residenceLabel;
   private AppCompatSpinner residence;
-  private CreditCardForm card;
+  private TextView cardLabel;
+  private CreditCardView card;
+  private Button submit;
 
   public PayManualFragment(){}
 
@@ -57,13 +75,20 @@ public class PayManualFragment extends Fragment
   {
     final View view = inflater.inflate(R.layout.pay_manual_fragment, container, false);
 
-    firstName = (TextView)view.findViewById(R.id.pay_manual_firstname);
-    lastName = (TextView)view.findViewById(R.id.pay_manual_lastname);
-    email = (TextView)view.findViewById(R.id.pay_manual_email);
+    firstNameLabel = (TextView)view.findViewById(R.id.pay_manual_firstname_label);
+    firstName = (EditText)view.findViewById(R.id.pay_manual_firstname);
+    lastNameLabel = (TextView)view.findViewById(R.id.pay_manual_lastname_label);
+    lastName = (EditText)view.findViewById(R.id.pay_manual_lastname);
+    emailLabel = (TextView)view.findViewById(R.id.pay_manual_email_label);
+    email = (EditText)view.findViewById(R.id.pay_manual_email);
+    dobLabel = (TextView)view.findViewById(R.id.pay_manual_dob_label);
     dob = (DateView)view.findViewById(R.id.pay_manual_dob);
+    nationalityLabel = (TextView)view.findViewById(R.id.pay_manual_nationality_label);
     nationality = (AppCompatSpinner)view.findViewById(R.id.pay_manual_nationality);
+    residenceLabel = (TextView)view.findViewById(R.id.pay_manual_residence_label);
     residence = (AppCompatSpinner)view.findViewById(R.id.pay_manual_residence);
-    card = (CreditCardForm)view.findViewById(R.id.pay_manual_card);
+    card = (CreditCardView)view.findViewById(R.id.pay_manual_card);
+    submit = (Button)view.findViewById(R.id.pay_manual_submit);
 
     final Button scanButton = (Button)view.findViewById(R.id.pay_manual_scan_button);
     scanButton.setOnClickListener(new View.OnClickListener()
@@ -83,11 +108,12 @@ public class PayManualFragment extends Fragment
     final NationalityAdapter nationalityAdapter = new NationalityAdapter(getContext());
     nationality.setAdapter(nationalityAdapter);
     nationality.setSelection(nationalityAdapter.positionForCode(Locale.getDefault().getCountry()));
-    nationality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    nationality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+    {
       @Override
       public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
       {
-//        nationality = nationalityAdapter.getItem(i).getCode();
+        //        nationality = nationalityAdapter.getItem(i).getCode();
       }
 
       @Override
@@ -98,22 +124,56 @@ public class PayManualFragment extends Fragment
     final CountryAdapter residenceAdapter = new CountryAdapter(getContext());
     residence.setAdapter(residenceAdapter);
     residence.setSelection(residenceAdapter.positionForCode(Locale.getDefault().getCountry()));
-    residence.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    residence.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+    {
       @Override
       public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
       {
-//        residence = residenceAdapter.getItem(i).getCode();
+        //        residence = residenceAdapter.getItem(i).getCode();
       }
 
       @Override
       public void onNothingSelected(final AdapterView<?> adapterView){}
     });
 
+    setupValidationLogic();
     return view;
+  }
+
+  private void setupValidationLogic()
+  {
+    final int validColor = ContextCompat.getColor(getContext(), R.color.validInput);
+    final int invalidColor = ContextCompat.getColor(getContext(), R.color.invalidInput);
+
+    // Set initial colours
+    just(textColor(firstNameLabel, invalidColor));
+    just(textColor(lastNameLabel, invalidColor));
+    just(textColor(emailLabel, invalidColor));
+    just(textColor(dobLabel, invalidColor));
+    just(textColor(nationalityLabel, invalidColor));
+    just(textColor(residenceLabel, invalidColor));
+
+    // Set label validation colour
+    when(happens(textChanges(firstName))).and(valid(firstName, presentValidator()))
+                                         .then(textColor(firstNameLabel, validColor))
+                                         .otherwise(textColor(firstNameLabel, invalidColor));
+
+    when(happens(textChanges(lastName))).and(valid(lastName, presentValidator()))
+                                        .then(textColor(lastNameLabel, validColor))
+                                        .otherwise(textColor(lastNameLabel, invalidColor));
+
+    when(happens(textChanges(email))).and(valid(email, emailValidator()))
+                                     .then(textColor(emailLabel, validColor))
+                                     .otherwise(textColor(emailLabel, invalidColor));
+
+    when(happens(dateChanges(dob))).and(valid(dob, presentValidator()))
+                                     .then(textColor(dobLabel, validColor))
+                                     .otherwise(textColor(dobLabel, invalidColor));
   }
 
   /**
    * Programmatic instantiation of the fragment.
+   *
    * @return
    */
   public static PayManualFragment newInstance()
@@ -123,23 +183,23 @@ public class PayManualFragment extends Fragment
 
   public void onActivityResult(final int requestCode, final int resultCode, final Intent data)
   {
-    boolean success = false;
-    if (requestCode == PAY_CARD_DATA_RESULT)
-    {
-      if (data != null && data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT))
-      {
-        final CreditCard scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT);
-        card.setCardNumber(scanResult.cardNumber, true);
-//        cardholderName = scanResult.cardholderName;
-        card.setExpDate(scanResult.expiryMonth + "/" + scanResult.expiryYear, true);
-        card.setSecurityCode(scanResult.cvv, true);
-        success = true;
-      }
-    }
-    if (!success)
-    {
-      // TODO Wipe the last information
-    }
+//    boolean success = false;
+//    if (requestCode == PAY_CARD_DATA_RESULT)
+//    {
+//      if (data != null && data.hasExtra(CardIOActivity.EXTRA_SCAN_RESULT))
+//      {
+//        final CreditCard scanResult = data.getParcelableExtra(CardIOActivity.EXTRA_SCAN_RESULT);
+//        card.setCardNumber(scanResult.cardNumber, true);
+//        //        cardholderName = scanResult.cardholderName;
+//        card.setExpDate(scanResult.expiryMonth + "/" + scanResult.expiryYear, true);
+//        card.setSecurityCode(scanResult.cvv, true);
+//        success = true;
+//      }
+//    }
+//    if (!success)
+//    {
+//      // TODO Wipe the last information
+//    }
   }
 
   public String getFirstName()
@@ -218,26 +278,30 @@ public class PayManualFragment extends Fragment
     }
   }
 
-  public String getCardNumber()
-  {
-    return card.getCreditCard().getCardNumber();
-  }
-
-  public void setCardNumber(final String cardNumber)
-  {
-    card.setCardNumber(cardNumber, true);
-  }
-  public String getCvv()
-  {
-    return card.getCreditCard().getSecurityCode();
-  }
-
-  public YearMonth getExpiry() { return new YearMonth(card.getCreditCard().getExpYear() + 2000, card.getCreditCard().getExpMonth()); }
-
-  public void setExpiry(final YearMonth expiry)
-  {
-    card.setExpDate(expiry.getMonthOfYear() + "/" + (expiry.getYear() - 2000), true);
-  }
+//  public String getCardNumber()
+//  {
+//    return card.getCreditCard().getCardNumber();
+//  }
+//
+//  public void setCardNumber(final String cardNumber)
+//  {
+//    card.setCardNumber(cardNumber, true);
+//  }
+//
+//  public String getCvv()
+//  {
+//    return card.getCreditCard().getSecurityCode();
+//  }
+//
+//  public YearMonth getExpiry()
+//  {
+//    return new YearMonth(card.getCreditCard().getExpYear() + 2000, card.getCreditCard().getExpMonth());
+//  }
+//
+//  public void setExpiry(final YearMonth expiry)
+//  {
+//    card.setExpDate(expiry.getMonthOfYear() + "/" + (expiry.getYear() - 2000), true);
+//  }
 
   /**
    * Obtain a sane version of a text view

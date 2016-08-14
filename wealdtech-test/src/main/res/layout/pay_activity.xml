@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+<!--
     <fragment
         android:id="@+id/wallet_fragment"
         android:name="com.google.android.gms.wallet.fragment.SupportWalletFragment"
@@ -12,6 +13,7 @@
         android:layout_height="wrap_content"
         wallet:environment="test"
         wallet:fragmentMode="buyButton"/>
+-->
 
     <fragment
         android:id="@+id/manual_fragment"
