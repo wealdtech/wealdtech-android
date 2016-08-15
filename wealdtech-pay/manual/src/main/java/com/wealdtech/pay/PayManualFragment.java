@@ -30,7 +30,6 @@ import static com.wealdtech.android.fabric.Rule.when;
 import static com.wealdtech.android.fabric.action.TextColorAction.textColor;
 import static com.wealdtech.android.fabric.condition.ValidCondition.valid;
 import static com.wealdtech.android.fabric.trigger.TextChangeViewTrigger.textChanges;
-import static com.wealdtech.android.fabric.trigger.Trigger.happens;
 import static com.wealdtech.android.fabric.validator.EmailValidator.emailValidator;
 import static com.wealdtech.android.fabric.validator.PresentValidator.presentValidator;
 
@@ -156,21 +155,25 @@ public class PayManualFragment extends Fragment
     just(textColor(cardLabel, invalidColor));
 
     // Set label validation colour
-    when(happens(textChanges(firstName))).and(valid(firstName, presentValidator()))
+    when(textChanges(firstName)).and(valid(firstName, presentValidator()))
                                          .then(textColor(firstNameLabel, validColor))
                                          .otherwise(textColor(firstNameLabel, invalidColor));
 
-    when(happens(textChanges(lastName))).and(valid(lastName, presentValidator()))
+    when(textChanges(lastName)).and(valid(lastName, presentValidator()))
                                         .then(textColor(lastNameLabel, validColor))
                                         .otherwise(textColor(lastNameLabel, invalidColor));
 
-    when(happens(textChanges(email))).and(valid(email, emailValidator()))
+    when(textChanges(email)).and(valid(email, emailValidator()))
                                      .then(textColor(emailLabel, validColor))
                                      .otherwise(textColor(emailLabel, invalidColor));
 
-    when(happens(dateChanges(dob))).and(valid(dob, presentValidator()))
+    when(dateChanges(dob)).and(valid(dob, presentValidator()))
                                      .then(textColor(dobLabel, validColor))
                                      .otherwise(textColor(dobLabel, invalidColor));
+
+//    when(creditCardChanges(card)).and(valid(card, creditCardValidator()))
+//                                          .then(textColor(cardLabel, validColor))
+//                                          .otherwise(textColor(cardLabel, invalidColor));
   }
 
   /**

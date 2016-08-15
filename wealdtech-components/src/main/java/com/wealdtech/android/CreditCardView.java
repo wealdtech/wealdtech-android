@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -17,7 +16,12 @@ import com.wealdtech.android.components.R;
 import com.wealdtech.android.fabric.Rule;
 import com.wealdtech.android.fabric.action.Action;
 import com.wealdtech.android.fabric.validator.TextValidator;
+import com.wealdtech.android.fabric.validator.Validator;
+import org.joda.time.YearMonth;
+import org.joda.time.format.DateTimeFormat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.wealdtech.android.CreditCardView.CreditCardNumberValidator.creditCardNumberValidator;
@@ -25,17 +29,18 @@ import static com.wealdtech.android.CreditCardView.CvcValidator.cvcValidator;
 import static com.wealdtech.android.CreditCardView.ExpiryDateValidator.expiryDateValidator;
 import static com.wealdtech.android.fabric.Rule.just;
 import static com.wealdtech.android.fabric.Rule.when;
+import static com.wealdtech.android.fabric.action.DoAllOfAction.doAllOf;
+import static com.wealdtech.android.fabric.action.FocusViewAction.focus;
 import static com.wealdtech.android.fabric.action.TextColorAction.textColor;
+import static com.wealdtech.android.fabric.action.UnfocusViewAction.unfocus;
 import static com.wealdtech.android.fabric.condition.ValidCondition.valid;
 import static com.wealdtech.android.fabric.trigger.TextChangeViewTrigger.textChanges;
-import static com.wealdtech.android.fabric.trigger.Trigger.happens;
 
 /**
  * A two-line credit card entry view, obtaining number, expiry date and CVV
  */
 public class CreditCardView extends RelativeLayout
 {
-
   private TextView numberLabel;
   private EditText number;
   private TextView expiryLabel;
@@ -46,6 +51,10 @@ public class CreditCardView extends RelativeLayout
   private ImageView cscImage;
 
   private CreditCard.Brand brand;
+  private CreditCard card;
+
+  // Listeners for changes to the date
+  private List<OnCreditCardChangedListener> listeners = new ArrayList<>();
 
   public CreditCardView(final Context context)
   {
@@ -99,19 +108,19 @@ public class CreditCardView extends RelativeLayout
     just(textColor(cscLabel, invalidColor));
 
     // Update validity markers
-    when(happens(textChanges(number))).and(valid(number, creditCardNumberValidator()))
-                                      .then(textColor(numberLabel, validColor))
-                                      .otherwise(textColor(numberLabel, invalidColor));
-    when(happens(textChanges(expiry))).and(valid(expiry, expiryDateValidator()))
-                                      .then(textColor(expiryLabel, validColor))
-                                      .otherwise(textColor(expiryLabel, invalidColor));
-    when(happens(textChanges(csc))).and(valid(csc, cvcValidator()))
-                                   .then(textColor(cscLabel, validColor))
-                                   .otherwise(textColor(expiryLabel, invalidColor));
+    when(textChanges(number)).and(valid(number, creditCardNumberValidator()))
+                             .then(doAllOf(textColor(numberLabel, validColor), focus(expiry)))
+                             .otherwise(textColor(numberLabel, invalidColor));
+    when(textChanges(expiry)).and(valid(expiry, expiryDateValidator()))
+                             .then(doAllOf(textColor(expiryLabel, validColor), focus(csc)))
+                             .otherwise(textColor(expiryLabel, invalidColor));
+    when(textChanges(csc)).and(valid(csc, cvcValidator(number)))
+                          .then(doAllOf(textColor(cscLabel, validColor), unfocus(csc)))
+                          .otherwise(textColor(cscLabel, invalidColor));
 
     // Keep elements up-to-date with the metadata we work out from the credit card number
     final String packageName = context.getPackageName();
-    when(happens(textChanges(number))).then(new Action()
+    when(textChanges(number)).then(new Action()
     {
       @Override
       public void act(final Rule rule)
@@ -125,6 +134,7 @@ public class CreditCardView extends RelativeLayout
           {
             cscLabel.setText("CSC");
             logo.setImageResource(R.drawable.creditcard_generic);
+            cscImage.setImageResource(R.drawable.creditcard_generic_csc);
           }
           else
           {
@@ -142,6 +152,28 @@ public class CreditCardView extends RelativeLayout
     });
   }
 
+  public CreditCard getCreditCard(){ return card; }
+
+  /**
+   * Add a listener for changes to the credit card
+   *
+   * @param listener the listener that will receive notification of changes to the credit card
+   */
+  public void addOnCreditCardChangedListener(final OnCreditCardChangedListener listener)
+  {
+    listeners.add(listener);
+  }
+
+  public void removeOnCreditCardChangedListener(final OnCreditCardChangedListener listener)
+  {
+    listeners.remove(listener);
+  }
+
+  public interface OnCreditCardChangedListener
+  {
+    void onCreditCardChanged(CreditCard card);
+  }
+
   public static class CreditCardNumberValidator extends TextValidator
   {
     private static CreditCardNumberValidator instance;
@@ -155,7 +187,8 @@ public class CreditCardView extends RelativeLayout
     public boolean validate(final View view)
     {
       final String val = ((TextView)view).getText().toString().trim();
-      return val.length() > 0;
+      final CreditCard.Brand brand = CreditCard.Brand.fromCardNumber(val);
+      return brand != null && val.matches(brand.validationRegex) && CreditCard.luhn(val);
     }
 
     /**
@@ -191,7 +224,16 @@ public class CreditCardView extends RelativeLayout
     public boolean validate(final View view)
     {
       final String val = ((TextView)view).getText().toString().trim();
-      return val.length() > 0;
+      if (val.length() == 0) { return false; }
+      try
+      {
+        final YearMonth ym = YearMonth.parse(val, DateTimeFormat.forPattern("MM/YY"));
+        return ym != null && ym.isAfter(YearMonth.now());
+      }
+      catch (final IllegalArgumentException ignored)
+      {
+        return false;
+      }
     }
 
     /**
@@ -218,22 +260,25 @@ public class CreditCardView extends RelativeLayout
   {
     private static CvcValidator instance;
 
-    private CvcValidator()
+    private final TextView numberView;
+    private CvcValidator(final TextView numberView)
     {
       super();
+      this.numberView = numberView;
     }
 
     @Override
     public boolean validate(final View view)
     {
       final String val = ((TextView)view).getText().toString().trim();
-      return val.length() > 0;
+      final CreditCard.Brand brand = CreditCard.Brand.fromCardNumber(numberView.getText().toString().trim());
+      return brand != null && val.length() == brand.cscLength;
     }
 
     /**
      * A validator which validates a CVC for a credit card
      */
-    public static CvcValidator cvcValidator()
+    public static CvcValidator cvcValidator(final TextView numberView)
     {
       if (instance == null)
       {
@@ -242,7 +287,43 @@ public class CreditCardView extends RelativeLayout
           // Double check
           if (instance == null)
           {
-            instance = new CvcValidator();
+            instance = new CvcValidator(numberView);
+          }
+        }
+      }
+      return instance;
+    }
+  }
+
+  public static class CardValidator implements Validator
+  {
+    private static CardValidator instance;
+
+    private CardValidator()
+    {
+      super();
+    }
+
+    @Override
+    public boolean validate(final View view)
+    {
+      final CreditCard card = ((CreditCardView)view).getCreditCard();
+      return card != null;
+    }
+
+    /**
+     * A validator which validates all details of a credit card
+     */
+    public static CardValidator cardValidator()
+    {
+      if (instance == null)
+      {
+        synchronized (CardValidator.class)
+        {
+          // Double check
+          if (instance == null)
+          {
+            instance = new CardValidator();
           }
         }
       }
