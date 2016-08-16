@@ -35,3 +35,6 @@ local.properties
 
 # Utility functions
 cpTo*
+
+# Vim swap files
+*.swp
