@@ -4,7 +4,9 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.text.InputFilter;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -15,6 +17,7 @@ import com.wealdtech.CreditCard;
 import com.wealdtech.android.components.R;
 import com.wealdtech.android.fabric.Rule;
 import com.wealdtech.android.fabric.action.Action;
+import com.wealdtech.android.fabric.trigger.ViewTrigger;
 import com.wealdtech.android.fabric.validator.TextValidator;
 import com.wealdtech.android.fabric.validator.Validator;
 import org.joda.time.YearMonth;
@@ -33,6 +36,7 @@ import static com.wealdtech.android.fabric.action.DoAllOfAction.doAllOf;
 import static com.wealdtech.android.fabric.action.FocusViewAction.focus;
 import static com.wealdtech.android.fabric.action.TextColorAction.textColor;
 import static com.wealdtech.android.fabric.action.UnfocusViewAction.unfocus;
+import static com.wealdtech.android.fabric.condition.AndCondition.allOf;
 import static com.wealdtech.android.fabric.condition.ValidCondition.valid;
 import static com.wealdtech.android.fabric.trigger.TextAppendViewTrigger.textAppends;
 import static com.wealdtech.android.fabric.trigger.TextChangeViewTrigger.textChanges;
@@ -52,7 +56,6 @@ public class CreditCardView extends RelativeLayout
   private ImageView cscImage;
 
   private CreditCard.Brand brand;
-  private CreditCard card;
 
   // Listeners for changes to the date
   private List<OnCreditCardChangedListener> listeners = new ArrayList<>();
@@ -107,6 +110,8 @@ public class CreditCardView extends RelativeLayout
     just(textColor(numberLabel, invalidColor));
     just(textColor(expiryLabel, invalidColor));
     just(textColor(cscLabel, invalidColor));
+    number.setFilters(new InputFilter[] {new InputFilter.LengthFilter(16)});
+    csc.setFilters(new InputFilter[] {new InputFilter.LengthFilter(3)});
 
     // Update validity markers
     when(textChanges(number)).and(valid(number, creditCardNumberValidator()))
@@ -120,7 +125,8 @@ public class CreditCardView extends RelativeLayout
                           .otherwise(textColor(cscLabel, invalidColor));
 
     // Add a "/" to the credit card expiry date after first two characters
-    when(textAppends(expiry)).then(new Action() {
+    when(textAppends(expiry)).then(new Action()
+    {
       @Override
       public void act(final Rule rule)
       {
@@ -130,6 +136,51 @@ public class CreditCardView extends RelativeLayout
         }
       }
     });
+
+    when(textChanges(number)).and(
+        allOf(valid(number, creditCardNumberValidator()), valid(expiry, expiryDateValidator()), valid(csc, cscValidator(number))))
+                             .then(new Action()
+                             {
+                               @Override
+                               public void act(final Rule rule)
+                               {
+                                 final CreditCard card = ((CreditCardView)view).getCreditCard();
+                                 for (final OnCreditCardChangedListener listener : listeners)
+                                 {
+                                   listener.onCreditCardChanged(card);
+                                 }
+                               }
+                             });
+    when(textChanges(expiry)).and(
+        allOf(valid(number, creditCardNumberValidator()), valid(expiry, expiryDateValidator()), valid(csc, cscValidator(number))))
+                             .then(new Action()
+                             {
+                               @Override
+                               public void act(final Rule rule)
+                               {
+                                 final CreditCard card = ((CreditCardView)view).getCreditCard();
+                                 for (final OnCreditCardChangedListener listener : listeners)
+                                 {
+                                   listener.onCreditCardChanged(card);
+                                 }
+                               }
+                             });
+    when(textChanges(csc)).and(
+        allOf(valid(number, creditCardNumberValidator()), valid(expiry, expiryDateValidator()), valid(csc, cscValidator(number))))
+                          .then(new Action()
+                          {
+                            @Override
+                            public void act(final Rule rule)
+                            {
+                              final CreditCard card = ((CreditCardView)view).getCreditCard();
+                              for (final OnCreditCardChangedListener listener : listeners)
+                              {
+                                listener.onCreditCardChanged(card);
+                              }
+                            }
+                          });
+
+    // Let listeners know when we have a valid credit card
 
     // TODO revalidate CSC when brand changes
 
@@ -161,13 +212,37 @@ public class CreditCardView extends RelativeLayout
             final String cscName = "creditcard_" + brand.name().toLowerCase(Locale.ENGLISH) + "_csc";
             final int cscResId = getResources().getIdentifier(cscName, "drawable", packageName);
             cscImage.setImageResource(cscResId == 0 ? R.drawable.creditcard_generic_csc : cscResId);
+
+            number.setFilters(new InputFilter[] {new InputFilter.LengthFilter(brand.numberMaxLength)});
+            csc.setFilters(new InputFilter[] {new InputFilter.LengthFilter(brand.cscLength)});
           }
         }
       }
     });
   }
 
-  public CreditCard getCreditCard(){ return card; }
+  public CreditCard getCreditCard()
+  {
+    try
+    {
+      final String ymStr = ((TextView)expiry).getText().toString().trim();
+      final YearMonth ym = YearMonth.parse(ymStr, DateTimeFormat.forPattern("MM/YY"));
+      return CreditCard.builder()
+                       .number(number.getText().toString().trim())
+                       .expiry(ym)
+                       .csc(csc.getText().toString().trim())
+                       .build();
+    }
+    catch (final Exception ignored)
+    {
+      return null;
+    }
+  }
+
+  public boolean isCreditCardValid()
+  {
+    return getCreditCard() != null;
+  }
 
   /**
    * Add a listener for changes to the credit card
@@ -276,6 +351,7 @@ public class CreditCardView extends RelativeLayout
     private static CscValidator instance;
 
     private final TextView numberView;
+
     private CscValidator(final TextView numberView)
     {
       super();
@@ -343,6 +419,45 @@ public class CreditCardView extends RelativeLayout
         }
       }
       return instance;
+    }
+  }
+
+  public static class CreditCardChangeViewTrigger extends ViewTrigger
+  {
+    public CreditCardChangeViewTrigger(final CreditCardView view)
+    {
+      super(view);
+    }
+
+    private CreditCardView.OnCreditCardChangedListener listener = null;
+
+    @Override
+    public void setUp(final Rule dta)
+    {
+      listener = new CreditCardView.OnCreditCardChangedListener()
+      {
+        @Override
+        public void onCreditCardChanged(final CreditCard card)
+        {
+          Log.e("jgm", "Credit card has changed: " + card);
+          dta.act();
+        }
+      };
+
+      ((CreditCardView)view).addOnCreditCardChangedListener(listener);
+    }
+
+    void tearDown()
+    {
+      if (listener != null)
+      {
+        ((CreditCardView)view).removeOnCreditCardChangedListener(listener);
+      }
+    }
+
+    public static CreditCardChangeViewTrigger creditCardChanges(final CreditCardView view)
+    {
+      return new CreditCardChangeViewTrigger(view);
     }
   }
 }

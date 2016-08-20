@@ -24,6 +24,7 @@ import org.joda.time.LocalDate;
 
 import java.util.Locale;
 
+import static com.wealdtech.android.CreditCardView.CreditCardChangeViewTrigger.creditCardChanges;
 import static com.wealdtech.android.CreditCardView.CreditCardValidator.creditCardValidator;
 import static com.wealdtech.android.DateView.DateChangeViewTrigger.dateChanges;
 import static com.wealdtech.android.fabric.Rule.just;
