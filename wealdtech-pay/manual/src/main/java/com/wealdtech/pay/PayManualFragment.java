@@ -24,6 +24,7 @@ import org.joda.time.LocalDate;
 
 import java.util.Locale;
 
+import static com.wealdtech.android.CreditCardView.CreditCardValidator.creditCardValidator;
 import static com.wealdtech.android.DateView.DateChangeViewTrigger.dateChanges;
 import static com.wealdtech.android.fabric.Rule.just;
 import static com.wealdtech.android.fabric.Rule.when;
@@ -171,9 +172,9 @@ public class PayManualFragment extends Fragment
                                      .then(textColor(dobLabel, validColor))
                                      .otherwise(textColor(dobLabel, invalidColor));
 
-//    when(creditCardChanges(card)).and(valid(card, creditCardValidator()))
-//                                          .then(textColor(cardLabel, validColor))
-//                                          .otherwise(textColor(cardLabel, invalidColor));
+    when(creditCardChanges(card)).and(valid(card, creditCardValidator()))
+                                          .then(textColor(cardLabel, validColor))
+                                          .otherwise(textColor(cardLabel, invalidColor));
   }
 
   /**

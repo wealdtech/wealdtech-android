@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.wealdtech.android.CreditCardView.CreditCardNumberValidator.creditCardNumberValidator;
-import static com.wealdtech.android.CreditCardView.CvcValidator.cvcValidator;
+import static com.wealdtech.android.CreditCardView.CscValidator.cscValidator;
 import static com.wealdtech.android.CreditCardView.ExpiryDateValidator.expiryDateValidator;
 import static com.wealdtech.android.fabric.Rule.just;
 import static com.wealdtech.android.fabric.Rule.when;
@@ -34,6 +34,7 @@ import static com.wealdtech.android.fabric.action.FocusViewAction.focus;
 import static com.wealdtech.android.fabric.action.TextColorAction.textColor;
 import static com.wealdtech.android.fabric.action.UnfocusViewAction.unfocus;
 import static com.wealdtech.android.fabric.condition.ValidCondition.valid;
+import static com.wealdtech.android.fabric.trigger.TextAppendViewTrigger.textAppends;
 import static com.wealdtech.android.fabric.trigger.TextChangeViewTrigger.textChanges;
 
 /**
@@ -114,9 +115,23 @@ public class CreditCardView extends RelativeLayout
     when(textChanges(expiry)).and(valid(expiry, expiryDateValidator()))
                              .then(doAllOf(textColor(expiryLabel, validColor), focus(csc)))
                              .otherwise(textColor(expiryLabel, invalidColor));
-    when(textChanges(csc)).and(valid(csc, cvcValidator(number)))
+    when(textChanges(csc)).and(valid(csc, cscValidator(number)))
                           .then(doAllOf(textColor(cscLabel, validColor), unfocus(csc)))
                           .otherwise(textColor(cscLabel, invalidColor));
+
+    // Add a "/" to the credit card expiry date after first two characters
+    when(textAppends(expiry)).then(new Action() {
+      @Override
+      public void act(final Rule rule)
+      {
+        if (expiry.getText().length() == 2)
+        {
+          expiry.append("/");
+        }
+      }
+    });
+
+    // TODO revalidate CSC when brand changes
 
     // Keep elements up-to-date with the metadata we work out from the credit card number
     final String packageName = context.getPackageName();
@@ -256,12 +271,12 @@ public class CreditCardView extends RelativeLayout
     }
   }
 
-  public static class CvcValidator extends TextValidator
+  public static class CscValidator extends TextValidator
   {
-    private static CvcValidator instance;
+    private static CscValidator instance;
 
     private final TextView numberView;
-    private CvcValidator(final TextView numberView)
+    private CscValidator(final TextView numberView)
     {
       super();
       this.numberView = numberView;
@@ -276,18 +291,18 @@ public class CreditCardView extends RelativeLayout
     }
 
     /**
-     * A validator which validates a CVC for a credit card
+     * A validator which validates a CSC for a credit card
      */
-    public static CvcValidator cvcValidator(final TextView numberView)
+    public static CscValidator cscValidator(final TextView numberView)
     {
       if (instance == null)
       {
-        synchronized (CvcValidator.class)
+        synchronized (CscValidator.class)
         {
           // Double check
           if (instance == null)
           {
-            instance = new CvcValidator(numberView);
+            instance = new CscValidator(numberView);
           }
         }
       }
@@ -295,11 +310,11 @@ public class CreditCardView extends RelativeLayout
     }
   }
 
-  public static class CardValidator implements Validator
+  public static class CreditCardValidator implements Validator
   {
-    private static CardValidator instance;
+    private static CreditCardValidator instance;
 
-    private CardValidator()
+    private CreditCardValidator()
     {
       super();
     }
@@ -314,16 +329,16 @@ public class CreditCardView extends RelativeLayout
     /**
      * A validator which validates all details of a credit card
      */
-    public static CardValidator cardValidator()
+    public static CreditCardValidator creditCardValidator()
     {
       if (instance == null)
       {
-        synchronized (CardValidator.class)
+        synchronized (CreditCardValidator.class)
         {
           // Double check
           if (instance == null)
           {
-            instance = new CardValidator();
+            instance = new CreditCardValidator();
           }
         }
       }

@@ -68,6 +68,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/credit_card_csc"
         android:hint="123"
+        android:inputType="number"
         android:layout_alignRight="@+id/credit_card_number"
         android:layout_alignEnd="@+id/credit_card_number"
         android:layout_below="@+id/credit_card_csc_label" />
