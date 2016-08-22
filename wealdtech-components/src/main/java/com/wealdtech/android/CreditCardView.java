@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.wealdtech.android.ComponentUtils.getCleanNumber;
+import static com.wealdtech.android.ComponentUtils.getCleanText;
 import static com.wealdtech.android.CreditCardView.CreditCardNumberValidator.creditCardNumberValidator;
 import static com.wealdtech.android.CreditCardView.CscValidator.cscValidator;
 import static com.wealdtech.android.CreditCardView.ExpiryDateValidator.expiryDateValidator;
@@ -225,12 +227,12 @@ public class CreditCardView extends RelativeLayout
   {
     try
     {
-      final String ymStr = ((TextView)expiry).getText().toString().trim();
-      final YearMonth ym = YearMonth.parse(ymStr, DateTimeFormat.forPattern("MM/YY"));
+      final String ymStr = getCleanNumber(expiry);
+      final YearMonth ym = YearMonth.parse(ymStr, DateTimeFormat.forPattern("MMYY"));
       return CreditCard.builder()
-                       .number(number.getText().toString().trim())
+                       .number(getCleanText(number))
                        .expiry(ym)
-                       .csc(csc.getText().toString().trim())
+                       .csc(getCleanText(csc))
                        .build();
     }
     catch (final Exception ignored)
@@ -276,9 +278,9 @@ public class CreditCardView extends RelativeLayout
     @Override
     public boolean validate(final View view)
     {
-      final String val = ((TextView)view).getText().toString().trim();
+      final String val = getCleanText((TextView)view);
       final CreditCard.Brand brand = CreditCard.Brand.fromCardNumber(val);
-      return brand != null && val.matches(brand.validationRegex) && CreditCard.luhn(val);
+      return val != null && brand != null && val.matches(brand.validationRegex) && CreditCard.luhn(val);
     }
 
     /**
@@ -313,17 +315,17 @@ public class CreditCardView extends RelativeLayout
     @Override
     public boolean validate(final View view)
     {
-      final String val = ((TextView)view).getText().toString().trim();
-      if (val.length() == 0) { return false; }
-      try
+      final String val = getCleanNumber((TextView)view);
+      if (val != null)
       {
-        final YearMonth ym = YearMonth.parse(val, DateTimeFormat.forPattern("MM/YY"));
-        return ym != null && ym.isAfter(YearMonth.now());
+        try
+        {
+          final YearMonth ym = YearMonth.parse(val, DateTimeFormat.forPattern("MMYY"));
+          return ym != null && ym.isAfter(YearMonth.now());
+        }
+        catch (final IllegalArgumentException ignored) {}
       }
-      catch (final IllegalArgumentException ignored)
-      {
-        return false;
-      }
+      return false;
     }
 
     /**
@@ -361,9 +363,9 @@ public class CreditCardView extends RelativeLayout
     @Override
     public boolean validate(final View view)
     {
-      final String val = ((TextView)view).getText().toString().trim();
-      final CreditCard.Brand brand = CreditCard.Brand.fromCardNumber(numberView.getText().toString().trim());
-      return brand != null && val.length() == brand.cscLength;
+      final String val = getCleanNumber((TextView)view);
+      final CreditCard.Brand brand = CreditCard.Brand.fromCardNumber(getCleanNumber(numberView));
+      return val != null && brand != null && val.length() == brand.cscLength;
     }
 
     /**

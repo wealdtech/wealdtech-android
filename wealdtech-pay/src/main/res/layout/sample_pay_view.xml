@@ -2,6 +2,7 @@
     xmlns:wallet="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <!--
 
     <fragment
         android:id="@+id/wallet_fragment"
@@ -10,4 +11,5 @@
         android:layout_height="wrap_content"
         wallet:environment="test"
         wallet:fragmentMode="buyButton"/>
+-->
 </LinearLayout>

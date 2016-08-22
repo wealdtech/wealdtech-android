@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,6 +23,7 @@ import org.joda.time.LocalDate;
 
 import java.util.Locale;
 
+import static com.wealdtech.android.ComponentUtils.getCleanText;
 import static com.wealdtech.android.CreditCardView.CreditCardChangeViewTrigger.creditCardChanges;
 import static com.wealdtech.android.CreditCardView.CreditCardValidator.creditCardValidator;
 import static com.wealdtech.android.DateView.DateChangeViewTrigger.dateChanges;
@@ -110,33 +110,10 @@ public class PayManualFragment extends Fragment
     final NationalityAdapter nationalityAdapter = new NationalityAdapter(getContext());
     nationality.setAdapter(nationalityAdapter);
     nationality.setSelection(nationalityAdapter.positionForCode(Locale.getDefault().getCountry()));
-    nationality.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-    {
-      @Override
-      public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
-      {
-        //        nationality = nationalityAdapter.getItem(i).getCode();
-      }
-
-      @Override
-      public void onNothingSelected(final AdapterView<?> adapterView){}
-    });
-
 
     final CountryAdapter residenceAdapter = new CountryAdapter(getContext());
     residence.setAdapter(residenceAdapter);
     residence.setSelection(residenceAdapter.positionForCode(Locale.getDefault().getCountry()));
-    residence.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
-    {
-      @Override
-      public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
-      {
-        //        residence = residenceAdapter.getItem(i).getCode();
-      }
-
-      @Override
-      public void onNothingSelected(final AdapterView<?> adapterView){}
-    });
 
     setupValidationLogic();
     return view;
@@ -283,64 +260,5 @@ public class PayManualFragment extends Fragment
     {
       nationality.setSelection(pos);
     }
-  }
-
-//  public String getCardNumber()
-//  {
-//    return card.getCreditCard().getCardNumber();
-//  }
-//
-//  public void setCardNumber(final String cardNumber)
-//  {
-//    card.setCardNumber(cardNumber, true);
-//  }
-//
-//  public String getCvv()
-//  {
-//    return card.getCreditCard().getSecurityCode();
-//  }
-//
-//  public YearMonth getExpiry()
-//  {
-//    return new YearMonth(card.getCreditCard().getExpYear() + 2000, card.getCreditCard().getExpMonth());
-//  }
-//
-//  public void setExpiry(final YearMonth expiry)
-//  {
-//    card.setExpDate(expiry.getMonthOfYear() + "/" + (expiry.getYear() - 2000), true);
-//  }
-
-  /**
-   * Obtain a sane version of a text view
-   *
-   * @param view the view
-   *
-   * @return a clean version of the contents of the text view; empty string will be {@code null} rather than ""
-   */
-  @Nullable
-  public static String getCleanText(final TextView view)
-  {
-    return getCleanText(view.getText().toString());
-  }
-
-  /**
-   * Obtain a sane string given an input string
-   *
-   * @param val the input string
-   *
-   * @return a clean version of the contents of the string; empty string will be {@code null} rather than ""
-   */
-  @Nullable
-  public static String getCleanText(String val)
-  {
-    if (val != null)
-    {
-      val = val.trim();
-    }
-    if (val == null || val.equals(""))
-    {
-      return null;
-    }
-    return val;
   }
 }
