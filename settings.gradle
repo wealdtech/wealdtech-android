@@ -11,7 +11,7 @@
 include 'wealdtech-alarms',
         'wealdtech-components',
         'wealdtech-ears:model',
-        'wealdtech-ears:services',
+        'wealdtech-ears:services:base',
         'wealdtech-ears:services:google',
         'wealdtech-ears:services:pocketsphinx',
         'wealdtech-fabric',
@@ -21,3 +21,16 @@ include 'wealdtech-alarms',
         'wealdtech-roberto',
         'wealdtech-test',
         'wealdtech-tiles'
+
+// We want each project to have a unique name.
+// If not, then gradle confuses :a:x and :b:x as they have the same last element
+// So here we set the project's names to their full path i.e. a-x and b-x
+def nameProject(project) {
+  project.children.each {subproject ->
+    if (new File(subproject.projectDir, "src").exists()) {
+      subproject.name = subproject.path.replaceAll(':', '-').substring(1)
+    }
+    nameProject(subproject)
+  }
+}
+nameProject(rootProject)
