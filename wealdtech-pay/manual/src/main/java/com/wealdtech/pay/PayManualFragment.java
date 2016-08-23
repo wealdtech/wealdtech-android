@@ -13,14 +13,19 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.wealdtech.CreditCard;
 import com.wealdtech.android.CountryAdapter;
 import com.wealdtech.android.CreditCardView;
 import com.wealdtech.android.DateView;
 import com.wealdtech.android.NationalityAdapter;
+import com.wealdtech.android.fabric.Rule;
+import com.wealdtech.android.fabric.action.Action;
 import com.wealdtech.android.pay.manual.R;
 import io.card.payment.CardIOActivity;
 import org.joda.time.LocalDate;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.wealdtech.android.ComponentUtils.getCleanText;
@@ -29,8 +34,12 @@ import static com.wealdtech.android.CreditCardView.CreditCardValidator.creditCar
 import static com.wealdtech.android.DateView.DateChangeViewTrigger.dateChanges;
 import static com.wealdtech.android.fabric.Rule.just;
 import static com.wealdtech.android.fabric.Rule.when;
+import static com.wealdtech.android.fabric.action.DisableViewAction.disable;
+import static com.wealdtech.android.fabric.action.EnableViewAction.enable;
 import static com.wealdtech.android.fabric.action.TextColorAction.textColor;
+import static com.wealdtech.android.fabric.condition.AndCondition.allOf;
 import static com.wealdtech.android.fabric.condition.ValidCondition.valid;
+import static com.wealdtech.android.fabric.trigger.ClickViewTrigger.click;
 import static com.wealdtech.android.fabric.trigger.TextChangeViewTrigger.textChanges;
 import static com.wealdtech.android.fabric.validator.EmailValidator.emailValidator;
 import static com.wealdtech.android.fabric.validator.PresentValidator.presentValidator;
@@ -61,6 +70,8 @@ public class PayManualFragment extends Fragment
   private Button submit;
 
   public PayManualFragment(){}
+
+  List<OnSubmitListener> listeners = new ArrayList<>();
 
   @Override
   public void onCreate(@Nullable final Bundle savedInstanceState)
@@ -124,7 +135,7 @@ public class PayManualFragment extends Fragment
     final int validColor = ContextCompat.getColor(getContext(), R.color.validInput);
     final int invalidColor = ContextCompat.getColor(getContext(), R.color.invalidInput);
 
-    // Set initial colours
+    // Set initial state
     just(textColor(firstNameLabel, invalidColor));
     just(textColor(lastNameLabel, invalidColor));
     just(textColor(emailLabel, invalidColor));
@@ -132,27 +143,59 @@ public class PayManualFragment extends Fragment
     just(textColor(nationalityLabel, validColor));
     just(textColor(residenceLabel, validColor));
     just(textColor(cardLabel, invalidColor));
+    just(disable(submit));
 
     // Set label validation colour
     when(textChanges(firstName)).and(valid(firstName, presentValidator()))
                                          .then(textColor(firstNameLabel, validColor))
                                          .otherwise(textColor(firstNameLabel, invalidColor));
 
+    when(textChanges(firstName)).and(
+        allOf(valid(firstName, presentValidator()), valid(lastName, presentValidator()), valid(email, emailValidator()),
+              valid(dob, presentValidator()), valid(card, creditCardValidator()))).then(enable(submit)).otherwise(disable(submit));
+
     when(textChanges(lastName)).and(valid(lastName, presentValidator()))
                                         .then(textColor(lastNameLabel, validColor))
                                         .otherwise(textColor(lastNameLabel, invalidColor));
+
+    when(textChanges(lastName)).and(
+        allOf(valid(firstName, presentValidator()), valid(lastName, presentValidator()), valid(email, emailValidator()),
+              valid(dob, presentValidator()), valid(card, creditCardValidator()))).then(enable(submit)).otherwise(disable(submit));
 
     when(textChanges(email)).and(valid(email, emailValidator()))
                                      .then(textColor(emailLabel, validColor))
                                      .otherwise(textColor(emailLabel, invalidColor));
 
+    when(textChanges(email)).and(
+        allOf(valid(firstName, presentValidator()), valid(lastName, presentValidator()), valid(email, emailValidator()),
+              valid(dob, presentValidator()), valid(card, creditCardValidator()))).then(enable(submit)).otherwise(disable(submit));
+
     when(dateChanges(dob)).and(valid(dob, presentValidator()))
                                      .then(textColor(dobLabel, validColor))
                                      .otherwise(textColor(dobLabel, invalidColor));
 
+    when(dateChanges(dob)).and(
+        allOf(valid(firstName, presentValidator()), valid(lastName, presentValidator()), valid(email, emailValidator()),
+              valid(dob, presentValidator()), valid(card, creditCardValidator()))).then(enable(submit)).otherwise(disable(submit));
+
     when(creditCardChanges(card)).and(valid(card, creditCardValidator()))
                                           .then(textColor(cardLabel, validColor))
                                           .otherwise(textColor(cardLabel, invalidColor));
+
+    when(creditCardChanges(card)).and(
+        allOf(valid(firstName, presentValidator()), valid(lastName, presentValidator()), valid(email, emailValidator()),
+              valid(dob, presentValidator()), valid(card, creditCardValidator()))).then(enable(submit)).otherwise(disable(submit));
+
+    when(click(submit)).then(new Action(){
+      @Override
+      public void act(final Rule rule)
+      {
+        for (final OnSubmitListener listener : listeners)
+        {
+          listener.onSubmit(PayManualFragment.this);
+        }
+      }
+    });
   }
 
   /**
@@ -260,5 +303,22 @@ public class PayManualFragment extends Fragment
     {
       residence.setSelection(pos);
     }
+  }
+
+  public CreditCard getCreditCard() { return card.getCreditCard(); }
+
+  public void addOnSubmitListener(final OnSubmitListener listener)
+  {
+    listeners.add(listener);
+  }
+
+  public void removeOnSubmitListener(final OnSubmitListener listener)
+  {
+    listeners.remove(listener);
+  }
+
+  public interface OnSubmitListener
+  {
+    void onSubmit(PayManualFragment fragment);
   }
 }
