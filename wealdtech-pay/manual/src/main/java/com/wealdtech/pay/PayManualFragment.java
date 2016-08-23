@@ -129,8 +129,8 @@ public class PayManualFragment extends Fragment
     just(textColor(lastNameLabel, invalidColor));
     just(textColor(emailLabel, invalidColor));
     just(textColor(dobLabel, invalidColor));
-    just(textColor(nationalityLabel, invalidColor));
-    just(textColor(residenceLabel, invalidColor));
+    just(textColor(nationalityLabel, validColor));
+    just(textColor(residenceLabel, validColor));
     just(textColor(cardLabel, invalidColor));
 
     // Set label validation colour
@@ -258,7 +258,7 @@ public class PayManualFragment extends Fragment
     }
     else
     {
-      nationality.setSelection(pos);
+      residence.setSelection(pos);
     }
   }
 }
