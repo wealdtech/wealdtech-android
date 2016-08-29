@@ -14,18 +14,17 @@ import android.os.AsyncTask;
 import com.wealdtech.android.fabric.Rule;
 
 /**
- * An action that delays for a certain amount of time prior to triggering.  It only triggers if another delayed action has
- * not started during the time that it was waiting
+ * An action that delays for a certain amount of time prior to triggering.  If the action is called again then before the delay
+ * completes then it is cancelled and the new action is started.
  */
 public class DelayedAction extends Action
 {
   private final Action action;
 
-  private int seq = 0;
+  private static final Long DEFAULT_DELAY = 250L;
 
   private long delayInMs;
-
-  private int getSeq(){ return seq; }
+  private WaitTask lastWaitTask;
 
   private DelayedAction(final Action action, final long delayInMs)
   {
@@ -35,30 +34,53 @@ public class DelayedAction extends Action
 
   public void act(final Rule rule)
   {
-    new AsyncTask<Integer, Void, Integer>()
+    synchronized (this)
     {
-      @Override
-      protected Integer doInBackground(final Integer... integers)
+      if (lastWaitTask != null)
       {
-        try {Thread.sleep(delayInMs); } catch (final InterruptedException ignored) {}
-        return integers[0];
+        lastWaitTask.cancel(true);
       }
+      lastWaitTask = new WaitTask(rule, action);
+      lastWaitTask.execute();
+    }
+  }
 
-      @Override
-      protected void onPostExecute(final Integer seq)
-      {
-        if (getSeq() == seq)
-        {
-          // No additional events since; do the work
-          action.act(rule);
-        }
-      }
-    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ++seq);
-    seq %= Integer.MAX_VALUE;
+  public static Action delayedAction(final Action action)
+  {
+    return new DelayedAction(action, DEFAULT_DELAY);
   }
 
   public static Action delayedAction(final Action action, final long delayInMs)
   {
     return new DelayedAction(action, delayInMs);
+  }
+
+  private class WaitTask extends AsyncTask<Void, Void, Void>
+  {
+    private final Rule rule;
+    private final Action action;
+
+    public WaitTask(final Rule rule, final Action action)
+    {
+      this.rule = rule;
+      this.action = action;
+    }
+    @Override
+    protected Void doInBackground(final Void... params)
+    {
+      try
+      {
+        Thread.sleep(delayInMs);
+      }
+      catch (final InterruptedException ignored) {}
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(final Void result)
+    {
+      action.act(rule);
+      lastWaitTask = null;
+    }
   }
 }
