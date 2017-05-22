@@ -20,15 +20,15 @@ local.properties
 .classpath
 .project
 
+#
 # IntelliJ
+#
+*.iml
 .idea/workspace.xml
 .idea/tasks.xml
-.idea/vcs.xml
 .idea/gradle.xml
+.idea/dictionaries
 .idea/libraries
-.idea/misc.xml
-.idea/modules/
-.idea/modules.xml
 
 # Gradle
 .gradle/
