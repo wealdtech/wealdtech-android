@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Fabric is an infrastructure component with two goals.  First it acts as a store of information which is globally accessible and
@@ -250,6 +252,27 @@ public class Fabric
       Log.e(TAG, "Error is ", ioe);
       return null;
     }
+  }
+
+  /**
+   * Fetch all items from global scope that match the provided pattern
+   * @param pattern the pattern
+   * @param klazz the class of the items to return
+   * @param <T> the class of the items to return
+   * @return a map of returned items; possibly empty
+   */
+  public <T> Map<String, T> getMatching(final String pattern, final Class<T> klazz)
+  {
+    final Pattern p = Pattern.compile(pattern);
+    final Map<String, T> results = new HashMap<>();
+    for (final String key : globalScope.keySet())
+    {
+      if (p.matcher(key).matches())
+      {
+        results.put(key, get(key, klazz));
+      }
+    }
+    return results;
   }
 
   /**
