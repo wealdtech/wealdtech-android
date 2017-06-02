@@ -16,34 +16,28 @@ import com.wealdtech.android.fabric.Rule;
 
 /**
  */
-public class ItemSelectViewTrigger extends AdapterViewTrigger
+public class ItemClickViewTrigger extends AdapterViewTrigger
 {
-  public ItemSelectViewTrigger(final AdapterView view)
+  public ItemClickViewTrigger(final AdapterView view)
   {
     super(view);
   }
 
-  private AdapterView.OnItemSelectedListener listener = null;
+  private AdapterView.OnItemClickListener listener = null;
 
   @Override
   public void setUp(final Rule dta)
   {
-    listener = new AdapterView.OnItemSelectedListener()
+    listener = new AdapterView.OnItemClickListener()
     {
       @Override
-      public void onItemSelected(final AdapterView<?> adapterView, final View view, final int i, final long l)
-      {
-        dta.act();
-      }
-
-      @Override
-      public void onNothingSelected(final AdapterView<?> adapterView)
+      public void onItemClick(final AdapterView<?> adapterView, final View view, final int i, final long l)
       {
         dta.act();
       }
     };
 
-    view.setOnItemSelectedListener(listener);
+    view.setOnItemClickListener(listener);
   }
 
   void tearDown()
@@ -54,8 +48,8 @@ public class ItemSelectViewTrigger extends AdapterViewTrigger
     }
   }
 
-  public static ItemSelectViewTrigger itemSelect(final AdapterView view)
+  public static ItemClickViewTrigger itemClick(final AdapterView view)
   {
-    return new ItemSelectViewTrigger(view);
+    return new ItemClickViewTrigger(view);
   }
 }
