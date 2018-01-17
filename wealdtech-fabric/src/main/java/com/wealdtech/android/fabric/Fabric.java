@@ -227,7 +227,11 @@ public class Fabric
       return null;
     }
 
-    return WealdMapper.getMapper().readValue(stringify(obj, Collection.class.isAssignableFrom(klazz)), klazz);
+    final String objStr = stringify(obj, Collection.class.isAssignableFrom(klazz));
+    if (objStr == null) {
+      return null;
+    }
+    return WealdMapper.getMapper().readValue(objStr, klazz);
   }
 
   /**
